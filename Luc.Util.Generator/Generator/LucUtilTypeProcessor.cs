@@ -25,6 +25,15 @@ internal partial class LucUtilTypeProcessor
     private readonly string _typeNamespaceName;
     private readonly string _typeInFile;
     private readonly string _typeAssemblyName;
+
+
+    internal string? AuthPolicyName { get; private set; } = null;
+    internal string? AuthPolicySrcMethodBody { get; private set; } = null;
+    internal string? AuthPolicySrcIdClass { get; private set; } = null;
+
+    internal string? AuthSchemeName { get; private set; } = null;
+    internal string? AuthSchemeSrcMethodBody { get; private set; } = null;
+    internal string? AuthSchemeSrcIdClass { get; private set; } = null;
     
     public LucUtilTypeProcessor( LucUtilAssemblyProcessor assemblyProcessor, GeneratorSyntaxContext context ) 
     {        
@@ -105,10 +114,25 @@ internal partial class LucUtilTypeProcessor
             return;
         } 
 
-        // get class name minus prefix AuthScheme
-         
+        if( !_typeName.StartsWith( "AuthScheme" ) )
+        {
+            ReportWarning
+            ( 
+                msgSeverity: DiagnosticSeverity.Error, 
+                msgId: "LUC0123", 
+                msgFormat: $"""
+                    Luc.Util: The type {_typeNameFull} must be in the namespace {_typeAssemblyName}.Web.AuthSchemes.AuthScheme<name>
+                    
+                    The <name> should be replaced by the desired scheme name.
+                    """, 
+                srcLocation: _type.GetLocation() 
+            );
+            return;
+        }
 
-        var attrName = attr.LucGetAttributeValue( "Name" );
+        
+        AuthSchemeName = _typeName.Substring( "AuthScheme".Length );
+
         var generatedMethodName = attr.LucGetAttributeValue( "GeneratedMethodName" ).LucIfNullOrEmptyReturn($"MapAuthSchemes_{_typeAssemblyName.Replace(".","")}");
 
         // verifica se generatedMethodName é um nome de método válido
@@ -127,23 +151,23 @@ internal partial class LucUtilTypeProcessor
         }
 
          // verifica se generatedMethodName é um nome de método válido
-        if( !RegexValidPropertyName().IsMatch(attrName))
+        if( !RegexValidPropertyName().IsMatch(AuthSchemeName))
         {
             ReportWarning
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC00418", 
                 msgFormat: $"""
-                    Luc.Util: The Name '{attrName}' needs to be a valid property name
+                    Luc.Util: The Name '{AuthSchemeName}' needs to be a valid property name
                     """, 
-                srcLocation: attr.LucGetAttributeArgumentLocation("Name") 
+                srcLocation: _type.GetLocation() 
             );
             return;
         }
 
-        _assemblyProcessor.AddGeneratedSrc_AuthSchemeMappingMethod(generatedMethodName,"");                    
+        _assemblyProcessor.AddGeneratedSrc_AuthSchemeMappingMethod(generatedMethodName,this);                    
 
-        var expectedFullTypeName = $"{_typeAssemblyName}.Web.AuthSchemes.AuthScheme{attrName}";      
+        var expectedFullTypeName = $"{_typeAssemblyName}.Web.AuthSchemes.AuthScheme{AuthSchemeName}";      
         if( _typeNameFull != expectedFullTypeName ) 
         {
             ReportWarning
@@ -151,19 +175,17 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0013", 
                 msgFormat: $"""
-                    Luc.Util: The Auth Scheme {attrName} must be implemented in the type {expectedFullTypeName}                    
+                    Luc.Util: The Auth Scheme {AuthSchemeName} must be implemented in the type {expectedFullTypeName}                    
                 """,
                 srcLocation: _type.GetLocation() 
             );
             return;
         }         
 
-
-
-        var srcAuthPolicyMapping = $$"""
+        AuthSchemeSrcMethodBody = $$"""
 
                         // The code bellow is generated based on:
-                        //   AUTH SCHEME {{attrName}}
+                        //   AUTH SCHEME {{AuthSchemeName}}
                         //   File: {{_typeInFile}} 
                         //   Line: {{_type.GetLocation().GetLineSpan().StartLinePosition.Line}}
                         //    Col: {{_type.GetLocation().GetLineSpan().StartLinePosition.Character}}
@@ -173,15 +195,23 @@ internal partial class LucUtilTypeProcessor
                         (
                             services.AddAuthentication
                             (
-                               "{{attrName}}"
+                               "{{AuthSchemeName}}"
                             )
                         );
                         ;            
  
             """;      
-       
+
+        AuthSchemeSrcIdClass = $$"""
+            namespace {{_typeNamespaceName}}
+            {
+                public static partial class {{_typeName}}
+                {
+                    public const string Id = "{{AuthSchemeName}}";
+                }
+            }
+            """;
         
-        _assemblyProcessor.AddGeneratedSrc_AuthPolicyMappingMethod(generatedMethodName,srcAuthPolicyMapping);                    
                 
         ReportWarning
         ( 
@@ -190,9 +220,13 @@ internal partial class LucUtilTypeProcessor
             msgFormat: $$"""
                 Luc.Util: Fragment includedd in the generated method                                
 
-                Fragment:
+                Method Body Fragment:
 
-                {{srcAuthPolicyMapping}}
+                {{AuthSchemeSrcMethodBody}}
+
+                Id Class Fragment:
+
+                {{AuthSchemeSrcIdClass}}
                 """, 
             srcLocation: _type.GetLocation() 
         );          
@@ -253,7 +287,7 @@ internal partial class LucUtilTypeProcessor
             return;
         } 
 
-        var attrName = attr.LucGetAttributeValue( "Name" );
+        AuthPolicyName = _typeName.Substring( "AuthPolicy".Length );
         var generatedMethodName = attr.LucGetAttributeValue( "GeneratedMethodName" ).LucIfNullOrEmptyReturn($"MapAuthPolicies_{_typeAssemblyName.Replace(".","")}");
 
         // verifica se generatedMethodName é um nome de método válido
@@ -272,23 +306,35 @@ internal partial class LucUtilTypeProcessor
         }
 
          // verifica se generatedMethodName é um nome de método válido
-        if( !RegexValidPropertyName().IsMatch(attrName))
+        if( !RegexValidPropertyName().IsMatch(AuthPolicyName))
         {
             ReportWarning
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0018", 
                 msgFormat: $"""
-                    Luc.Util: The Name '{attrName}' needs to be a valid property name
+                    Luc.Util: The Name '{AuthPolicyName}' needs to be a valid property name
                     """, 
-                srcLocation: attr.LucGetAttributeArgumentLocation("Name") 
+                srcLocation: _type.GetLocation()
             );
             return;
         }
 
-        _assemblyProcessor.AddGeneratedSrc_AuthPolicyMappingMethod(generatedMethodName,"");                    
+        
+        AuthPolicySrcIdClass = $$"""
+            namespace {{_typeNamespaceName}}
+            {
+                public static partial class {{_typeName}}
+                {
+                    public const string Id = "{{AuthPolicyName}}";
+                }
+            }
+            """;
+        
 
-        var expectedFullTypeName = $"{_typeAssemblyName}.Web.AuthPolicies.AuthPolicy{attrName}";      
+        _assemblyProcessor.AddGeneratedSrc_AuthPolicyMappingMethod(generatedMethodName,this);                    
+
+        var expectedFullTypeName = $"{_typeAssemblyName}.Web.AuthPolicies.AuthPolicy{AuthPolicyName}";      
         if( _typeNameFull != expectedFullTypeName ) 
         {
             ReportWarning
@@ -296,32 +342,28 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0013", 
                 msgFormat: $"""
-                    Luc.Util: The Auth Policy {attrName} must be implemented in the type {expectedFullTypeName}                    
+                    Luc.Util: The Auth Policy {AuthPolicyName} must be implemented in the type {expectedFullTypeName}                    
                 """,
                 srcLocation: _type.GetLocation() 
             );
             return;
         }         
 
-        var srcAuthPolicyMapping = $$"""
+        AuthPolicySrcMethodBody = $$"""
 
                         // The code bellow is generated based on:
-                        //   POLICY {{attrName}}
+                        //   POLICY {{AuthPolicyName}}
                         //   File: {{_typeInFile}} 
                         //   Line: {{_type.GetLocation().GetLineSpan().StartLinePosition.Line}}
                         //    Col: {{_type.GetLocation().GetLineSpan().StartLinePosition.Character}}
                         //   Type: {{_typeNameFull}}
                                 
                         options.AddPolicy(
-                            "{{attrName}}", 
+                            "{{AuthPolicyName}}", 
                             {{_typeNameFull}}.Configure
-                        )
-                        ;            
+                        );            
  
             """;      
-       
-        
-        _assemblyProcessor.AddGeneratedSrc_AuthPolicyMappingMethod(generatedMethodName,srcAuthPolicyMapping);                    
                 
         ReportWarning
         ( 
@@ -330,9 +372,14 @@ internal partial class LucUtilTypeProcessor
             msgFormat: $$"""
                 Luc.Util: Fragment includedd in the generated method                                
 
-                Fragment:
+                Method Fragment:
 
-                {{srcAuthPolicyMapping}}
+                {{AuthPolicySrcMethodBody}}
+
+                Other Fragments:
+
+                {{AuthPolicySrcIdClass}}
+
                 """, 
             srcLocation: _type.GetLocation() 
         );          

@@ -17,8 +17,8 @@ internal partial class LucUtilAssemblyProcessor
     private readonly string? _assemblyName;
 
     public Dictionary<string,List<string>> GeneratedSrcEndpointMappings { get; internal set; } = [];
-    public Dictionary<string,List<string>> GeneratedSrcAuthPolicyMappings { get; internal set; } = [];
-    public Dictionary<string,List<string>> GeneratedSrcAuthSchemeMappings { get; internal set; } = [];
+    public Dictionary<string,List<LucUtilTypeProcessor>> GeneratedSrcAuthPolicyMappings { get; internal set; } = [];
+    public Dictionary<string,List<LucUtilTypeProcessor>> GeneratedSrcAuthSchemeMappings { get; internal set; } = [];
 
     public void AddGeneratedSrc_EndpointMappingMethod(string group, string methodSrc)
     {
@@ -31,7 +31,7 @@ internal partial class LucUtilAssemblyProcessor
         groupMap.Add(methodSrc);        
     }
 
-    public void AddGeneratedSrc_AuthPolicyMappingMethod(string group, string methodSrc)
+    public void AddGeneratedSrc_AuthPolicyMappingMethod(string group, LucUtilTypeProcessor processor )
     {
         var groupMap = GeneratedSrcAuthPolicyMappings.GetValueOrDefault(group);
         if( groupMap == null )
@@ -39,10 +39,10 @@ internal partial class LucUtilAssemblyProcessor
             groupMap = [];
             GeneratedSrcAuthPolicyMappings.Add(group, groupMap);
         }
-        groupMap.Add(methodSrc);        
+        groupMap.Add(processor);        
     }
 
-    public void AddGeneratedSrc_AuthSchemeMappingMethod(string group, string methodSrc)
+    public void AddGeneratedSrc_AuthSchemeMappingMethod(string group, LucUtilTypeProcessor processor )
     {
         var groupMap = GeneratedSrcAuthSchemeMappings.GetValueOrDefault(group);
         if( groupMap == null )
@@ -50,7 +50,7 @@ internal partial class LucUtilAssemblyProcessor
             groupMap = [];
             GeneratedSrcAuthSchemeMappings.Add(group, groupMap);
         }
-        groupMap.Add(methodSrc);        
+        groupMap.Add(processor);        
     }
 
 
@@ -142,28 +142,28 @@ internal partial class LucUtilAssemblyProcessor
 
     private void GenerateEndpointMappings() 
     {
-        var generatedEndpointMappings = new StringBuilder();
+        var srcMethods = new StringBuilder();
 
         foreach( var group in GeneratedSrcEndpointMappings )
         {
-            var generatedMethodBody = new StringBuilder();
+            var srcMethodBody = new StringBuilder();
             foreach (var methodSrc in group.Value)
             {
-                generatedMethodBody.Append(methodSrc);
+                srcMethodBody.Append(methodSrc);
             }
 
-            generatedEndpointMappings.Append($$"""
+            srcMethods.Append($$"""
                 
                     public static void {{group.Key}}(this IEndpointRouteBuilder app)
                     {
-                        {{generatedMethodBody}}
+                        {{srcMethodBody}}
                     }
                     
                 """);
         }         
     
-        var srcBuilder = new StringBuilder();
-        srcBuilder.AppendLine($$"""
+        var srcExtension = new StringBuilder();
+        srcExtension.AppendLine($$"""
             using System;
             using System.Collections.Generic;
             using System.Linq;
@@ -175,32 +175,35 @@ internal partial class LucUtilAssemblyProcessor
             using Microsoft.AspNetCore.Routing;
             using Microsoft.AspNetCore.Authorization;
         
-            namespace {{_assemblyName}}.Generated;
-
-            public static class GeneratedEndpointMappings
+            namespace {{_assemblyName}}.Generated
             {
-                {{generatedEndpointMappings}}
+                public static class GeneratedEndpointMappings
+                {
+                    {{srcMethods}}
+                }
             }
             """);
 
-        Context.AddSource("GeneratedEndpointMappings.g.cs", srcBuilder.ToString()); 
+        Context.AddSource("GeneratedEndpointMappings.g.cs", srcExtension.ToString()); 
     }
 
     private void GenerateAuthPolicyMappings() 
     {
-        var generatedAuthPolicyMappings = new StringBuilder();
+        var srcMethods = new StringBuilder();
+        var srcOthers = new StringBuilder();
 
         foreach( var group in GeneratedSrcAuthPolicyMappings )
         {
-            var generatedMethodBody = new StringBuilder();
-            foreach (var methodSrc in group.Value)
+            var srcMethodBody = new StringBuilder();
+            foreach (var method in group.Value)
             {
-                generatedMethodBody.Append(methodSrc);
+                srcMethodBody.Append(method.AuthPolicySrcMethodBody);
+                srcOthers.Append(method.AuthPolicySrcIdClass);
             }
 
-            generatedMethodBody.Clear();
+            srcMethodBody.Clear();
 
-            generatedAuthPolicyMappings.Append($$"""
+            srcMethods.Append($$"""
                 
                     public static void {{group.Key}}(this WebApplicationBuilder builder)
                     {
@@ -211,47 +214,52 @@ internal partial class LucUtilAssemblyProcessor
                     {
                         services.AddAuthorization( options => 
                         {
-                            {{generatedMethodBody}}
+                            {{srcMethodBody}}
                         });
                     }
                     
                 """);
         }         
      
-        var srcBuilder = new StringBuilder();
-        srcBuilder.AppendLine($$"""
+        var srcExtension = new StringBuilder();
+        srcExtension.AppendLine($$"""
             using System;
             using System.Collections.Generic;
             using System.Linq;
             using System.Threading.Tasks;                        
         
-            namespace {{_assemblyName}}.Generated;
-
-            public static class GeneratedAuthPolicyMappings
+            namespace {{_assemblyName}}.Generated 
             {
-                {{generatedAuthPolicyMappings}}
+                public static class GeneratedAuthPolicyMappings
+                {
+                    {{srcMethods}}
+                }
             }
+
+            {{srcOthers}}
             """);
 
-        Context.AddSource("GeneratedAuthPolicyMappings.g.cs", srcBuilder.ToString()); 
+        Context.AddSource("GeneratedAuthPolicyMappings.g.cs", srcExtension.ToString()); 
     }
 
 
     private void GenerateAuthSchemeMappings() 
-    {
-        var generatedAuthSchemeMappings = new StringBuilder();
+    {        
+        var srcMethods = new StringBuilder();
+        var srcOthers = new StringBuilder();
 
         foreach( var group in GeneratedSrcAuthSchemeMappings )
         {
-            var generatedMethodBody = new StringBuilder();
-            foreach (var methodSrc in group.Value)
+            var srcMethodBody = new StringBuilder();
+            foreach (var method in group.Value)
             {
-                generatedMethodBody.Append(methodSrc);
+                srcMethodBody.Append(method.AuthSchemeSrcMethodBody);              
+                srcOthers.Append(method.AuthSchemeSrcIdClass);
             }
 
-            generatedMethodBody.Clear();
+            srcMethodBody.Clear();
 
-            generatedAuthSchemeMappings.Append($$"""
+            srcMethods.Append($$"""
                 
                     public static void {{group.Key}}(this WebApplicationBuilder builder)
                     {
@@ -279,30 +287,34 @@ internal partial class LucUtilAssemblyProcessor
                             });
 
                             framework.IsAuthSchemeInititlized = true;
-                        }
+                        }  
 
-                        {{generatedMethodBody}}
+                        {{srcMethodBody}}
                     }
                     
                 """);
         }         
      
-        var srcBuilder = new StringBuilder();
-        srcBuilder.AppendLine($$"""
+        var srcExtension = new StringBuilder();
+        srcExtension.AppendLine($$"""
             using System;
             using System.Collections.Generic;
             using System.Linq;
-            using System.Threading.Tasks;                        
+            using System.Threading.Tasks;   
+            using Luc.Util.Web;                     
         
-            namespace {{_assemblyName}}.Generated;
-
-            public static class GeneratedAuthPolicyMappings
+            namespace {{_assemblyName}}.Generated 
             {
-                {{generatedAuthSchemeMappings}}
+                public static class GeneratedAuthSchemeMappings
+                {
+                    {{srcMethods}}
+                }
             }
+
+            {{srcOthers}}
             """);
 
-        Context.AddSource("GeneratedAuthSchemeMappings.g.cs", srcBuilder.ToString()); 
+        Context.AddSource("GeneratedAuthSchemeMappings.g.cs", srcExtension.ToString()); 
     }
 
 

@@ -2,6 +2,6 @@ namespace Luc.Util.Web;
 
 public class LucFramework
 {
-  public bool IsAuthSchemeInititlized { get; set; } = false;
+  public bool IsAuthSchemeInitialized { get; set; } = false;
 }
 
