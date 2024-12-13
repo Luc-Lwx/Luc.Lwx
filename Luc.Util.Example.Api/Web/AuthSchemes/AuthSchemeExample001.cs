@@ -9,7 +9,7 @@ namespace Luc.Util.Example.Api.Web.AuthSchemes;
 [LucAuthScheme(
   Name = "Example001" 
 )]
-public partial class AuthSchemeExample001
+public static partial class AuthSchemeExample001
 {
   public static void Configure( AuthenticationBuilder authBuilder ) 
   {

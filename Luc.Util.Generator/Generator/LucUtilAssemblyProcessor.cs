@@ -13,7 +13,7 @@ internal partial class LucUtilAssemblyProcessor
     public SourceProductionContext Context { get; private set; }
     public ImmutableArray<GeneratorSyntaxContext> TypeSymbols { get; private set; }
     public string ProjectDir { get; private set; }
-    public AppSettingsDTO? AppSettings { get; private set; }
+    public AppSettingsLayout? AppSettings { get; private set; }
     private readonly string? _assemblyName;
 
     public Dictionary<string,List<string>> GeneratedSrcEndpointMappings { get; internal set; } = [];
@@ -64,13 +64,13 @@ internal partial class LucUtilAssemblyProcessor
         Context = sourceProductionContext;
         TypeSymbols = typeSymbols;
 
-        AppSettingsDTO? appSettings = null;            
+        AppSettingsLayout? appSettings = null;            
         try 
         {
             var appSettingsText = appSettingsFiles.FirstOrDefault();
             if( appSettingsText != null )
             {
-                appSettings = JsonSerializer.Deserialize<AppSettingsDTO>(appSettingsText);
+                appSettings = JsonSerializer.Deserialize<AppSettingsLayout>(appSettingsText);
             }
         }
         catch( Exception ex )
@@ -87,8 +87,8 @@ internal partial class LucUtilAssemblyProcessor
                 srcLocation: null 
             );
         }     
-        appSettings ??= new AppSettingsDTO();   
-        appSettings.LucUtil ??= new AppSettingsSectionDTO();   
+        appSettings ??= new AppSettingsLayout();   
+        appSettings.LucUtil ??= new AppSettingsSectionLayout();   
         AppSettings = appSettings;
         
         
@@ -136,6 +136,7 @@ internal partial class LucUtilAssemblyProcessor
        
         GenerateEndpointMappings();
         GenerateAuthPolicyMappings();
+        GenerateAuthSchemeMappings();
           
     }
 
@@ -236,7 +237,7 @@ internal partial class LucUtilAssemblyProcessor
     }
 
 
-     private void GenerateAuthSchemeMappings() 
+    private void GenerateAuthSchemeMappings() 
     {
         var generatedAuthSchemeMappings = new StringBuilder();
 

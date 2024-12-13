@@ -6,7 +6,7 @@ namespace Luc.Util.Example.Api.Web.AuthPolicies;
 [LucAuthPolicy(
   Name = "Example001" 
 )]
-public partial class AuthPolicyExample001
+public static partial class AuthPolicyExample001
 {
   public static void Configure( AuthorizationPolicyBuilder policy ) 
   {   

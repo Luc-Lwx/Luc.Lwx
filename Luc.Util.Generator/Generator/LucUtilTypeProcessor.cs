@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using Luc.Util.Web;
 using Microsoft.CodeAnalysis;
@@ -7,6 +9,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Luc.Util.Generator;
 
 
+[SuppressMessage("","S4487",Justification="Unused variables are kept for future use. This is still a prototype.")]
+[SuppressMessage("","S1481",Justification="Unused variables are kept for future use. This is still a prototype.")]
+[SuppressMessage("","S1192",Justification="This is a compiler plugin and will not affect the performance of production code, therefore, extenalization of strings is not really necessary")]
+[SuppressMessage("","S3626",Justification="Some redundancy is useful")]
 internal partial class LucUtilTypeProcessor 
 {
     private readonly LucUtilAssemblyProcessor _assemblyProcessor;
@@ -74,7 +80,7 @@ internal partial class LucUtilTypeProcessor
         if (attr == null) return;
 
 
-        if( _typeSymbol.LucIsPartialType() == false )
+        if( !_typeSymbol.LucIsPartialType() )
         {
             ReportWarning
             ( 
@@ -92,12 +98,15 @@ internal partial class LucUtilTypeProcessor
             ReportWarning
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
-                msgId: "LUC006", 
+                msgId: "LUC0123", 
                 msgFormat: $"""Luc.Util: The type {_typeNameFull} must be in the namespace {_typeAssemblyName}.Web.AuthSchemes""", 
                 srcLocation: _type.GetLocation() 
             );
             return;
         } 
+
+        // get class name minus prefix AuthScheme
+         
 
         var attrName = attr.LucGetAttributeValue( "Name" );
         var generatedMethodName = attr.LucGetAttributeValue( "GeneratedMethodName" ).LucIfNullOrEmptyReturn($"MapAuthSchemes_{_typeAssemblyName.Replace(".","")}");
@@ -108,7 +117,7 @@ internal partial class LucUtilTypeProcessor
             ReportWarning
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
-                msgId: "LUC0018", 
+                msgId: "LUC01232", 
                 msgFormat: $"""
                     Luc.Util: The generatedMethodName '{generatedMethodName}' is not a valid method name
                     """, 
@@ -123,7 +132,7 @@ internal partial class LucUtilTypeProcessor
             ReportWarning
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
-                msgId: "LUC0018", 
+                msgId: "LUC00418", 
                 msgFormat: $"""
                     Luc.Util: The Name '{attrName}' needs to be a valid property name
                     """, 
@@ -220,7 +229,7 @@ internal partial class LucUtilTypeProcessor
 
         if (attr == null) return;
 
-        if( _typeSymbol.LucIsPartialType() == false )
+        if( !_typeSymbol.LucIsPartialType() )
         {
             ReportWarning
             ( 
@@ -330,7 +339,7 @@ internal partial class LucUtilTypeProcessor
     }
 
 
-
+    [SuppressMessage("","S3776",Justification="This is a prototype, excessive complexity will be dealed in future versions")]
     private void DoGenerateEndpointMappings()
     {
         var attr = _typeSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass?.ToString() == typeof(LucEndpointAttribute).FullName);
@@ -493,7 +502,7 @@ internal partial class LucUtilTypeProcessor
             }
             else if( attrPath.StartsWith( $"{apiManagerPath}/" ) ) 
             {                
-                if( justificationForPathNotInApiManagerPrefix.LucIsNullOrEmpty() == false ) 
+                if( !justificationForPathNotInApiManagerPrefix.LucIsNullOrEmpty() ) 
                 {
                     ReportWarning
                     ( 
@@ -587,7 +596,7 @@ internal partial class LucUtilTypeProcessor
             expectedNamespace.LucIsNullOrEmpty() ?
                 $"{expectedTypeNameBase}.Endpoint{expectedShortTypeName}"
             :
-                $"{expectedTypeNameBase}.{expectedNamespace}.Endpoint{expectedShortTypeName}";        
+                $"{expectedTypeNameBase}.{expectedNamespace}.Endpoint{expectedShortTypeName}"        
         ;
 
         if( _typeNameFull != expectedFullTypeName ) 
@@ -730,7 +739,7 @@ internal partial class LucUtilTypeProcessor
                       
             if( _typeSymbol.LucIsPartialType() ) 
             {
-                /*if( !typeInFileDir.EndsWith( expectedFileDir ) || typeInFileName.StartsWith( $"{expectedFileName}_" ) || typeInFileName == expectedFileName )
+                if( ! ( typeInFileDir.EndsWith( expectedFileDir ) && ( typeInFileName.StartsWith( $"{expectedFileName}_" ) || typeInFileName == expectedFileName ) ) )
                 {                 
                     ReportWarning
                     ( 
@@ -740,7 +749,7 @@ internal partial class LucUtilTypeProcessor
                         srcLocation: _type.GetLocation() 
                     );
                     return;
-                }*/
+                }
             }
             else 
             {

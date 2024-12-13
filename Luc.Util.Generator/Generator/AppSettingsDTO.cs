@@ -3,13 +3,13 @@ using System.Text.Json.Serialization;
 namespace Luc.Util.Generator;
 
 
-internal class AppSettingsDTO
+internal class AppSettingsLayout
 {
   [JsonPropertyName("LucUtil")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-  public AppSettingsSectionDTO? LucUtil { get; set; }
+  public AppSettingsSectionLayout? LucUtil { get; set; }
 }
 
-internal class AppSettingsSectionDTO
+internal class AppSettingsSectionLayout
 {
   [JsonIgnore]
   public bool FromFile { get; set; }
