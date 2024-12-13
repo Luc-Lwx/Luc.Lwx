@@ -1,21 +1,19 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using Luc.Util.Web;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Luc.Util.Generator;
+namespace Luc.Web.Generator;
 
 
 [SuppressMessage("","S4487",Justification="Unused variables are kept for future use. This is still a prototype.")]
 [SuppressMessage("","S1481",Justification="Unused variables are kept for future use. This is still a prototype.")]
 [SuppressMessage("","S1192",Justification="This is a compiler plugin and will not affect the performance of production code, therefore, extenalization of strings is not really necessary")]
 [SuppressMessage("","S3626",Justification="Some redundancy is useful")]
-internal partial class LucUtilTypeProcessor 
+internal partial class LucWebTypeProcessor 
 {
-    private readonly LucUtilAssemblyProcessor _assemblyProcessor;
+    private readonly LucWebAssemblyProcessor _assemblyProcessor;
     private readonly GeneratorSyntaxContext _typeContext;
     private readonly ClassDeclarationSyntax _type;
     private readonly SemanticModel _typeSemanticModel;
@@ -35,7 +33,7 @@ internal partial class LucUtilTypeProcessor
     internal string? AuthSchemeSrcMethodBody { get; private set; } = null;
     internal string? AuthSchemeSrcIdClass { get; private set; } = null;
     
-    public LucUtilTypeProcessor( LucUtilAssemblyProcessor assemblyProcessor, GeneratorSyntaxContext context ) 
+    public LucWebTypeProcessor( LucWebAssemblyProcessor assemblyProcessor, GeneratorSyntaxContext context ) 
     {        
         _assemblyProcessor = assemblyProcessor;
         _typeContext = context; 
@@ -75,9 +73,9 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0012", 
                 msgFormat: $$"""
-                    Luc.Util: The type {{_typeNameFull}} must have the attribute [LucAuthScheme]
+                    Luc.Web: The type {{_typeNameFull}} must have the attribute [LucAuthScheme]
                     
-                    In web Applications using the Luc.Util framework 
+                    In web Applications using the Luc.Web framework 
                         the namespace {Assembly}.Web.AuthSchemes 
                         is reserved for AuthPolicy classes. 
                     """, 
@@ -95,7 +93,7 @@ internal partial class LucUtilTypeProcessor
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0011", 
-                msgFormat: $"""Luc.Util: The type {_typeNameFull} must be a partial class""", 
+                msgFormat: $"""Luc.Web: The type {_typeNameFull} must be a partial class""", 
                 srcLocation: _type.GetLocation() 
             );
             return;
@@ -108,7 +106,7 @@ internal partial class LucUtilTypeProcessor
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0123", 
-                msgFormat: $"""Luc.Util: The type {_typeNameFull} must be in the namespace {_typeAssemblyName}.Web.AuthSchemes""", 
+                msgFormat: $"""Luc.Web: The type {_typeNameFull} must be in the namespace {_typeAssemblyName}.Web.AuthSchemes""", 
                 srcLocation: _type.GetLocation() 
             );
             return;
@@ -121,7 +119,7 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0123", 
                 msgFormat: $"""
-                    Luc.Util: The type {_typeNameFull} must be in the namespace {_typeAssemblyName}.Web.AuthSchemes.AuthScheme<name>
+                    Luc.Web: The type {_typeNameFull} must be in the namespace {_typeAssemblyName}.Web.AuthSchemes.AuthScheme<name>
                     
                     The <name> should be replaced by the desired scheme name.
                     """, 
@@ -143,7 +141,7 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC01232", 
                 msgFormat: $"""
-                    Luc.Util: The generatedMethodName '{generatedMethodName}' is not a valid method name
+                    Luc.Web: The generatedMethodName '{generatedMethodName}' is not a valid method name
                     """, 
                 srcLocation: attr.LucGetAttributeArgumentLocation("GeneratedMethodName") 
             );
@@ -158,7 +156,7 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC00418", 
                 msgFormat: $"""
-                    Luc.Util: The Name '{AuthSchemeName}' needs to be a valid property name
+                    Luc.Web: The Name '{AuthSchemeName}' needs to be a valid property name
                     """, 
                 srcLocation: _type.GetLocation() 
             );
@@ -175,7 +173,7 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0013", 
                 msgFormat: $"""
-                    Luc.Util: The Auth Scheme {AuthSchemeName} must be implemented in the type {expectedFullTypeName}                    
+                    Luc.Web: The Auth Scheme {AuthSchemeName} must be implemented in the type {expectedFullTypeName}                    
                 """,
                 srcLocation: _type.GetLocation() 
             );
@@ -226,7 +224,7 @@ internal partial class LucUtilTypeProcessor
             msgSeverity: DiagnosticSeverity.Info, 
             msgId: "LUC008", 
             msgFormat: $$"""
-                Luc.Util: Fragment includedd in the generated method                                
+                Luc.Web: Fragment includedd in the generated method                                
 
                 Method Body Fragment:
 
@@ -260,7 +258,7 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0012", 
                 msgFormat: $$"""
-                    Luc.Util: The namespace {{_typeAssemblyName}}.Web.AuthPolicies is reserved for AuthPolicy classes.
+                    Luc.Web: The namespace {{_typeAssemblyName}}.Web.AuthPolicies is reserved for AuthPolicy classes.
 
                     The type {{_typeNameFull}} must have the attribute [LucAuthPolicy] or be moved to another namespace.
 
@@ -284,7 +282,7 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0011", 
                 msgFormat: $"""
-                    Luc.Util: The type {_typeNameFull} must be a partial class
+                    Luc.Web: The type {_typeNameFull} must be a partial class
                     """, 
                 srcLocation: _type.GetLocation() 
             );
@@ -299,7 +297,7 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC006", 
                 msgFormat: $"""
-                    Luc.Util: The authentication policies must be in the namespace {_typeAssemblyName}.Web.AuthPolicies 
+                    Luc.Web: The authentication policies must be in the namespace {_typeAssemblyName}.Web.AuthPolicies 
 
                     Found: {_typeNamespaceName}                    
                     Assembly Name: {_typeAssemblyName}
@@ -317,7 +315,7 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC026", 
                 msgFormat: $"""
-                    Luc.Util: Authentication policies types must start with AuthPolicy
+                    Luc.Web: Authentication policies types must start with AuthPolicy
 
                     Ex: AuthPolicyExample001
                     Found: {_typeName}
@@ -341,7 +339,7 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0018", 
                 msgFormat: $"""
-                    Luc.Util: The Name '{AuthPolicyName}' needs to be a valid property name
+                    Luc.Web: The Name '{AuthPolicyName}' needs to be a valid property name
                     """, 
                 srcLocation: _type.GetLocation()
             );
@@ -356,7 +354,7 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0013", 
                 msgFormat: $"""
-                    Luc.Util: The Auth Policy {AuthPolicyName} must be implemented in the type {expectedFullTypeName}                    
+                    Luc.Web: The Auth Policy {AuthPolicyName} must be implemented in the type {expectedFullTypeName}                    
                 """,
                 srcLocation: _type.GetLocation() 
             );
@@ -404,7 +402,7 @@ internal partial class LucUtilTypeProcessor
             msgSeverity: DiagnosticSeverity.Info, 
             msgId: "LUC008", 
             msgFormat: $$"""
-                Luc.Util: Fragment includedd in the generated method                                
+                Luc.Web: Fragment includedd in the generated method                                
 
                 Method Fragment:
 
@@ -437,9 +435,9 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC006", 
                 msgFormat: $$"""
-                    Luc.Util: The type {{_typeNameFull}} must have an attribute [LucEndpoint]
+                    Luc.Web: The type {{_typeNameFull}} must have an attribute [LucEndpoint]
 
-                    In web Applications using the Luc.Util framework 
+                    In web Applications using the Luc.Web framework 
                           the namespace {Assembly}.Web.Endpoints
                           is reserved for LucEndpoint classes. 
                     """, 
@@ -456,7 +454,7 @@ internal partial class LucUtilTypeProcessor
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC006", 
-                msgFormat: $"""Luc.Util: The type {_typeNameFull} must be in the namespace {_typeAssemblyName}.Web.Endpoints""", 
+                msgFormat: $"""Luc.Web: The type {_typeNameFull} must be in the namespace {_typeAssemblyName}.Web.Endpoints""", 
                 srcLocation: _type.GetLocation() 
             );
             return;
@@ -477,7 +475,7 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0018", 
                 msgFormat: $"""
-                    Luc.Util: The generatedMethodName '{generatedMethodName}' is not a valid method name
+                    Luc.Web: The generatedMethodName '{generatedMethodName}' is not a valid method name
                     """, 
                 srcLocation: attr.LucGetAttributeArgumentLocation("GeneratedMethodName") 
             );
@@ -494,7 +492,7 @@ internal partial class LucUtilTypeProcessor
                 msgId: "LUC0014",
                 msgSeverity: DiagnosticSeverity.Error,
                 msgFormat: """
-                    LucUtil: The path should be 'POST /path'
+                    Luc.Web: The path should be 'POST /path'
                     
                     where the path should be:                    
                     * GET for operations without request body; 
@@ -524,7 +522,7 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0022", 
                 msgFormat: $$"""
-                    Luc.Util: The utilization of parameters in path is not recomended
+                    Luc.Web: The utilization of parameters in path is not recomended
 
                     In place of: POST /myapp/mycollection/{collectionId}
                     Use          POST /myapp/mycollection?collectionId={collectionId}
@@ -550,7 +548,7 @@ internal partial class LucUtilTypeProcessor
             );    
         }
         
-        var apiManagerPath = _assemblyProcessor.AppSettings?.LucUtil?.ApiManagerPath;
+        var apiManagerPath = _assemblyProcessor.AppSettings?.LucWeb?.ApiManagerPath;
         if( apiManagerPath != null )
         {
             if( apiManagerPath.EndsWith( '/' ) )      
@@ -560,13 +558,13 @@ internal partial class LucUtilTypeProcessor
                     msgSeverity: DiagnosticSeverity.Error, 
                     msgId: "LUC06546", 
                     msgFormat: $$"""
-                        Luc.Util: The appsettings.json LucUtil:ApiManagerPath must not end with a slash
+                        Luc.Web: The appsettings.json LucWeb:ApiManagerPath must not end with a slash
                     
                         The appsettings.json of your project must contain a section like this:
 
                         {
                             ...
-                            "LucUtil": 
+                            "LucWeb": 
                             {
                                 "ApiManagerPath": "/api/v1" <-- can't end in a slash
                                 "SwaggerDescription": "",
@@ -590,7 +588,7 @@ internal partial class LucUtilTypeProcessor
                         msgSeverity: DiagnosticSeverity.Error, 
                         msgId: "LUC0215", 
                         msgFormat: $$"""
-                            Luc.Util: Your API does not violate the rule NotInApiManagerPath!
+                            Luc.Web: Your API does not violate the rule NotInApiManagerPath!
                             
                             The use of LowMaintanability_NotInApiManagerPath_Justification is only allowed when the rule is violated
 
@@ -615,7 +613,7 @@ internal partial class LucUtilTypeProcessor
                         msgSeverity: DiagnosticSeverity.Error, 
                         msgId: "LUC0015", 
                         msgFormat: $$"""
-                            Luc.Util: The path must start with {apiManagerPath}/
+                            Luc.Web: The path must start with {apiManagerPath}/
 
                             It is recomended that you use the same prefix that you will use to publish it.
 
@@ -637,7 +635,7 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0016", 
                 msgFormat: $$"""
-                    Luc.Util: The appsettings.json must declare the LucUtil:ApiManagerPath
+                    Luc.Web: The appsettings.json must declare the LucWeb:ApiManagerPath
 
                     The {{_typeAssemblyName}}.csproj must contains
 
@@ -649,7 +647,7 @@ internal partial class LucUtilTypeProcessor
 
                     {
                         ...
-                        "LucUtil": 
+                        "LucWeb": 
                         {
                             "ApiManagerPath": "/api/v1"
                             "SwaggerDescription": "",
@@ -687,7 +685,7 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0013", 
                 msgFormat: $"""
-                    Luc.Util: The path {attrPath} must be implemented in the type {expectedFullTypeName}
+                    Luc.Web: The path {attrPath} must be implemented in the type {expectedFullTypeName}
 
                     expectedTypeNameReference: {expectedTypeNameReference}
                     expectedShortTypeName: {expectedShortTypeName}
@@ -712,7 +710,7 @@ internal partial class LucUtilTypeProcessor
                 ( 
                     msgSeverity: DiagnosticSeverity.Error, 
                     msgId: "LUC0017", 
-                    msgFormat: $"""Luc.Util: The method {attrMethod} is not supported by dotnet core minimal APIs""", 
+                    msgFormat: $"""Luc.Web: The method {attrMethod} is not supported by dotnet core minimal APIs""", 
                     srcLocation: attr.LucGetAttributeArgumentLocation("Path") 
                 );
                 return;
@@ -732,7 +730,7 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0019", 
                 msgFormat: $"""
-                    Luc.Util: The AuthPolicy must be defined as the example bellow
+                    Luc.Web: The AuthPolicy must be defined as the example bellow
                     
                     [LucEndpoint(
                         Path = "{attrMethodAndPath}",
@@ -752,7 +750,7 @@ internal partial class LucUtilTypeProcessor
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0019", 
                 msgFormat: $"""
-                    Luc.Util: The AuthPolicy must be a class that starts with AuthPolicy as in the example bellow
+                    Luc.Web: The AuthPolicy must be a class that starts with AuthPolicy as in the example bellow
                     
                     [LucEndpoint(
                         Path = "{attrMethodAndPath}",
@@ -808,7 +806,7 @@ internal partial class LucUtilTypeProcessor
             msgSeverity: DiagnosticSeverity.Info, 
             msgId: "LUC008", 
             msgFormat: $$"""
-                Luc.Util: Fragment includedd in the generated method
+                Luc.Web: Fragment includedd in the generated method
                                 
                 Mapping: {{attrMethodAndPath}}
                 Method: {{expectedFullTypeName}}.Execute
@@ -831,7 +829,7 @@ internal partial class LucUtilTypeProcessor
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC005", 
-                msgFormat: """Luc.Util: The namespace can't contain the 'src' element.""", 
+                msgFormat: """Luc.Web: The namespace can't contain the 'src' element.""", 
                 srcLocation: _type.GetLocation() 
             );
             return;
@@ -843,7 +841,7 @@ internal partial class LucUtilTypeProcessor
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC003", 
-                msgFormat: $"""Luc.Util: The type name '{_typeName}' must start with '{_typeAssemblyName}'.""", 
+                msgFormat: $"""Luc.Web: The type name '{_typeName}' must start with '{_typeAssemblyName}'.""", 
                 srcLocation: _type.GetLocation() 
             );
             return;
@@ -868,7 +866,7 @@ internal partial class LucUtilTypeProcessor
                     ( 
                         msgSeverity: DiagnosticSeverity.Error, 
                         msgId: "LUC012", 
-                        msgFormat: $"""Luc.Util: The type {_typeNameFull} must be in the source file {expectedFileDir}/{expectedFileName}_*.cs""", 
+                        msgFormat: $"""Luc.Web: The type {_typeNameFull} must be in the source file {expectedFileDir}/{expectedFileName}_*.cs""", 
                         srcLocation: _type.GetLocation() 
                     );
                     return;
@@ -882,7 +880,7 @@ internal partial class LucUtilTypeProcessor
                     ( 
                         msgSeverity: DiagnosticSeverity.Error, 
                         msgId: "LUC004", 
-                        msgFormat: $"""Luc.Util: The type {_typeNameFull} must be in the source file {expectedFile}""", 
+                        msgFormat: $"""Luc.Web: The type {_typeNameFull} must be in the source file {expectedFile}""", 
                         srcLocation: _type.GetLocation() 
                     );
                     return;
@@ -900,7 +898,7 @@ internal partial class LucUtilTypeProcessor
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC001", 
-                msgFormat: $"""Luc.Util: The utilization of Controller is forbidden! Use [LucEndpoint] instead.""", 
+                msgFormat: $"""Luc.Web: The utilization of Controller is forbidden! Use [LucEndpoint] instead.""", 
                 srcLocation: _type.GetLocation() 
             );
         }
@@ -913,7 +911,7 @@ internal partial class LucUtilTypeProcessor
                 ( 
                     msgSeverity: DiagnosticSeverity.Error, 
                     msgId: "LUC002", 
-                    msgFormat: $"""Luc.Util: The utilization of [Controller] is forbidden! Use [LucEndpoint] instead.""", 
+                    msgFormat: $"""Luc.Web: The utilization of [Controller] is forbidden! Use [LucEndpoint] instead.""", 
                     srcLocation: attr.ApplicationSyntaxReference?.GetSyntax().GetLocation() 
                 );
             }

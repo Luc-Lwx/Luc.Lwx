@@ -3,9 +3,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Luc.Util.Generator;
+namespace Luc.Web.Generator;
 
-internal static class LucGeneratorExtensions
+internal static class LucWebGeneratorExtensions
 {
     public static string LucGetAttributeValueAsString
     (

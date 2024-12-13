@@ -1,6 +1,6 @@
 using System;
 
-namespace Luc.Util.Web;
+namespace Luc.Web;
 
 [AttributeUsage(AttributeTargets.Class)]
 public class LucEndpointAttribute : Attribute
@@ -41,17 +41,17 @@ public class LucEndpointAttribute : Attribute
   public required string SwaggerFuncDescription { get; set; }
 
   /// <summary>
-  /// Luc.Util enforce the naming of the class to match the endpoint path. When you need to disable this rule for your endpoint, explain to reviewers why. 
+  /// Luc.Web enforce the naming of the class to match the endpoint path. When you need to disable this rule for your endpoint, explain to reviewers why. 
   /// </summary>
   public string? LowMaintanability_Naming_Justification { get; set; } = null;
 
   /// <summary>
-  /// Luc.Util enforce the naming of the class to match the endpoint path. When you need to disable this rule for your endpoint, explain to reviewers why. 
+  /// Luc.Web enforce the naming of the class to match the endpoint path. When you need to disable this rule for your endpoint, explain to reviewers why. 
   /// </summary>
   public string? LowMaintanability_ParameterInPath_Justification { get; set; } = null;
 
   /// <summary>
-  /// Luc.Util enforce all paths to begin with the apimagner path. When you need to disable this rule for your endpoint, explain to reviewers why.
+  /// Luc.Web enforce all paths to begin with the apimagner path. When you need to disable this rule for your endpoint, explain to reviewers why.
   /// </summary>
   public string? LowMaintanability_NotInApiManagerPath_Justification { get; set; } = null;
 

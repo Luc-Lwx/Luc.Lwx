@@ -1,4 +1,4 @@
-namespace Luc.Util.Web;
+namespace Luc.Web;
 
 /// <summary>
 /// This attribute is used to define a class that will be used to configure an authentication scheme.

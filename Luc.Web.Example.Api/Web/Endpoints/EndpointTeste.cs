@@ -1,7 +1,7 @@
-using Luc.Util.Example.Api.Web.AuthPolicies;
-using Luc.Util.Web;
+using Luc.Web.Example.Api.Web.AuthPolicies;
+using Luc.Web;
 
-namespace Luc.Util.Example.Api.Web.Endpoints;
+namespace Luc.Web.Example.Api.Web.Endpoints;
 
 [LucEndpoint(
   Path = "GET /prefixo-no-api-manager/teste",
@@ -13,7 +13,10 @@ namespace Luc.Util.Example.Api.Web.Endpoints;
 )]
 public static class EndpointTeste 
 { 
-  public static void Execute() 
+  public static void Execute
+  ( 
+    HttpContext ctx 
+  ) 
   {
     // teste    
   }

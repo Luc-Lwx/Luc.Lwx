@@ -1,9 +1,9 @@
 using System.Text;
-using Luc.Util.Web;
+using Luc.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Luc.Util.Example.Api.Web.AuthSchemes;
+namespace Luc.Web.Example.Api.Web.AuthSchemes;
 
 [LucAuthScheme]
 public static partial class AuthSchemeExample001

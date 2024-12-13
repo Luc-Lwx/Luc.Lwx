@@ -6,13 +6,13 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 
-namespace Luc.Util.Generator;
+namespace Luc.Web.Generator;
 
 
 [Generator]
-internal class LucUtilGenerator : IIncrementalGenerator
+internal class LucWebGenerator : IIncrementalGenerator
 {
-    public const string LucEndpointCategory = "Luc.Util";    
+    public const string LucEndpointCategory = "Luc.Web";    
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -38,7 +38,7 @@ internal class LucUtilGenerator : IIncrementalGenerator
             combinedProvider, 
             static (sourceProductionContext, typeSymbols) => 
             {
-                var generator = new LucUtilAssemblyProcessor( 
+                var generator = new LucWebAssemblyProcessor( 
                     sourceProductionContext, 
                     typeSymbols.Left, 
                     typeSymbols.Right

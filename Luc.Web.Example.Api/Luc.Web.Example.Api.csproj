@@ -16,8 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-   <!-- <ProjectReference Include="..\Luc.Util\Luc.Util.csproj"/>     -->
-    <ProjectReference Include="..\Luc.Util.Generator\Luc.Util.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+    <ProjectReference Include="..\Luc.Web\Luc.Web.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
     <AdditionalFiles Include="appsettings.json" />
   </ItemGroup>    
   

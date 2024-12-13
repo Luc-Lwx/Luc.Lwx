@@ -5,9 +5,9 @@ using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Luc.Util.Generator;
+namespace Luc.Web.Generator;
 
-internal partial class LucUtilAssemblyProcessor
+internal partial class LucWebAssemblyProcessor
 {
     
     public SourceProductionContext Context { get; private set; }
@@ -17,8 +17,8 @@ internal partial class LucUtilAssemblyProcessor
     private readonly string? _assemblyName;
 
     public Dictionary<string,List<string>> EndpointMappingMethods { get; internal set; } = [];
-    public Dictionary<string,List<LucUtilTypeProcessor>> PolicyTypes { get; internal set; } = [];
-    public Dictionary<string,List<LucUtilTypeProcessor>> SchemeTypes { get; internal set; } = [];
+    public Dictionary<string,List<LucWebTypeProcessor>> PolicyTypes { get; internal set; } = [];
+    public Dictionary<string,List<LucWebTypeProcessor>> SchemeTypes { get; internal set; } = [];
 
     public void AddEndpointMappingMethod(string group, string methodSrc)
     {
@@ -31,7 +31,7 @@ internal partial class LucUtilAssemblyProcessor
         groupMap.Add(methodSrc);        
     }
 
-    public void AddPolicyType(string group, LucUtilTypeProcessor processor )
+    public void AddPolicyType(string group, LucWebTypeProcessor processor )
     {
         var groupMap = PolicyTypes.GetValueOrDefault(group);
         if( groupMap == null )
@@ -42,7 +42,7 @@ internal partial class LucUtilAssemblyProcessor
         groupMap.Add(processor);        
     }
 
-    public void AddSchemeType(string group, LucUtilTypeProcessor processor )
+    public void AddSchemeType(string group, LucWebTypeProcessor processor )
     {
         var groupMap = SchemeTypes.GetValueOrDefault(group);
         if( groupMap == null )
@@ -54,7 +54,7 @@ internal partial class LucUtilAssemblyProcessor
     }
 
 
-    public LucUtilAssemblyProcessor
+    public LucWebAssemblyProcessor
     (
         SourceProductionContext sourceProductionContext, 
         ImmutableArray<string?> appSettingsFiles, 
@@ -88,7 +88,7 @@ internal partial class LucUtilAssemblyProcessor
             );
         }     
         appSettings ??= new AppSettingsLayout();   
-        appSettings.LucUtil ??= new AppSettingsSectionLayout();   
+        appSettings.LucWeb ??= new AppSettingsSectionLayout();   
         AppSettings = appSettings;
         
         
@@ -113,7 +113,7 @@ internal partial class LucUtilAssemblyProcessor
         {            
             try 
             {
-                var processClass = new LucUtilTypeProcessor(this, typeSymbol);                
+                var processClass = new LucWebTypeProcessor(this, typeSymbol);                
                 processClass.ExecutePhase1();                       
             }
             catch( Exception ex )
@@ -123,7 +123,7 @@ internal partial class LucUtilAssemblyProcessor
                     msgSeverity: DiagnosticSeverity.Error, 
                     msgId: "LUC0912", 
                     msgFormat: $"""
-                        The LucUtilGenerator threw an exception: 
+                        The LucWebGenerator threw an exception: 
                         
                         {ex.Message},
                         {ex.StackTrace}
@@ -277,7 +277,7 @@ internal partial class LucUtilAssemblyProcessor
             using System.Linq;
             using System.Threading.Tasks;   
             using Microsoft.AspNetCore.Authentication;
-            using Luc.Util.Web;        
+            using Luc.Web;        
             using Microsoft.Extensions.Logging;
             using Microsoft.Extensions.Options;
             using System.Text.Encodings.Web;
@@ -309,7 +309,7 @@ internal partial class LucUtilAssemblyProcessor
                     id: msgId,
                     title: msgFormat,
                     messageFormat: msgFormat,
-                    category: LucUtilGenerator.LucEndpointCategory,
+                    category: LucWebGenerator.LucEndpointCategory,
                     msgSeverity,
                     isEnabledByDefault: true
                 ), 

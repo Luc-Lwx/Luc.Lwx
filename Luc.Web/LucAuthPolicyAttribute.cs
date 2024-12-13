@@ -1,4 +1,4 @@
-namespace Luc.Util.Web;
+namespace Luc.Web;
 
 [AttributeUsage(AttributeTargets.Class)]
 public class LucAuthPolicyAttribute : Attribute

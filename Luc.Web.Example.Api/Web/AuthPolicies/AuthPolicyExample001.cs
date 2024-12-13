@@ -1,7 +1,7 @@
-using Luc.Util.Web;
+using Luc.Web;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Luc.Util.Example.Api.Web.AuthPolicies;
+namespace Luc.Web.Example.Api.Web.AuthPolicies;
 
 [LucAuthPolicy]
 public static partial class AuthPolicyExample001

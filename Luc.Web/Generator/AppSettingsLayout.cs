@@ -1,12 +1,12 @@
 using System.Text.Json.Serialization;
 
-namespace Luc.Util.Generator;
+namespace Luc.Web.Generator;
 
 
 internal class AppSettingsLayout
 {
-  [JsonPropertyName("LucUtil")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-  public AppSettingsSectionLayout? LucUtil { get; set; }
+  [JsonPropertyName("LucWeb")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+  public AppSettingsSectionLayout? LucWeb { get; set; }
 }
 
 internal class AppSettingsSectionLayout
