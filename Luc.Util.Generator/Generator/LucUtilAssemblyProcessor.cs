@@ -154,10 +154,10 @@ internal partial class LucUtilAssemblyProcessor
 
             srcMethods.Append($$"""
                 
-                    public static void {{group.Key}}(this IEndpointRouteBuilder app)
-                    {
-                        {{srcMethodBody}}
-                    }
+                        public static void {{group.Key}}(this IEndpointRouteBuilder app)
+                        {
+                            {{srcMethodBody}}
+                        }
                     
                 """);
         }         

@@ -7,7 +7,7 @@ namespace Luc.Util.Generator;
 
 internal static class LucGeneratorExtensions
 {
-    public static string LucGetAttributeValue
+    public static string LucGetAttributeValueAsString
     (
         this AttributeData attributeData, 
         string argumentName
@@ -16,6 +16,17 @@ internal static class LucGeneratorExtensions
        return attributeData.NamedArguments
             .FirstOrDefault(arg => arg.Key == argumentName)
             .Value.Value?.ToString() ?? string.Empty;
+    }
+
+    public static ITypeSymbol? LucGetAttributeValueAsType
+    (
+        this AttributeData attributeData, 
+        string argumentName
+    ) 
+    {
+        return attributeData.NamedArguments
+            .FirstOrDefault(arg => arg.Key == argumentName)
+            .Value.Value as ITypeSymbol;
     }
 
     public static Location? LucGetAttributeArgumentLocation

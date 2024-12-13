@@ -18,7 +18,7 @@ public class LucEndpointAttribute : Attribute
   /// <summary>
   /// AuthPolicy
   /// </summary>
-  public required string AuthPolicy { get; set; }
+  public required Type AuthPolicy { get; set; }
 
   /// <summary>
   /// When this is set, the functions with same title will be grouped on the doc

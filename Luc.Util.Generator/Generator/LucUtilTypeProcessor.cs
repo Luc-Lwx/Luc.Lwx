@@ -133,7 +133,7 @@ internal partial class LucUtilTypeProcessor
         
         AuthSchemeName = _typeName.Substring( "AuthScheme".Length );
 
-        var generatedMethodName = attr.LucGetAttributeValue( "GeneratedMethodName" ).LucIfNullOrEmptyReturn($"MapAuthSchemes_{_typeAssemblyName.Replace(".","")}");
+        var generatedMethodName = attr.LucGetAttributeValueAsString( "GeneratedMethodName" ).LucIfNullOrEmptyReturn($"MapAuthSchemes_{_typeAssemblyName.Replace(".","")}");
 
         // verifica se generatedMethodName é um nome de método válido
         if( !RegexValidMethodName().IsMatch(generatedMethodName))
@@ -198,11 +198,18 @@ internal partial class LucUtilTypeProcessor
                                "{{AuthSchemeName}}"
                             )
                         );
-                        ;            
+                                 
  
             """;      
 
         AuthSchemeSrcIdClass = $$"""
+            // The code bellow is generated based on:
+            //   AUTH SCHEME {{AuthSchemeName}}
+            //   File: {{_typeInFile}} 
+            //   Line: {{_type.GetLocation().GetLineSpan().StartLinePosition.Line}}
+            //    Col: {{_type.GetLocation().GetLineSpan().StartLinePosition.Character}}
+            //   Type: {{_typeNameFull}}
+
             namespace {{_typeNamespaceName}}
             {
                 public static partial class {{_typeName}}
@@ -324,7 +331,7 @@ internal partial class LucUtilTypeProcessor
         AuthPolicyName = _typeName.Substring( "AuthPolicy".Length );
 
         // retrieve or generate the method name
-        var generatedMethodName = attr.LucGetAttributeValue( "GeneratedMethodName" ).LucIfNullOrEmptyReturn($"MapAuthPolicies_{_typeAssemblyName.Replace(".","")}");
+        var generatedMethodName = attr.LucGetAttributeValueAsString( "GeneratedMethodName" ).LucIfNullOrEmptyReturn($"MapAuthPolicies_{_typeAssemblyName.Replace(".","")}");
         
         // validate if the method name is valid
         if( !RegexValidPropertyName().IsMatch(AuthPolicyName))
@@ -456,11 +463,11 @@ internal partial class LucUtilTypeProcessor
         } 
 
         // get attribute params
-        var attrMethodAndPath = attr.LucGetAttributeValue( "Path" );
-        var justificationForAttributeInPath = attr.LucGetAttributeValue( "LowMaintanability_ParameterInPath_Justification" );
-        var justificationForPathNotInApiManagerPrefix = attr.LucGetAttributeValue( "LowMaintanability_NotInApiManagerPath_Justification" );        
+        var attrMethodAndPath = attr.LucGetAttributeValueAsString( "Path" );
+        var justificationForAttributeInPath = attr.LucGetAttributeValueAsString( "LowMaintanability_ParameterInPath_Justification" );
+        var justificationForPathNotInApiManagerPrefix = attr.LucGetAttributeValueAsString( "LowMaintanability_NotInApiManagerPath_Justification" );        
 
-        var generatedMethodName = attr.LucGetAttributeValue("GeneratedMethodName").LucIfNullOrEmptyReturn($"MapEndpoints_{_typeAssemblyName.Replace(".","")}");
+        var generatedMethodName = attr.LucGetAttributeValueAsString("GeneratedMethodName").LucIfNullOrEmptyReturn($"MapEndpoints_{_typeAssemblyName.Replace(".","")}");
                 
         // verifica se generatedMethodName é um nome de método válido
         if( !RegexValidMethodName().IsMatch(generatedMethodName))
@@ -712,40 +719,82 @@ internal partial class LucUtilTypeProcessor
         }
 
 
-        var swaggerGroupTitle = attr.LucGetAttributeValue("SwaggerGroupTitle");
-        var swaggerFuncSummary = attr.LucGetAttributeValue("SwaggerFuncSummary");
-        var swaggerFuncDescription = attr.LucGetAttributeValue("SwaggerFuncDescription");
-        var swaggerFuncName = attr.LucGetAttributeValue("SwaggerFuncName");
-        var authPolicy = attr.LucGetAttributeValue("AuthPolicy");
+        var swaggerGroupTitle = attr.LucGetAttributeValueAsString("SwaggerGroupTitle");
+        var swaggerFuncSummary = attr.LucGetAttributeValueAsString("SwaggerFuncSummary");
+        var swaggerFuncDescription = attr.LucGetAttributeValueAsString("SwaggerFuncDescription");
+        var swaggerFuncName = attr.LucGetAttributeValueAsString("SwaggerFuncName");
+        var authPolicy = attr.LucGetAttributeValueAsType("AuthPolicy");
+
+        if( authPolicy == null ) 
+        {
+            ReportWarning
+            ( 
+                msgSeverity: DiagnosticSeverity.Error, 
+                msgId: "LUC0019", 
+                msgFormat: $"""
+                    Luc.Util: The AuthPolicy must be defined as the example bellow
+                    
+                    [LucEndpoint(
+                        Path = "{attrMethodAndPath}",
+                        AuthPolicy = typeof(AuthPolicyExample001),
+                        ...
+                    )]
+                    """, 
+                srcLocation: attr.LucGetAttributeArgumentLocation("AuthPolicy") 
+            );
+            return;
+        }
+
+        if( !authPolicy.Name.StartsWith("AuthPolicy") ) 
+        {
+            ReportWarning
+            ( 
+                msgSeverity: DiagnosticSeverity.Error, 
+                msgId: "LUC0019", 
+                msgFormat: $"""
+                    Luc.Util: The AuthPolicy must be a class that starts with AuthPolicy as in the example bellow
+                    
+                    [LucEndpoint(
+                        Path = "{attrMethodAndPath}",
+                        AuthPolicy = typeof(AuthPolicyExample001),
+                        ...
+                    )]
+                    """, 
+                srcLocation: attr.LucGetAttributeArgumentLocation("AuthPolicy") 
+            );
+            return;
+        }
+
+        var authPolicyName = authPolicy.Name.Substring( "AuthPolicy".Length );
 
         var srcFuncNameFragment = 
             swaggerFuncName.LucIsNullOrEmpty() ? 
                 "" 
             : 
                 $$"""
-                        .WithDisplayName( {{SymbolDisplay.FormatLiteral(swaggerFuncName,true)}} )
+                .WithDisplayName( {{SymbolDisplay.FormatLiteral(swaggerFuncName,true)}} )
                 """;
 
 
         var srcEndpointMapping = $$"""
 
-                    // The code bellow is generated based on:
-                    //   ENDPOINT {{attrMethod.ToUpper()}} {{attrPath}}
-                    //   File: {{_typeInFile}} 
-                    //   Line: {{_type.GetLocation().GetLineSpan().StartLinePosition.Line}}
-                    //    Col: {{_type.GetLocation().GetLineSpan().StartLinePosition.Character}}
-                    //   Type: {{_typeNameFull}}
-        
-                    app.Map{{attrMethod}}(
-                        "{{attrPath}}", 
-                        {{expectedFullTypeName}}.Execute
-                    )
-                    {{srcFuncNameFragment}}
-                    .WithTags( [ {{SymbolDisplay.FormatLiteral(swaggerGroupTitle,true)}} ] )
-                    .WithSummary( {{SymbolDisplay.FormatLiteral(swaggerFuncSummary,true)}} )
-                    .WithDescription( {{SymbolDisplay.FormatLiteral(swaggerFuncSummary,true)}} )
-                    .RequireAuthorization( {{SymbolDisplay.FormatLiteral(authPolicy,true)}} )                          
-                    ;            
+                        // The code bellow is generated based on:
+                        //   ENDPOINT {{attrMethod.ToUpper()}} {{attrPath}}
+                        //   File: {{_typeInFile}} 
+                        //   Line: {{_type.GetLocation().GetLineSpan().StartLinePosition.Line}}
+                        //    Col: {{_type.GetLocation().GetLineSpan().StartLinePosition.Character}}
+                        //   Type: {{_typeNameFull}}
+            
+                        app.Map{{attrMethod}}(
+                            "{{attrPath}}", 
+                            {{expectedFullTypeName}}.Execute
+                        )
+                        {{srcFuncNameFragment}}
+                        .WithTags( [ {{SymbolDisplay.FormatLiteral(swaggerGroupTitle,true)}} ] )
+                        .WithSummary( {{SymbolDisplay.FormatLiteral(swaggerFuncSummary,true)}} )
+                        .WithDescription( {{SymbolDisplay.FormatLiteral(swaggerFuncSummary,true)}} )
+                        .RequireAuthorization( {{SymbolDisplay.FormatLiteral(authPolicyName,true)}} )                          
+                        ;            
 
             """;
 
