@@ -165,7 +165,7 @@ internal partial class LucUtilTypeProcessor
             return;
         }
 
-        _assemblyProcessor.AddGeneratedSrc_AuthSchemeMappingMethod(generatedMethodName,this);                    
+                
 
         var expectedFullTypeName = $"{_typeAssemblyName}.Web.AuthSchemes.AuthScheme{AuthSchemeName}";      
         if( _typeNameFull != expectedFullTypeName ) 
@@ -212,7 +212,8 @@ internal partial class LucUtilTypeProcessor
             }
             """;
         
-                
+        _assemblyProcessor.AddSchemeType(generatedMethodName,this);        
+
         ReportWarning
         ( 
             msgSeverity: DiagnosticSeverity.Info, 
@@ -238,74 +239,94 @@ internal partial class LucUtilTypeProcessor
     {
         var attr = _typeSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass?.ToString() == typeof(LucAuthPolicyAttribute).FullName);
         
-        if
-        ( 
-            _typeNameFull.StartsWith( $"{_typeAssemblyName}.Web.AuthPolicies." ) 
-            && _typeSymbol.DeclaredAccessibility == Accessibility.Public 
-            && attr == null 
-        )
+        // only public classes can be auth policies
+        if( _typeSymbol.DeclaredAccessibility != Accessibility.Public ) 
+        {
+            return;
+        }
+
+        // forbid the use of the reserved namespace for other things
+        if( _typeNameFull.StartsWith( $"{_typeAssemblyName}.Web.AuthPolicies." ) && attr == null )
         {
             ReportWarning
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0012", 
                 msgFormat: $$"""
-                    Luc.Util: The type {{_typeNameFull}} must have the attribute [LucAuthPolicy]
-                    
-                    In web Applications using the Luc.Util framework 
-                        the namespace {Assembly}.Web.AuthPolicies 
-                        is reserved for AuthPolicy classes. 
+                    Luc.Util: The namespace {{_typeAssemblyName}}.Web.AuthPolicies is reserved for AuthPolicy classes.
+
+                    The type {{_typeNameFull}} must have the attribute [LucAuthPolicy] or be moved to another namespace.
+
+                    Namespace: {{_typeNamespaceName}}
+                    TypeName: {{_typeName}}
+                    AssemblyName: {{_typeAssemblyName}}
                     """, 
                 srcLocation: _type.GetLocation() 
             );
             return;            
         }
 
+        // only types with the attribute will be processed
         if (attr == null) return;
 
+        // the type must be a partial class
         if( !_typeSymbol.LucIsPartialType() )
         {
             ReportWarning
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0011", 
-                msgFormat: $"""Luc.Util: The type {_typeNameFull} must be a partial class""", 
+                msgFormat: $"""
+                    Luc.Util: The type {_typeNameFull} must be a partial class
+                    """, 
                 srcLocation: _type.GetLocation() 
             );
             return;
         }
 
+        // the type must be in the correct namespace
         if( !_typeNameFull.StartsWith( $"{_typeAssemblyName}.Web.AuthPolicies." ) )
         {
             ReportWarning
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC006", 
-                msgFormat: $"""Luc.Util: The type {_typeNameFull} must be in the namespace {_typeAssemblyName}.Web.AuthPolicies""", 
+                msgFormat: $"""
+                    Luc.Util: The authentication policies must be in the namespace {_typeAssemblyName}.Web.AuthPolicies 
+
+                    Found: {_typeNamespaceName}                    
+                    Assembly Name: {_typeAssemblyName}
+                    """, 
                 srcLocation: _type.GetLocation() 
             );
             return;
         } 
 
-        AuthPolicyName = _typeName.Substring( "AuthPolicy".Length );
-        var generatedMethodName = attr.LucGetAttributeValue( "GeneratedMethodName" ).LucIfNullOrEmptyReturn($"MapAuthPolicies_{_typeAssemblyName.Replace(".","")}");
-
-        // verifica se generatedMethodName é um nome de método válido
-        if( !RegexValidMethodName().IsMatch(generatedMethodName))
+        // the type must start with AuthPolicy
+        if( !_typeName.StartsWith( "AuthPolicy" ) )
         {
             ReportWarning
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
-                msgId: "LUC0018", 
+                msgId: "LUC026", 
                 msgFormat: $"""
-                    Luc.Util: The generatedMethodName '{generatedMethodName}' is not a valid method name
+                    Luc.Util: Authentication policies types must start with AuthPolicy
+
+                    Ex: AuthPolicyExample001
+                    Found: {_typeName}
                     """, 
-                srcLocation: attr.LucGetAttributeArgumentLocation("GeneratedMethodName") 
+                srcLocation: _type.GetLocation() 
             );
             return;
-        }
+        } 
 
-         // verifica se generatedMethodName é um nome de método válido
+        // retrieve the policy name
+        AuthPolicyName = _typeName.Substring( "AuthPolicy".Length );
+
+        // retrieve or generate the method name
+        var generatedMethodName = attr.LucGetAttributeValue( "GeneratedMethodName" ).LucIfNullOrEmptyReturn($"MapAuthPolicies_{_typeAssemblyName.Replace(".","")}");
+        
+        // validate if the method name is valid
         if( !RegexValidPropertyName().IsMatch(AuthPolicyName))
         {
             ReportWarning
@@ -320,20 +341,6 @@ internal partial class LucUtilTypeProcessor
             return;
         }
 
-        
-        AuthPolicySrcIdClass = $$"""
-            namespace {{_typeNamespaceName}}
-            {
-                public static partial class {{_typeName}}
-                {
-                    public const string Id = "{{AuthPolicyName}}";
-                }
-            }
-            """;
-        
-
-        _assemblyProcessor.AddGeneratedSrc_AuthPolicyMappingMethod(generatedMethodName,this);                    
-
         var expectedFullTypeName = $"{_typeAssemblyName}.Web.AuthPolicies.AuthPolicy{AuthPolicyName}";      
         if( _typeNameFull != expectedFullTypeName ) 
         {
@@ -347,7 +354,25 @@ internal partial class LucUtilTypeProcessor
                 srcLocation: _type.GetLocation() 
             );
             return;
-        }         
+        }        
+         
+        AuthPolicySrcIdClass = $$"""
+        
+            // The code bellow is generated based on:
+            //   POLICY {{AuthPolicyName}}
+            //   File: {{_typeInFile}} 
+            //   Line: {{_type.GetLocation().GetLineSpan().StartLinePosition.Line}}
+            //    Col: {{_type.GetLocation().GetLineSpan().StartLinePosition.Character}}
+            //   Type: {{_typeNameFull}}
+
+            namespace {{_typeNamespaceName}}
+            {
+                public static partial class {{_typeName}}
+                {
+                    public const string Id = "{{AuthPolicyName}}";
+                }
+            }
+            """; 
 
         AuthPolicySrcMethodBody = $$"""
 
@@ -364,6 +389,8 @@ internal partial class LucUtilTypeProcessor
                         );            
  
             """;      
+
+        _assemblyProcessor.AddPolicyType(generatedMethodName,this);                    
                 
         ReportWarning
         ( 
@@ -450,7 +477,7 @@ internal partial class LucUtilTypeProcessor
             return;
         }
 
-        _assemblyProcessor.AddGeneratedSrc_EndpointMappingMethod(generatedMethodName,"");                    
+        _assemblyProcessor.AddEndpointMappingMethod(generatedMethodName,"");                    
 
         var attrPathMatcher = EndpointPathPattern().Match(attrMethodAndPath);
         if (!attrPathMatcher.Success)
@@ -724,7 +751,7 @@ internal partial class LucUtilTypeProcessor
 
        
         
-        _assemblyProcessor.AddGeneratedSrc_EndpointMappingMethod(generatedMethodName,srcEndpointMapping);                    
+        _assemblyProcessor.AddEndpointMappingMethod(generatedMethodName,srcEndpointMapping);                    
                 
 
         ReportWarning

@@ -5,12 +5,7 @@ namespace Luc.Util.Web;
 /// </summary>
 [AttributeUsage(AttributeTargets.Class)]
 public class LucAuthSchemeAttribute : Attribute
-{  
-  /// <summary>
-  /// The name of the authentication scheme.
-  /// </summary>
-  public required string Name { get; set; }
-
+{ 
   /// <summary>
   /// This controls the generated method name. 
   /// </summary>

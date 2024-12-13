@@ -16,39 +16,39 @@ internal partial class LucUtilAssemblyProcessor
     public AppSettingsLayout? AppSettings { get; private set; }
     private readonly string? _assemblyName;
 
-    public Dictionary<string,List<string>> GeneratedSrcEndpointMappings { get; internal set; } = [];
-    public Dictionary<string,List<LucUtilTypeProcessor>> GeneratedSrcAuthPolicyMappings { get; internal set; } = [];
-    public Dictionary<string,List<LucUtilTypeProcessor>> GeneratedSrcAuthSchemeMappings { get; internal set; } = [];
+    public Dictionary<string,List<string>> EndpointMappingMethods { get; internal set; } = [];
+    public Dictionary<string,List<LucUtilTypeProcessor>> PolicyTypes { get; internal set; } = [];
+    public Dictionary<string,List<LucUtilTypeProcessor>> SchemeTypes { get; internal set; } = [];
 
-    public void AddGeneratedSrc_EndpointMappingMethod(string group, string methodSrc)
+    public void AddEndpointMappingMethod(string group, string methodSrc)
     {
-        var groupMap = GeneratedSrcEndpointMappings.GetValueOrDefault(group);
+        var groupMap = EndpointMappingMethods.GetValueOrDefault(group);
         if( groupMap == null )
         {
             groupMap = [];
-            GeneratedSrcEndpointMappings.Add(group, groupMap);
+            EndpointMappingMethods.Add(group, groupMap);
         }
         groupMap.Add(methodSrc);        
     }
 
-    public void AddGeneratedSrc_AuthPolicyMappingMethod(string group, LucUtilTypeProcessor processor )
+    public void AddPolicyType(string group, LucUtilTypeProcessor processor )
     {
-        var groupMap = GeneratedSrcAuthPolicyMappings.GetValueOrDefault(group);
+        var groupMap = PolicyTypes.GetValueOrDefault(group);
         if( groupMap == null )
         {
             groupMap = [];
-            GeneratedSrcAuthPolicyMappings.Add(group, groupMap);
+            PolicyTypes.Add(group, groupMap);
         }
         groupMap.Add(processor);        
     }
 
-    public void AddGeneratedSrc_AuthSchemeMappingMethod(string group, LucUtilTypeProcessor processor )
+    public void AddSchemeType(string group, LucUtilTypeProcessor processor )
     {
-        var groupMap = GeneratedSrcAuthSchemeMappings.GetValueOrDefault(group);
+        var groupMap = SchemeTypes.GetValueOrDefault(group);
         if( groupMap == null )
         {
             groupMap = [];
-            GeneratedSrcAuthSchemeMappings.Add(group, groupMap);
+            SchemeTypes.Add(group, groupMap);
         }
         groupMap.Add(processor);        
     }
@@ -144,7 +144,7 @@ internal partial class LucUtilAssemblyProcessor
     {
         var srcMethods = new StringBuilder();
 
-        foreach( var group in GeneratedSrcEndpointMappings )
+        foreach( var group in EndpointMappingMethods )
         {
             var srcMethodBody = new StringBuilder();
             foreach (var methodSrc in group.Value)
@@ -192,7 +192,7 @@ internal partial class LucUtilAssemblyProcessor
         var srcMethods = new StringBuilder();
         var srcOthers = new StringBuilder();
 
-        foreach( var group in GeneratedSrcAuthPolicyMappings )
+        foreach( var group in PolicyTypes )
         {
             var srcMethodBody = new StringBuilder();
             foreach (var method in group.Value)
@@ -200,8 +200,6 @@ internal partial class LucUtilAssemblyProcessor
                 srcMethodBody.Append(method.AuthPolicySrcMethodBody);
                 srcOthers.Append(method.AuthPolicySrcIdClass);
             }
-
-            srcMethodBody.Clear();
 
             srcMethods.Append($$"""
                 
@@ -248,7 +246,7 @@ internal partial class LucUtilAssemblyProcessor
         var srcMethods = new StringBuilder();
         var srcOthers = new StringBuilder();
 
-        foreach( var group in GeneratedSrcAuthSchemeMappings )
+        foreach( var group in SchemeTypes )
         {
             var srcMethodBody = new StringBuilder();
             foreach (var method in group.Value)
@@ -257,40 +255,17 @@ internal partial class LucUtilAssemblyProcessor
                 srcOthers.Append(method.AuthSchemeSrcIdClass);
             }
 
-            srcMethodBody.Clear();
-
             srcMethods.Append($$"""
-                
-                    public static void {{group.Key}}(this WebApplicationBuilder builder)
-                    {
-                        builder.Services.{{group.Key}}();
-                    }
-
-                    public static void {{group.Key}}(this IServiceCollection services)
-                    {
-                        // pega o singleton LucFramwork
-                        var framework = services.Any(serviceDescriptor => serviceDescriptor.ServiceType == typeof(LucFramework)).ImplementationInstance as LucFramework;
-                        if( framework == null )
+                    
+                        public static void {{group.Key}}(this WebApplicationBuilder builder)
                         {
-                            services.AddSingleton<LucFramework>(new LucFramework());
-                        }   
-                        if( !framework.IsAuthSchemeInititlized )
+                            builder.Services.{{group.Key}}();
+                        }
+
+                        public static void {{group.Key}}(this IServiceCollection services)
                         {
-                            services.AddAuthentication("Unauthenticated")
-                                .AddScheme<AuthenticationSchemeOptions, CustomAuthenticationHandler>("CustomScheme", options => { });
-
-
-                            services.AddAuthentication( options => 
-                            {
-                                options.DefaultAuthenticateScheme = "Unauthenticated";
-                                options.DefaultChallengeScheme = "Unauthenticated";                                                           
-                            });
-
-                            framework.IsAuthSchemeInititlized = true;
-                        }  
-
-                        {{srcMethodBody}}
-                    }
+                            {{srcMethodBody}}
+                        }
                     
                 """);
         }         
@@ -301,7 +276,12 @@ internal partial class LucUtilAssemblyProcessor
             using System.Collections.Generic;
             using System.Linq;
             using System.Threading.Tasks;   
-            using Luc.Util.Web;                     
+            using Microsoft.AspNetCore.Authentication;
+            using Luc.Util.Web;        
+            using Microsoft.Extensions.Logging;
+            using Microsoft.Extensions.Options;
+            using System.Text.Encodings.Web;
+            using System.Threading.Tasks;             
         
             namespace {{_assemblyName}}.Generated 
             {

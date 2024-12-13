@@ -5,12 +5,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Luc.Util.Example.Api.Web.AuthSchemes;
 
-
-[LucAuthScheme(
-  Name = "Example001" 
-)]
+[LucAuthScheme]
 public static partial class AuthSchemeExample001
-{
+{ 
   public static void Configure( AuthenticationBuilder authBuilder ) 
   {
     authBuilder.AddJwtBearer

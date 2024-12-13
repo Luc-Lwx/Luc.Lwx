@@ -3,13 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Luc.Util.Example.Api.Web.AuthPolicies;
 
-[LucAuthPolicy(
-  Name = "Example001" 
-)]
+[LucAuthPolicy]
 public static partial class AuthPolicyExample001
 {
   public static void Configure( AuthorizationPolicyBuilder policy ) 
-  {   
+  { 
     policy.RequireAuthenticatedUser();
   }
 }
