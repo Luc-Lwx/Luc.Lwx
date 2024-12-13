@@ -8,5 +8,5 @@ public class LucAuthPolicyAttribute : Attribute
   /// <summary>
   /// This controls the generated method name. 
   /// </summary>
-  public string GeneratedMethodName { get; set; } = "MapAuthPolicies";
+  public string? GeneratedMethodName { get; set; } = null;
 }

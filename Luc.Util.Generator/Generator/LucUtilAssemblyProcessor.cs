@@ -114,7 +114,7 @@ internal partial class LucUtilAssemblyProcessor
             try 
             {
                 var processClass = new LucUtilTypeProcessor(this, typeSymbol);                
-                processClass.Executa();                       
+                processClass.ExecutePhase1();                       
             }
             catch( Exception ex )
             {

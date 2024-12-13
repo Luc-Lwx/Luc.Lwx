@@ -35,7 +35,7 @@ internal partial class LucUtilTypeProcessor
     }
 
 
-    public void Executa() 
+    public void ExecutePhase1() 
     {
         DoEnforceNamingConventions();
         DoBlockOldStyleEndpoints();                
@@ -44,10 +44,10 @@ internal partial class LucUtilTypeProcessor
         DoGenerateAuthSchemeMappings();
     }
 
-     private void DoGenerateAuthSchemeMappings()
+    private void DoGenerateAuthSchemeMappings()
     {
         var attr = _typeSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass?.ToString() == typeof(LucAuthSchemeAttribute).FullName);
-        
+      
         if
         ( 
             _typeNameFull.StartsWith( $"{_typeAssemblyName}.Web.AuthSchemes." ) 
@@ -73,6 +73,20 @@ internal partial class LucUtilTypeProcessor
 
         if (attr == null) return;
 
+
+        if( _typeSymbol.LucIsPartialType() == false )
+        {
+            ReportWarning
+            ( 
+                msgSeverity: DiagnosticSeverity.Error, 
+                msgId: "LUC0011", 
+                msgFormat: $"""Luc.Util: The type {_typeNameFull} must be a partial class""", 
+                srcLocation: _type.GetLocation() 
+            );
+            return;
+        }
+
+
         if( !_typeNameFull.StartsWith( $"{_typeAssemblyName}.Web.AuthSchemes." ) )
         {
             ReportWarning
@@ -86,7 +100,7 @@ internal partial class LucUtilTypeProcessor
         } 
 
         var attrName = attr.LucGetAttributeValue( "Name" );
-        var generatedMethodName = attr.LucGetAttributeValue( "GeneratedMethodName" ).LucIfNullOrEmptyReturn("MapAuthSchemes");
+        var generatedMethodName = attr.LucGetAttributeValue( "GeneratedMethodName" ).LucIfNullOrEmptyReturn($"MapAuthSchemes_{_typeAssemblyName.Replace(".","")}");
 
         // verifica se generatedMethodName é um nome de método válido
         if( !RegexValidMethodName().IsMatch(generatedMethodName))
@@ -206,6 +220,18 @@ internal partial class LucUtilTypeProcessor
 
         if (attr == null) return;
 
+        if( _typeSymbol.LucIsPartialType() == false )
+        {
+            ReportWarning
+            ( 
+                msgSeverity: DiagnosticSeverity.Error, 
+                msgId: "LUC0011", 
+                msgFormat: $"""Luc.Util: The type {_typeNameFull} must be a partial class""", 
+                srcLocation: _type.GetLocation() 
+            );
+            return;
+        }
+
         if( !_typeNameFull.StartsWith( $"{_typeAssemblyName}.Web.AuthPolicies." ) )
         {
             ReportWarning
@@ -219,7 +245,7 @@ internal partial class LucUtilTypeProcessor
         } 
 
         var attrName = attr.LucGetAttributeValue( "Name" );
-        var generatedMethodName = attr.LucGetAttributeValue( "GeneratedMethodName" ).LucIfNullOrEmptyReturn("MapAuthPolicies");
+        var generatedMethodName = attr.LucGetAttributeValue( "GeneratedMethodName" ).LucIfNullOrEmptyReturn($"MapAuthPolicies_{_typeAssemblyName.Replace(".","")}");
 
         // verifica se generatedMethodName é um nome de método válido
         if( !RegexValidMethodName().IsMatch(generatedMethodName))
@@ -267,8 +293,6 @@ internal partial class LucUtilTypeProcessor
             );
             return;
         }         
-
-
 
         var srcAuthPolicyMapping = $$"""
 
@@ -353,7 +377,7 @@ internal partial class LucUtilTypeProcessor
         var justificationForAttributeInPath = attr.LucGetAttributeValue( "LowMaintanability_ParameterInPath_Justification" );
         var justificationForPathNotInApiManagerPrefix = attr.LucGetAttributeValue( "LowMaintanability_NotInApiManagerPath_Justification" );        
 
-        var generatedMethodName = attr.LucGetAttributeValue("GeneratedMethodName").LucIfNullOrEmptyReturn("MapEndpoints");
+        var generatedMethodName = attr.LucGetAttributeValue("GeneratedMethodName").LucIfNullOrEmptyReturn($"MapEndpoints_{_typeAssemblyName.Replace(".","")}");
                 
         // verifica se generatedMethodName é um nome de método válido
         if( !RegexValidMethodName().IsMatch(generatedMethodName))

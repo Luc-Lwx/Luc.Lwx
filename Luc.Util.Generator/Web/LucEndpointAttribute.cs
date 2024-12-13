@@ -1,12 +1,6 @@
-
 using System;
 
 namespace Luc.Util.Web;
-
-
-
-
-
 
 [AttributeUsage(AttributeTargets.Class)]
 public class LucEndpointAttribute : Attribute
@@ -19,7 +13,7 @@ public class LucEndpointAttribute : Attribute
   /// <summary>
   /// This is useful to generate different helper classes
   /// </summary>
-  public string GeneratedMethodName { get; set; } = "MapEndpoints";
+  public string? GeneratedMethodName { get; set; } = null;
 
   /// <summary>
   /// AuthPolicy
