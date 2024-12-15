@@ -1,11 +1,12 @@
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Luc.Web.Generator;
 
-internal static class LucWebGeneratorExtensions
+internal static partial class LucWebGeneratorExtensions
 {
     public static string LucGetAttributeValueAsString
     (
@@ -173,4 +174,43 @@ internal static class LucWebGeneratorExtensions
     {
         return value.LucIsNullOrEmpty() ? defaultValue : value;
     }
+
+
+    public static bool LucIsValidMethodName( this string methodName ) 
+    {     
+        return RegexValidMethodName().IsMatch( methodName );
+    }
+    public static bool LucIsValidPropertyName( this string methodName ) 
+    {     
+        return RegexValidPropertyName().IsMatch( methodName );
+    }
+
+
+    internal static void LucReportWarning( this SourceProductionContext context, DiagnosticSeverity msgSeverity, string msgId, string msgFormat, Location? srcLocation, params object[] msgArgs ) 
+    {
+        context.ReportDiagnostic
+        ( 
+            Diagnostic.Create
+            (
+                new DiagnosticDescriptor
+                (
+                    id: msgId,
+                    title: msgFormat,
+                    messageFormat: msgFormat,
+                    category: LucWebGenerator.LucEndpointCategory,
+                    msgSeverity,
+                    isEnabledByDefault: true
+                ), 
+                srcLocation, 
+                msgArgs
+            )
+        );
+    }
+
+
+    [GeneratedRegex("^[a-zA-Z_][a-zA-Z0-9_]*$")]
+    private static partial Regex RegexValidMethodName();
+
+    [GeneratedRegex("^[A-Z_][a-zA-Z0-9_]*$")]
+    private static partial Regex RegexValidPropertyName();
 }

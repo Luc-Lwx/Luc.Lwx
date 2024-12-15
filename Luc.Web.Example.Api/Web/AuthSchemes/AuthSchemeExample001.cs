@@ -1,13 +1,15 @@
 using System.Text;
 using Luc.Web;
+using Luc.Web.Interface;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Luc.Web.Example.Api.Web.AuthSchemes;
 
-[LucAuthScheme]
+
 public static partial class AuthSchemeExample001
 { 
+  [LucAuthScheme]
   public static void Configure( AuthenticationBuilder authBuilder ) 
   {
     authBuilder.AddJwtBearer

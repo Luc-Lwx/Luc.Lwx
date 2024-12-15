@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Text;
 using System.Text.Json;
@@ -7,20 +8,20 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Luc.Web.Generator;
 
-internal partial class LucWebAssemblyProcessor
-{
-    
+[SuppressMessage("","S101")]
+internal partial class LucWebGenerator_Assembly
+{  
     public SourceProductionContext Context { get; private set; }
     public ImmutableArray<GeneratorSyntaxContext> TypeSymbols { get; private set; }
     public string ProjectDir { get; private set; }
     public AppSettingsLayout? AppSettings { get; private set; }
     private readonly string? _assemblyName;
 
-    public Dictionary<string,List<string>> EndpointMappingMethods { get; internal set; } = [];
-    public Dictionary<string,List<LucWebTypeProcessor>> PolicyTypes { get; internal set; } = [];
-    public Dictionary<string,List<LucWebTypeProcessor>> SchemeTypes { get; internal set; } = [];
+    public Dictionary<string,List<LucWebGenerator_Method_Endpoint>> EndpointMappingMethods { get; internal set; } = [];
+    public Dictionary<string,List<LucWebGenerator_Method_AuthPolicy>> PolicyTypes { get; internal set; } = [];
+    public Dictionary<string,List<LucWebGenerator_Method_AuthScheme>> SchemeTypes { get; internal set; } = [];
 
-    public void AddEndpointMappingMethod(string group, string methodSrc)
+    public void AddEndpointMappingMethod(string group, LucWebGenerator_Method_Endpoint methodSrc)
     {
         var groupMap = EndpointMappingMethods.GetValueOrDefault(group);
         if( groupMap == null )
@@ -31,7 +32,8 @@ internal partial class LucWebAssemblyProcessor
         groupMap.Add(methodSrc);        
     }
 
-    public void AddPolicyType(string group, LucWebTypeProcessor processor )
+    // FUTURE: improve this to pass only a descriptor with the essential fields 
+    public void AddPolicyType(string group, LucWebGenerator_Method_AuthPolicy processor )
     {
         var groupMap = PolicyTypes.GetValueOrDefault(group);
         if( groupMap == null )
@@ -42,7 +44,8 @@ internal partial class LucWebAssemblyProcessor
         groupMap.Add(processor);        
     }
 
-    public void AddSchemeType(string group, LucWebTypeProcessor processor )
+    // FUTURE: improve this to pass only a descriptor with the essential fields
+    public void AddSchemeType(string group, LucWebGenerator_Method_AuthScheme processor )
     {
         var groupMap = SchemeTypes.GetValueOrDefault(group);
         if( groupMap == null )
@@ -54,11 +57,11 @@ internal partial class LucWebAssemblyProcessor
     }
 
 
-    public LucWebAssemblyProcessor
+    public LucWebGenerator_Assembly
     (
         SourceProductionContext sourceProductionContext, 
         ImmutableArray<string?> appSettingsFiles, 
-        ImmutableArray<GeneratorSyntaxContext> typeSymbols 
+        ImmutableArray<GeneratorSyntaxContext> typeSymbols
     ) 
     { 
         Context = sourceProductionContext;
@@ -113,7 +116,7 @@ internal partial class LucWebAssemblyProcessor
         {            
             try 
             {
-                var processClass = new LucWebTypeProcessor(this, typeSymbol);                
+                var processClass = new LucWebGenerator_Type(this, typeSymbol);                
                 processClass.ExecutePhase1();                       
             }
             catch( Exception ex )
@@ -149,7 +152,7 @@ internal partial class LucWebAssemblyProcessor
             var srcMethodBody = new StringBuilder();
             foreach (var methodSrc in group.Value)
             {
-                srcMethodBody.Append(methodSrc);
+                srcMethodBody.Append(methodSrc.EndpointSrcMethodBody);
             }
 
             srcMethods.Append($$"""
