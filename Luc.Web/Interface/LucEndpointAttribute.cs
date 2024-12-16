@@ -1,4 +1,5 @@
 using System;
+using Luc.Web.Observability;
 
 namespace Luc.Web.Interface;
 
@@ -54,5 +55,8 @@ public class LucEndpointAttribute : Attribute
     /// Luc.Web enforce all paths to begin with the apimagner path. When you need to disable this rule for your endpoint, explain to reviewers why.
     /// </summary>
     public string? LowMaintanability_NotInApiManagerPath_Justification { get; set; } = null;
-
+    public LucWebObservabilityImportance ObservabilityImportance { get; internal set; }
+    public LucWebObservabilityStep ObservabilityStep { get; internal set; }
+    public bool ObservabilityIgnoreRequestBody { get; internal set; }
+    public bool ObservabilityIgnoreResponseBody { get; internal set; }
 }
