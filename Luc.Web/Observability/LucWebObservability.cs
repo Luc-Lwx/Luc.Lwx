@@ -103,14 +103,49 @@ public static class HttpContextExtensions
 {
     private const string OperationRecordKey = "OperationRecord";
 
-    public static void LucWebSetOperationRecord(this HttpContext context, OperationRecord record)
-    {
-        context.Items[OperationRecordKey] = record;
+    public static OperationRecord? LucWebGetOperationRecord(this HttpContext context)
+    {        
+        return context.Items.TryGetValue(OperationRecordKey, out var record) ? record as OperationRecord : null;
     }
 
-    public static OperationRecord? LucWebGetOperationRecord(this HttpContext context)
+    public static OperationRecord LucWebRequireOperationRecord(this HttpContext context)
     {
-        return context.Items.TryGetValue(OperationRecordKey, out var record) ? record as OperationRecord : null;
+        if( context.Items.TryGetValue( OperationRecordKey, out var record ) )
+        {
+            return record as OperationRecord ?? throw new InvalidOperationException("OperationRecord is of wrong type!");
+        }     
+        else
+        {
+            throw new InvalidOperationException("OperationRecord is not set in the context.");
+        }
+    }
+
+    public static void LucWebAddResponseBodyJson(this HttpContext context, object jsonObject)
+    {
+        var record = context.LucWebRequireOperationRecord();        
+        if( record.ResponseBodyIgnored == true )
+        {
+            throw new InvalidOperationException("The LucWebAddResponseBody can only be called if the [LucEndpoint] attribute does have the ObservabilityIgnoreResponseBody=true.");
+        }
+        else
+        {
+            record.ResponseBodyJson = JsonSerializer.Serialize(jsonObject);
+            record.ResponseBodyType = LucWebBodyType.Json;            
+        }        
+    }
+
+    public static void LucWebAddRequestBodyJson(this HttpContext context, object jsonObject)
+    {
+        var record = context.LucWebRequireOperationRecord();        
+        if( record.RequestBodyIgnored == true )
+        {
+            throw new InvalidOperationException("The LucWebAddResponseBody can only be called if the [LucEndpoint] attribute does have the ObservabilityIgnoreResponseBody=true.");
+        }
+        else
+        {
+            record.RequestBodyJson = JsonSerializer.Serialize(jsonObject);
+            record.RequestBodyType = LucWebBodyType.Json;            
+        }        
     }
 }
 
