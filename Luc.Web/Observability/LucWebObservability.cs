@@ -99,6 +99,21 @@ public interface ILucWebObservabilityOutput
     void Publish(OperationRecord record);
 }
 
+public static class HttpContextExtensions
+{
+    private const string OperationRecordKey = "OperationRecord";
+
+    public static void LucWebSetOperationRecord(this HttpContext context, OperationRecord record)
+    {
+        context.Items[OperationRecordKey] = record;
+    }
+
+    public static OperationRecord? LucWebGetOperationRecord(this HttpContext context)
+    {
+        return context.Items.TryGetValue(OperationRecordKey, out var record) ? record as OperationRecord : null;
+    }
+}
+
 public class ObservabilityMiddleware 
 (
     ILucWebObservabilityOutput output,
@@ -157,6 +172,8 @@ public class ObservabilityMiddleware
             return;
         }
 
+        context.LucWebSetOperationRecord(record);
+
         Stream originalBodyStream;
         if( record.ResponseBodyIgnored != true )
         {
@@ -168,57 +185,34 @@ public class ObservabilityMiddleware
             originalBodyStream = Stream.Null;
         }
 
+        UpdateRequestHeaders(record, context);
+      
+        if( record.RequestBodyIgnored != true )
+        {
+            await UpdateRequestBody(record, context);
+        }
+
         try
         {
             await next(context);
         }
-        catch( LucWebResponseException e )
-        {   
-            var response = new LucWebResponseBase
-            {
-                Ok = false,
-                ErrorCode = e.StatusCode.ToString(),
-                ErrorMessage = e.Message
-            };
-
-            record.ResponseStatus = e.StatusCode;
-            record.ResponseBodyType = LucWebBodyType.Json;
-            record.ResponseBodyJson = JsonSerializer.Serialize(response);
-            
-            context.Response.StatusCode = e.StatusCode;
-            context.Response.ContentType = "application/json";                
-            await context.Response.WriteAsync(record.ResponseBody ?? "");                
-        }
-        catch( Exception e )
+        catch (LucWebResponseException e)
         {
-            if( config.Value.ErrorHandler )
+            await HandleLucWebResponseException(e, record, context);
+        }
+        catch (Exception e)
+        {
+            if (config.Value.ErrorHandler)
             {
-                var response = new LucWebResponseBase
-                {
-                    Ok = false,
-                    ErrorCode = "500",
-                    ErrorMessage = e.Message
-                };
-
-                record.ResponseBodyType = LucWebBodyType.Json;
-                record.ResponseBodyJson = JsonSerializer.Serialize(response);
-                context.Response.StatusCode = 500;
-                context.Response.ContentType = "application/json";                
-                await context.Response.WriteAsync(record.ResponseBody ?? "");                
+                await HandleGeneralException(e, record, context);
             }
-            else 
+            else
             {
                 throw;
             }
         }
 
-        UpdateRequestHeaders(record, context);
         UpdateResponseHeaders(record, context);
-
-        if( record.RequestBodyIgnored != true )
-        {
-            await UpdateRequestBody(record, context);
-        }
 
         if( record.ResponseBodyIgnored != true )
         {
@@ -268,20 +262,110 @@ public class ObservabilityMiddleware
             );
     }
 
+    private static void HandleRequestBody(OperationRecord record, string requestBody, string? contentType)
+    {
+        if (contentType != null)
+        {
+            if (contentType.Contains("application/json") && contentType.Contains("charset=utf-8"))
+            {
+                record.RequestBodyType = LucWebBodyType.Json;
+                record.RequestBodyJson = requestBody;
+            }
+            else if (contentType.Contains("text/plain"))
+            {
+                record.RequestBody = requestBody;
+                record.RequestBodyType = LucWebBodyType.Text;
+            }
+            else
+            {
+                record.RequestBody = Convert.ToBase64String(Encoding.UTF8.GetBytes(requestBody));
+                record.RequestBodyType = LucWebBodyType.Base64;
+            }
+        }
+        else
+        {
+            record.RequestBody = requestBody;
+        }
+    }
+
+    private static void HandleResponseBody(OperationRecord record, string responseBody, string? contentType)
+    {
+        if (contentType != null)
+        {
+            if (contentType.Contains("application/json") && contentType.Contains("charset=utf-8"))
+            {
+                record.ResponseBodyJson = responseBody;
+                record.ResponseBodyType = LucWebBodyType.Json;
+            }
+            else if (contentType.Contains("text/plain"))
+            {
+                record.ResponseBody = responseBody;
+                record.ResponseBodyType = LucWebBodyType.Text;
+            }
+            else
+            {
+                record.ResponseBody = Convert.ToBase64String(Encoding.UTF8.GetBytes(responseBody));
+                record.ResponseBodyType = LucWebBodyType.Base64;
+            }
+        }
+        else
+        {
+            record.ResponseBody = responseBody;
+        }
+    }
+
     private static async Task UpdateRequestBody(OperationRecord record, HttpContext context)
     {
-        if( record.RequestBodyIgnored != true )
+        if (record.RequestBodyIgnored != true)
         {
             context.Request.EnableBuffering();
-            record.RequestBody = await new StreamReader(context.Request.Body).ReadToEndAsync();
+            var requestBody = await new StreamReader(context.Request.Body).ReadToEndAsync();
             context.Request.Body.Position = 0;
+
+            HandleRequestBody(record, requestBody, context.Request.ContentType?.ToLower(CultureInfo.InvariantCulture));
         }
     }
 
     private static async Task UpdateResponseBody(OperationRecord record, HttpContext context)
     {
         context.Response.Body.Seek(0, SeekOrigin.Begin);
-        record.ResponseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();
+        var responseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();
         context.Response.Body.Seek(0, SeekOrigin.Begin);
+
+        HandleResponseBody(record, responseBody, context.Response.ContentType?.ToLower(CultureInfo.InvariantCulture));
+    }
+
+    private static async Task HandleLucWebResponseException(LucWebResponseException e, OperationRecord record, HttpContext context)
+    {
+        var response = new LucWebResponseBase
+        {
+            Ok = false,
+            ErrorCode = e.StatusCode.ToString(),
+            ErrorMessage = e.Message
+        };
+
+        record.ResponseStatus = e.StatusCode;
+        record.ResponseBodyType = LucWebBodyType.Json;
+        record.ResponseBodyJson = JsonSerializer.Serialize(response);
+
+        context.Response.StatusCode = e.StatusCode;
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsync(record.ResponseBody ?? "");
+    }
+
+    private static async Task HandleGeneralException(Exception e, OperationRecord record, HttpContext context)
+    {
+        var response = new LucWebResponseBase
+        {
+            Ok = false,
+            ErrorCode = "500",
+            ErrorMessage = e.Message
+        };
+
+        record.ResponseBodyType = LucWebBodyType.Json;
+        record.ResponseBodyJson = JsonSerializer.Serialize(response);
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsync(record.ResponseBody ?? "");
     }
 }
