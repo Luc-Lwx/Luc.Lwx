@@ -101,23 +101,21 @@ public interface ILucWebObservabilityOutput
 
 public static class HttpContextExtensions
 {
-    private const string OperationRecordKey = "OperationRecord";
+    private const string s_operationRecordKey = "OperationRecord";
+
+    internal static void LucWebSetOperationRecord(this HttpContext context, OperationRecord record)
+    {        
+        context.Items[s_operationRecordKey] = record;
+    }
 
     public static OperationRecord? LucWebGetOperationRecord(this HttpContext context)
     {        
-        return context.Items.TryGetValue(OperationRecordKey, out var record) ? record as OperationRecord : null;
+        return context.Items.TryGetValue(s_operationRecordKey, out var record) ? record as OperationRecord : null;
     }
 
     public static OperationRecord LucWebRequireOperationRecord(this HttpContext context)
     {
-        if( context.Items.TryGetValue( OperationRecordKey, out var record ) )
-        {
-            return record as OperationRecord ?? throw new InvalidOperationException("OperationRecord is of wrong type!");
-        }     
-        else
-        {
-            throw new InvalidOperationException("OperationRecord is not set in the context.");
-        }
+        return context.LucWebGetOperationRecord() ?? throw new InvalidOperationException("OperationRecord is not set in the context.");        
     }
 
     public static void LucWebAddResponseBodyJson(this HttpContext context, object jsonObject)
@@ -155,44 +153,6 @@ public class ObservabilityMiddleware
     IOptions<LucWebObservabilityConfig> config
 ) : IMiddleware
 {
-    private OperationRecord? CreateOperationRecord(HttpContext context) 
-    {
-        var endpoint = context.GetEndpoint();
-        var lucEndpointAttribute = endpoint?.Metadata.GetMetadata<LucEndpointAttribute>();
-        if (lucEndpointAttribute == null) 
-        {            
-            if( config.Value.IgnoreEndpointsWithoutAttribute )
-            {
-                return null;
-            }             
-        }
-        else if( lucEndpointAttribute.ObservabilityImportance == LucWebObservabilityImportance.Ignore) 
-        {
-            return null;
-        }
-        
-        var routePattern = endpoint?.Metadata.GetMetadata<Microsoft.AspNetCore.Routing.RouteEndpoint>()?.RoutePattern.RawText;
-        var routeValues = context.Request.RouteValues;
-        var requestPathParams = routeValues.ToDictionary(kvp => kvp.Key, kvp => kvp.Value?.ToString() ?? string.Empty);
-
-        if (routePattern == null)
-        {
-            routePattern = "{path}";
-            requestPathParams["path"] = context.Request.Path.ToString();
-        }
-
-        var result = new OperationRecord
-        {
-            RequestPath = routePattern, 
-            RequestPathParams = requestPathParams,
-            Importance = lucEndpointAttribute?.ObservabilityImportance,
-            Step = lucEndpointAttribute?.ObservabilityStep,   
-            RequestBodyIgnored = lucEndpointAttribute?.ObservabilityIgnoreRequestBody,         
-            ResponseBodyIgnored = lucEndpointAttribute?.ObservabilityIgnoreResponseBody,         
-        };        
-        return result;
-    }
-
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     { 
         if( config.Value.FixIpAddr )
@@ -255,23 +215,78 @@ public class ObservabilityMiddleware
             context.Response.Body.Seek(0, SeekOrigin.Begin);
             await context.Response.Body.CopyToAsync(originalBodyStream);
         }
+
+        output.Publish(record);
+    }
+
+    private OperationRecord? CreateOperationRecord(HttpContext context) 
+    {
+        var endpoint = context.GetEndpoint();
+        var lucEndpointAttribute = endpoint?.Metadata.GetMetadata<LucEndpointAttribute>();
+        if (lucEndpointAttribute == null) 
+        {            
+            if( config.Value.IgnoreEndpointsWithoutAttribute )
+            {
+                return null;
+            }             
+        }
+        else if( lucEndpointAttribute.ObservabilityImportance == LucWebObservabilityImportance.Ignore) 
+        {
+            return null;
+        }
+        
+        var routePattern = endpoint?.Metadata.GetMetadata<Microsoft.AspNetCore.Routing.RouteEndpoint>()?.RoutePattern.RawText;
+        var routeValues = context.Request.RouteValues;
+        var requestPathParams = routeValues.ToDictionary(kvp => kvp.Key, kvp => kvp.Value?.ToString() ?? string.Empty);
+
+        if (routePattern == null)
+        {
+            routePattern = "{path}";
+            requestPathParams["path"] = context.Request.Path.ToString();
+        }
+
+        var result = new OperationRecord
+        {
+            RequestPath = routePattern, 
+            RequestPathParams = requestPathParams,
+            Importance = lucEndpointAttribute?.ObservabilityImportance,
+            Step = lucEndpointAttribute?.ObservabilityStep,   
+            RequestBodyIgnored = lucEndpointAttribute?.ObservabilityIgnoreRequestBody,         
+            ResponseBodyIgnored = lucEndpointAttribute?.ObservabilityIgnoreResponseBody,         
+        };        
+        return result;
     }
 
     private static void UpdateRequestIpAndPort(HttpContext context)
     {
+        // Examples generated by Copilot
+        // X-Forwarded-For: 203.0.113.195
+        // X-Forwarded-For: 203.0.113.195, 70.41.3.18, 150.172.238.178
+        // X-Forwarded-For: 2001:0db8:85a3:0000:0000:8a2e:0370:7334
+        // X-Forwarded-For: 2001:0db8:85a3:0000:0000:8a2e:0370:7334, 203.0.113.195
+        // X-Forwarded-For: 203.0.113.195:8080
+        // X-Forwarded-For: [2001:0db8:85a3:0000:0000:8a2e:0370:7334]:8080
+
         if (context.Request.Headers.TryGetValue("X-Forwarded-For", out var forwardedFor))
         {
-            var ipPort = forwardedFor.FirstOrDefault()?.Split(':');
+            var ipPort = forwardedFor.FirstOrDefault()?.Split(',');
             if (ipPort != null && ipPort.Length > 0)
             {
-                context.Connection.RemoteIpAddress = System.Net.IPAddress.Parse(ipPort[0]);
-                if (ipPort.Length > 1 && int.TryParse(ipPort[1], out var port))
+                var ip = ipPort[0].Trim();
+                
+                // Save the original IP and port for logging purposes
+                context.Request.Headers["Original-Remote-Ip"] = ip;
+
+                // Try parsing the IP address without port first
+                if (System.Net.IPAddress.TryParse(ip, out var ipAddress))
                 {
-                    context.Connection.RemotePort = port;
-                }
-                else 
-                {
+                    context.Connection.RemoteIpAddress = ipAddress;
                     context.Connection.RemotePort = 0;
+                }
+                else if (System.Net.IPEndPoint.TryParse(ip, out var endPoint))
+                {
+                    context.Connection.RemoteIpAddress = endPoint.Address;
+                    context.Connection.RemotePort = endPoint.Port;
                 }
             }
         }
@@ -297,16 +312,24 @@ public class ObservabilityMiddleware
             );
     }
 
-    private static void HandleRequestBody(OperationRecord record, string requestBody, string? contentType)
+    private static async Task UpdateRequestBody(OperationRecord record, HttpContext context)
     {
-        if (contentType != null)
+        if (record.RequestBodyIgnored != true)
         {
-            if (contentType.Contains("application/json") && contentType.Contains("charset=utf-8"))
+            context.Request.EnableBuffering();
+            var requestBody = await new StreamReader(context.Request.Body).ReadToEndAsync();
+            context.Request.Body.Position = 0;
+
+            var contentType = context.Request.ContentType?.ToLower(CultureInfo.InvariantCulture) ?? throw new InvalidOperationException("Request content type is null.");
+            var mediaType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(contentType);
+            var charset = mediaType.CharSet?.ToLower(CultureInfo.InvariantCulture);
+
+            if (mediaType.MediaType == System.Net.Mime.MediaTypeNames.Application.Json && charset == "utf-8")
             {
                 record.RequestBodyType = LucWebBodyType.Json;
                 record.RequestBodyJson = requestBody;
             }
-            else if (contentType.Contains("text/plain"))
+            else if (mediaType.MediaType == System.Net.Mime.MediaTypeNames.Text.Plain)
             {
                 record.RequestBody = requestBody;
                 record.RequestBodyType = LucWebBodyType.Text;
@@ -317,22 +340,26 @@ public class ObservabilityMiddleware
                 record.RequestBodyType = LucWebBodyType.Base64;
             }
         }
-        else
-        {
-            record.RequestBody = requestBody;
-        }
     }
-
-    private static void HandleResponseBody(OperationRecord record, string responseBody, string? contentType)
+   
+    private static async Task UpdateResponseBody(OperationRecord record, HttpContext context)
     {
-        if (contentType != null)
+        if (record.ResponseBodyIgnored != true)
         {
-            if (contentType.Contains("application/json") && contentType.Contains("charset=utf-8"))
+            context.Response.Body.Seek(0, SeekOrigin.Begin);
+            var responseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();
+            context.Response.Body.Seek(0, SeekOrigin.Begin);
+
+            var contentType = (context.Response.ContentType?.ToLower(CultureInfo.InvariantCulture)) ?? throw new InvalidOperationException("Response content type is null.");
+            var mediaType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(contentType);
+            var charset = mediaType.CharSet?.ToLower(CultureInfo.InvariantCulture);
+
+            if (mediaType.MediaType == System.Net.Mime.MediaTypeNames.Application.Json && charset == "utf-8")
             {
                 record.ResponseBodyJson = responseBody;
                 record.ResponseBodyType = LucWebBodyType.Json;
             }
-            else if (contentType.Contains("text/plain"))
+            else if (mediaType.MediaType == System.Net.Mime.MediaTypeNames.Text.Plain)
             {
                 record.ResponseBody = responseBody;
                 record.ResponseBodyType = LucWebBodyType.Text;
@@ -343,31 +370,6 @@ public class ObservabilityMiddleware
                 record.ResponseBodyType = LucWebBodyType.Base64;
             }
         }
-        else
-        {
-            record.ResponseBody = responseBody;
-        }
-    }
-
-    private static async Task UpdateRequestBody(OperationRecord record, HttpContext context)
-    {
-        if (record.RequestBodyIgnored != true)
-        {
-            context.Request.EnableBuffering();
-            var requestBody = await new StreamReader(context.Request.Body).ReadToEndAsync();
-            context.Request.Body.Position = 0;
-
-            HandleRequestBody(record, requestBody, context.Request.ContentType?.ToLower(CultureInfo.InvariantCulture));
-        }
-    }
-
-    private static async Task UpdateResponseBody(OperationRecord record, HttpContext context)
-    {
-        context.Response.Body.Seek(0, SeekOrigin.Begin);
-        var responseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();
-        context.Response.Body.Seek(0, SeekOrigin.Begin);
-
-        HandleResponseBody(record, responseBody, context.Response.ContentType?.ToLower(CultureInfo.InvariantCulture));
     }
 
     private static async Task HandleLucWebResponseException(LucWebResponseException e, OperationRecord record, HttpContext context)
@@ -378,14 +380,15 @@ public class ObservabilityMiddleware
             ErrorCode = e.StatusCode.ToString(),
             ErrorMessage = e.Message
         };
+        var responseString = JsonSerializer.Serialize(response);
 
         record.ResponseStatus = e.StatusCode;
         record.ResponseBodyType = LucWebBodyType.Json;
-        record.ResponseBodyJson = JsonSerializer.Serialize(response);
+        record.ResponseBodyJson = responseString;
 
         context.Response.StatusCode = e.StatusCode;
         context.Response.ContentType = "application/json";
-        await context.Response.WriteAsync(record.ResponseBody ?? "");
+        await context.Response.WriteAsync(responseString);
     }
 
     private static async Task HandleGeneralException(Exception e, OperationRecord record, HttpContext context)
@@ -396,11 +399,12 @@ public class ObservabilityMiddleware
             ErrorCode = "500",
             ErrorMessage = e.Message
         };
+        var responseString = JsonSerializer.Serialize(response);
 
         record.ResponseBodyType = LucWebBodyType.Json;
-        record.ResponseBodyJson = JsonSerializer.Serialize(response);
+        record.ResponseBodyJson = responseString;
         context.Response.StatusCode = 500;
         context.Response.ContentType = "application/json";
-        await context.Response.WriteAsync(record.ResponseBody ?? "");
+        await context.Response.WriteAsync(responseString);
     }
 }
