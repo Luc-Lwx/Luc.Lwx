@@ -9,10 +9,45 @@ using System.Text.Json.Serialization;
 using System.Globalization;
 using System.Diagnostics.CodeAnalysis;
 
+
+public static class LucWebObservabilityExtensions
+{
+    /// <summary>
+    /// Adds the ObservabilityMiddleware to the application's request pipeline.
+    /// </summary>
+    public static IApplicationBuilder UseObservability(this IApplicationBuilder app)
+    {
+        return app.UseMiddleware<ObservabilityMiddleware>();
+    }
+
+    /// <summary>
+    /// Registers the ObservabilityMiddleware and its dependencies in the service collection.
+    /// </summary>
+    public static IServiceCollection AddObservabilityConfig(this IServiceCollection services, LucWebObservabilityConfig config )
+    {        
+        services.AddSingleton<LucWebObservabilityConfig>(config);
+        return services;
+    }
+}
+
 public class LucWebObservabilityConfig
 {
+    /// <summary>
+    /// Indicates whether to ignore endpoints that do not have the [LucEndpoint] attribute.
+    /// Default is true.
+    /// </summary>
     public bool IgnoreEndpointsWithoutAttribute { get; set; } = true;    
+    
+    /// <summary>
+    /// Indicates whether to fix the IP address and port using the X-Forwarded-For header.
+    /// Default is true.
+    /// </summary>
     public bool FixIpAddr { get; set; } = true;
+    
+    /// <summary>
+    /// Indicates whether to handle exceptions and generate a standardized error response.
+    /// Default is true.
+    /// </summary>
     public bool ErrorHandler { get; set; } = true;
 }
 
@@ -24,6 +59,7 @@ public enum LucWebObservabilityImportance
     High,
     Critical,    
 }
+
 public enum LucWebObservabilityStep
 {  
     Start,
@@ -39,122 +75,252 @@ public enum LucWebBodyType
     Base64
 }
 
-
-[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
-public class OperationRecord
+public enum LucWebCaptureType
 {    
-    [JsonPropertyName("dh")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] [JsonConverter(typeof(LucUtilDatetimeConverter))]
-    public DateTime When { get; set; } = DateTime.UtcNow;
-
-    [JsonPropertyName("step")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] [JsonConverter(typeof(JsonStringEnumConverter))]
-    public LucWebObservabilityStep? Step { get; set; } = null;
-
-    [JsonPropertyName("pri")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] [JsonConverter(typeof(JsonStringEnumConverter))]
-    public LucWebObservabilityImportance? Importance { get; set; } = null;   
-    
-    [JsonPropertyName("req-host")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public string? Host { get; set; } = null;
-
-    [JsonPropertyName("remote-ip")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public string? RemoteIp { get; set; } = null;
-
-    [JsonPropertyName("remote-port")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public int? RemotePort { get; set; } = null;
-
-    [JsonPropertyName("req-path")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public string? RequestPath { get; set; } = null;
-
-    [JsonPropertyName("req-path-param")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
-    public Dictionary<string,string>? RequestPathParams { get; set; } = null;
-      
-    [JsonPropertyName("req-query")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
-    public Dictionary<string,string>? RequestQuery { get; set; } = null;
-
-    [JsonPropertyName("req-body")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
-    public string? RequestBody { get; set; } = null;
-
-    [JsonPropertyName("req-body-tp")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
-    public LucWebBodyType? RequestBodyType { get; set; } = null;
-
-    [JsonPropertyName("req-body-json")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] [JsonConverter(typeof(LucUtilRawJsonConverter))]
-    public string? RequestBodyJson { get; set; } = null;
-
-    [JsonPropertyName("req-body-ignored")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool? RequestBodyIgnored { get; set; } = null;
-
-    [JsonPropertyName("req-hdrs")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
-    public Dictionary<string,string>? RequestHeaders { get; set; } = null;
-
-    [JsonPropertyName("rsp-hdrs")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
-    public Dictionary<string,string>? ResponseHeaders { get; set; }
-
-    [JsonPropertyName("rsp-status")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public int? ResponseStatus { get; set; } = null;
-
-    [JsonPropertyName("rsp-body")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
-    public string? ResponseBody { get; set; }
-
-    [JsonPropertyName("rsp-body-tp")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
-    public LucWebBodyType? ResponseBodyType { get; set; }
-
-    [JsonPropertyName("rsp-body-json")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] [JsonConverter(typeof(LucUtilRawJsonConverter))]
-    public string? ResponseBodyJson { get; set; }
-
-    [JsonPropertyName("rsp-body-ignored")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool? ResponseBodyIgnored { get; set; } = null;
-
-    [JsonPropertyName("ctx-info")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public Dictionary<string,object>? ContextInfo { get; set; } = null;
-
-    [JsonPropertyName("auth-user-id")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    // Subject identifier - unique ID of the user
-    // Example: "sub": "1234567890"
-    public string? AuthUserId { get; set; } = null;
-    
-    [JsonPropertyName("auth-user-name")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    // Preferred username of the user
-    // Example: "preferred_username": "johndoe"
-    public string? AuthUserName { get; set; } = null;
-    
-    [JsonPropertyName("auth-user-email")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    // Email address of the user
-    // Example: "email": "johndoe@example.com"
-    public string? AuthEmail { get; set; } = null;
-    
-    [JsonPropertyName("auth-user-fullname")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    // Full name of the user
-    // Example: "name": "John Doe"
-    public string? AuthFullName { get; set; } = null;    
-    
-    [JsonPropertyName("auth-azp")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    // Authorized party - client ID of the application
-    // Example: "azp": "myclient"
-    public string? AuthAuthorizedParty { get; set; } = null;
-    
-    [JsonPropertyName("auth-aud")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    // Audience - intended recipients of the token
-    // Example: "aud": "myclient"
-    public string? AuthAudience { get; set; } = null;
-    
-    [JsonPropertyName("auth-roles")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    // Roles assigned to the user in the realm
-    // Example: "realm_access": "{\"roles\":[\"user\",\"admin\"]}"
-    public string? AuthRoles { get; set; } = null;
-    
-    [JsonPropertyName("auth-resources")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    // Roles assigned to the user for specific resources
-    // Example: "resource_access": "{\"myclient\":{\"roles\":[\"custom-role\"]}}"
-    public string? AuthResources { get; set; } = null;
-
-    [JsonPropertyName("auth-extra")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public Dictionary<string, string>? AuthExtra { get; set; } = null
+    Custom,
+    Ignored
 }
 
+/// <summary>
+/// Represents an operation record for observability purposes.
+/// </summary>
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+public class OperationRecord
+{
+    /// <summary>
+    /// The timestamp when the operation was recorded.
+    /// </summary>
+    [JsonPropertyName("dh")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
+    [JsonConverter(typeof(LucUtilDatetimeConverter))]
+    public DateTime When { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// The step of the operation (e.g., Start, Step, Submit, Finish).
+    /// </summary>
+    [JsonPropertyName("step")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public LucWebObservabilityStep? Step { get; set; } = null;
+
+    /// <summary>
+    /// The importance level of the operation (e.g., Low, Medium, High, Critical).
+    /// </summary>
+    [JsonPropertyName("pri")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public LucWebObservabilityImportance? Importance { get; set; } = null;   
+    
+    /// <summary>
+    /// The host of the request.
+    /// </summary>
+    [JsonPropertyName("req-host")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? Host { get; set; } = null;
+
+    /// <summary>
+    /// The remote IP address of the client.
+    /// </summary>
+    [JsonPropertyName("remote-ip")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? RemoteIp { get; set; } = null;
+
+    /// <summary>
+    /// The remote port of the client.
+    /// </summary>
+    [JsonPropertyName("remote-port")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int? RemotePort { get; set; } = null;
+
+    /// <summary>
+    /// The path of the request.
+    /// </summary>
+    [JsonPropertyName("req-path")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? RequestPath { get; set; } = null;
+
+    /// <summary>
+    /// The path parameters of the request.
+    /// </summary>
+    [JsonPropertyName("req-path-param")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
+    public Dictionary<string,string>? RequestPathParams { get; set; } = null;
+      
+    /// <summary>
+    /// The query parameters of the request.
+    /// </summary>
+    [JsonPropertyName("req-query")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
+    public Dictionary<string,string>? RequestQuery { get; set; } = null;
+
+    /// <summary>
+    /// The body of the request.
+    /// </summary>
+    [JsonPropertyName("req-body")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
+    public string? RequestBody { get; set; } = null;
+
+    /// <summary>
+    /// The type of the request body (e.g., Json, Text, Base64).
+    /// </summary>
+    [JsonPropertyName("req-body-tp")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
+    public LucWebBodyType? RequestBodyType { get; set; } = null;
+
+    /// <summary>
+    /// The JSON representation of the request body.
+    /// </summary>
+    [JsonPropertyName("req-body-json")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
+    [JsonConverter(typeof(LucUtilRawJsonConverter))]
+    public string? RequestBodyJson { get; set; } = null;
+
+    /// <summary>
+    /// Indicates whether the request body is ignored.
+    /// </summary>
+    [JsonPropertyName("req-body-mode")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public LucWebCaptureType? RequestBodyMode { get; set; } = null;
+
+    /// <summary>
+    /// The headers of the request.
+    /// </summary>
+    [JsonPropertyName("req-hdrs")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
+    public Dictionary<string,string>? RequestHeaders { get; set; } = null;
+
+    /// <summary>
+    /// The headers of the response.
+    /// </summary>
+    [JsonPropertyName("rsp-hdrs")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
+    public Dictionary<string,string>? ResponseHeaders { get; set; }
+
+    /// <summary>
+    /// The status code of the response.
+    /// </summary>
+    [JsonPropertyName("rsp-status")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int? ResponseStatus { get; set; } = null;
+
+    /// <summary>
+    /// The body of the response.
+    /// </summary>
+    [JsonPropertyName("rsp-body")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
+    public string? ResponseBody { get; set; }
+
+    /// <summary>
+    /// The type of the response body (e.g., Json, Text, Base64).
+    /// </summary>
+    [JsonPropertyName("rsp-body-tp")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
+    public LucWebBodyType? ResponseBodyType { get; set; }
+
+    /// <summary>
+    /// The JSON representation of the response body.
+    /// </summary>
+    [JsonPropertyName("rsp-body-json")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
+    [JsonConverter(typeof(LucUtilRawJsonConverter))]
+    public string? ResponseBodyJson { get; set; }
+
+    /// <summary>
+    /// Indicates whether the response body is ignored.
+    /// </summary>
+    [JsonPropertyName("rsp-body-mode")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public LucWebCaptureType? ResponseBodyMode { get; set; } = null;
+
+    /// <summary>
+    /// Additional context information.
+    /// </summary>
+    [JsonPropertyName("ctx-info")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public Dictionary<string,object>? ContextInfo { get; set; } = null;
+
+    /// <summary>
+    /// Subject identifier - unique ID of the user.
+    /// Example: "sub": "1234567890"
+    /// </summary>
+    [JsonPropertyName("auth-user-id")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? AuthUserId { get; set; } = null;
+    
+    /// <summary>
+    /// Preferred username of the user.
+    /// Example: "preferred_username": "johndoe"
+    /// </summary>
+    [JsonPropertyName("auth-user-name")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? AuthUserName { get; set; } = null;
+    
+    /// <summary>
+    /// Email address of the user.
+    /// Example: "email": "johndoe@example.com"
+    /// </summary>
+    [JsonPropertyName("auth-user-email")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? AuthEmail { get; set; } = null;
+    
+    /// <summary>
+    /// Full name of the user.
+    /// Example: "name": "John Doe"
+    /// </summary>
+    [JsonPropertyName("auth-user-fullname")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? AuthFullName { get; set; } = null;    
+    
+    /// <summary>
+    /// Authorized party - client ID of the application.
+    /// Example: "azp": "myclient"
+    /// </summary>
+    [JsonPropertyName("auth-azp")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? AuthAuthorizedParty { get; set; } = null;
+    
+    /// <summary>
+    /// Audience - intended recipients of the token.
+    /// Example: "aud": "myclient"
+    /// </summary>
+    [JsonPropertyName("auth-aud")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? AuthAudience { get; set; } = null;
+    
+    /// <summary>
+    /// Roles assigned to the user in the realm.
+    /// Example: "realm_access": "{\"roles\":[\"user\",\"admin\"]}"
+    /// </summary>
+    [JsonPropertyName("auth-roles")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? AuthRoles { get; set; } = null;
+    
+    /// <summary>
+    /// Roles assigned to the user for specific resources.
+    /// Example: "resource_access": "{\"myclient\":{\"roles\":[\"custom-role\"]}}"
+    /// </summary>
+    [JsonPropertyName("auth-resources")] 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? AuthResources { get; set; } = null;
+
+    /// <summary>
+    /// Additional claims not covered by the standard properties.
+    /// </summary>
+    [JsonPropertyName("auth-extra")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public Dictionary<string, string>? AuthExtra { get; set; } = null;
+}
+
+/// <summary>
+/// Represents the output interface for observability.
+/// </summary>
 public interface ILucWebObservabilityOutput 
 {
     void Publish(OperationRecord record);
 }
+
 
 public static class HttpContextExtensions
 {
@@ -175,10 +341,13 @@ public static class HttpContextExtensions
         return context.LucWebGetOperationRecord() ?? throw new InvalidOperationException("OperationRecord is not set in the context.");        
     }
 
+    /// <summary>
+    /// Adds the specified object as the response body JSON.
+    /// </summary>
     public static void LucWebAddResponseBodyJson(this HttpContext context, object jsonObject)
     {
         var record = context.LucWebRequireOperationRecord();        
-        if( record.ResponseBodyIgnored == true )
+        if( record.ResponseBodyMode != LucWebCaptureType.Ignored )
         {
             throw new InvalidOperationException("The LucWebAddResponseBody can only be called if the [LucEndpoint] attribute does have the ObservabilityIgnoreResponseBody=true.");
         }
@@ -186,13 +355,17 @@ public static class HttpContextExtensions
         {
             record.ResponseBodyJson = JsonSerializer.Serialize(jsonObject);
             record.ResponseBodyType = LucWebBodyType.Json;            
+            record.ResponseBodyMode = LucWebCaptureType.Custom;
         }        
     }
 
+    /// <summary>
+    /// Adds the specified object as the request body JSON.
+    /// </summary>
     public static void LucWebAddRequestBodyJson(this HttpContext context, object jsonObject)
     {
         var record = context.LucWebRequireOperationRecord();        
-        if( record.RequestBodyIgnored == true )
+        if( record.RequestBodyMode != LucWebCaptureType.Ignored )
         {
             throw new InvalidOperationException("The LucWebAddResponseBody can only be called if the [LucEndpoint] attribute does have the ObservabilityIgnoreResponseBody=true.");
         }
@@ -200,21 +373,25 @@ public static class HttpContextExtensions
         {
             record.RequestBodyJson = JsonSerializer.Serialize(jsonObject);
             record.RequestBodyType = LucWebBodyType.Json;            
+            record.RequestBodyMode = LucWebCaptureType.Custom;
         }        
     }
 
+    /// <summary>
+    /// Adds context information with the specified key and value.
+    /// </summary>
     public static void LucWebAddContextInfo(this HttpContext context, string key, object value)
     {
         var record = context.LucWebRequireOperationRecord();
 
-        if (record.ContextInfo == null)
-        {
-            record.ContextInfo = [];
-        }
+        record.ContextInfo ??= [];
 
         record.ContextInfo[key] = value;
     }
 
+    /// <summary>
+    /// Removes the context information with the specified key.
+    /// </summary>
     public static void LucWebRemoveContextInfo(this HttpContext context, string key)
     {
         var record = context.LucWebRequireOperationRecord();
@@ -226,12 +403,12 @@ public static class HttpContextExtensions
 public class ObservabilityMiddleware 
 (
     ILucWebObservabilityOutput output,
-    IOptions<LucWebObservabilityConfig> config
+    LucWebObservabilityConfig config
 ) : IMiddleware
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     { 
-        if( config.Value.FixIpAddr )
+        if( config.FixIpAddr )
         {
             UpdateRequestIpAndPort(context); 
         }
@@ -251,7 +428,7 @@ public class ObservabilityMiddleware
         record.RemotePort = context.Connection.RemotePort;
 
         Stream originalBodyStream;
-        if( record.ResponseBodyIgnored != true )
+        if( record.ResponseBodyMode != LucWebCaptureType.Ignored )
         {
             originalBodyStream = context.Response.Body;
             context.Response.Body = new MemoryStream();
@@ -263,7 +440,7 @@ public class ObservabilityMiddleware
 
         UpdateRequestHeaders(record, context);
       
-        if( record.RequestBodyIgnored != true )
+        if( record.RequestBodyMode != LucWebCaptureType.Ignored )
         {
             await UpdateRequestBody(record, context);
         }
@@ -281,7 +458,7 @@ public class ObservabilityMiddleware
         }
         catch (Exception e)
         {
-            if (config.Value.ErrorHandler)
+            if (config.ErrorHandler)
             {
                 await HandleGeneralException(e, record, context);
             }
@@ -293,7 +470,7 @@ public class ObservabilityMiddleware
 
         UpdateResponseHeaders(record, context);
 
-        if( record.ResponseBodyIgnored != true )
+        if( record.ResponseBodyMode != LucWebCaptureType.Ignored )
         {
             await UpdateResponseBody(record, context);
             context.Response.Body.Seek(0, SeekOrigin.Begin);
@@ -302,7 +479,62 @@ public class ObservabilityMiddleware
 
         output.Publish(record);
     }
+   
+    /// <summary>
+    /// Creates an OperationRecord based on the current HttpContext.
+    /// </summary>
+    private OperationRecord? CreateOperationRecord(HttpContext context) 
+    {
+        var endpoint = context.GetEndpoint();
+        var lucEndpointAttribute = endpoint?.Metadata.GetMetadata<LucEndpointAttribute>();
+        if (lucEndpointAttribute == null) 
+        {            
+            if( config.IgnoreEndpointsWithoutAttribute )
+            {
+                return null;
+            }             
+        }
+        else if( lucEndpointAttribute.ObservabilityImportance == LucWebObservabilityImportance.Ignore) 
+        {
+            return null;
+        }
+        
+        var routePattern = endpoint?.Metadata.GetMetadata<Microsoft.AspNetCore.Routing.RouteEndpoint>()?.RoutePattern.RawText;
+        var routeValues = context.Request.RouteValues;
+        var requestPathParams = routeValues.ToDictionary(kvp => kvp.Key, kvp => kvp.Value?.ToString() ?? string.Empty);
 
+        if (routePattern == null)
+        {
+            routePattern = "{path}";
+            requestPathParams["path"] = context.Request.Path.ToString();
+        }
+
+        var result = new OperationRecord
+        {
+            RequestPath = routePattern, 
+            RequestPathParams = requestPathParams,
+            Importance = lucEndpointAttribute?.ObservabilityImportance,
+            Step = lucEndpointAttribute?.ObservabilityStep,               
+            RequestBodyMode = lucEndpointAttribute?.ObservabilityRequestBodyMode,
+            ResponseBodyMode = lucEndpointAttribute?.ObservabilityResponseBodyMode
+        };        
+
+        // when the user declared that will provide a custom body, we need to set the default to ignored         
+        if( result.RequestBodyMode == LucWebCaptureType.Custom )
+        {
+            result.RequestBodyMode = LucWebCaptureType.Ignored;
+        }
+        // when the user declared that will provide a custom body, we need to set the default to ignored 
+        if( result.ResponseBodyMode == LucWebCaptureType.Custom )
+        {
+            result.ResponseBodyMode = LucWebCaptureType.Ignored;
+        }        
+        return result;
+    }
+
+    /// <summary>
+    /// Extracts and parses the JWT token information from the HttpContext.
+    /// </summary>
     private static void ExtractJwtTokenInfo(OperationRecord record, HttpContext context)
     {
         var user = context.User;
@@ -332,6 +564,12 @@ public class ObservabilityMiddleware
                         // Full name of the user
                         // Example: "name": "John Doe"
                         record.AuthFullName = claim.Value;
+                        break;
+                    case "given_name":
+                        // Ignore given name since full name is captured
+                        break;
+                    case "family_name":
+                        // Ignore family name since full name is captured
                         break;
                     case "azp":
                         // Authorized party - client ID of the application
@@ -364,44 +602,9 @@ public class ObservabilityMiddleware
         }
     }
 
-    private OperationRecord? CreateOperationRecord(HttpContext context) 
-    {
-        var endpoint = context.GetEndpoint();
-        var lucEndpointAttribute = endpoint?.Metadata.GetMetadata<LucEndpointAttribute>();
-        if (lucEndpointAttribute == null) 
-        {            
-            if( config.Value.IgnoreEndpointsWithoutAttribute )
-            {
-                return null;
-            }             
-        }
-        else if( lucEndpointAttribute.ObservabilityImportance == LucWebObservabilityImportance.Ignore) 
-        {
-            return null;
-        }
-        
-        var routePattern = endpoint?.Metadata.GetMetadata<Microsoft.AspNetCore.Routing.RouteEndpoint>()?.RoutePattern.RawText;
-        var routeValues = context.Request.RouteValues;
-        var requestPathParams = routeValues.ToDictionary(kvp => kvp.Key, kvp => kvp.Value?.ToString() ?? string.Empty);
-
-        if (routePattern == null)
-        {
-            routePattern = "{path}";
-            requestPathParams["path"] = context.Request.Path.ToString();
-        }
-
-        var result = new OperationRecord
-        {
-            RequestPath = routePattern, 
-            RequestPathParams = requestPathParams,
-            Importance = lucEndpointAttribute?.ObservabilityImportance,
-            Step = lucEndpointAttribute?.ObservabilityStep,   
-            RequestBodyIgnored = lucEndpointAttribute?.ObservabilityIgnoreRequestBody,         
-            ResponseBodyIgnored = lucEndpointAttribute?.ObservabilityIgnoreResponseBody,         
-        };        
-        return result;
-    }
-
+    /// <summary>
+    /// Updates the IP address and port of the request using the X-Forwarded-For header.
+    /// </summary>
     private static void UpdateRequestIpAndPort(HttpContext context)
     {
         // Examples generated by Copilot
@@ -437,6 +640,9 @@ public class ObservabilityMiddleware
         }
     }
 
+    /// <summary>
+    /// Updates the request headers of the operation record.
+    /// </summary>
     private static void UpdateRequestHeaders(OperationRecord record, HttpContext context)
     {
         record.RequestHeaders = context.Request.Headers
@@ -448,6 +654,9 @@ public class ObservabilityMiddleware
             );
     }
 
+    /// <summary>
+    /// Updates the response headers of the operation record.
+    /// </summary>
     private static void UpdateResponseHeaders(OperationRecord record, HttpContext context)
     {
         record.ResponseHeaders = context.Response.Headers
@@ -458,9 +667,12 @@ public class ObservabilityMiddleware
             );
     }
 
+    /// <summary>
+    /// Updates the request body of the operation record.
+    /// </summary>
     private static async Task UpdateRequestBody(OperationRecord record, HttpContext context)
     {
-        if (record.RequestBodyIgnored != true)
+        if (record.RequestBodyMode != LucWebCaptureType.Ignored)
         {
             context.Request.EnableBuffering();
             var requestBody = await new StreamReader(context.Request.Body).ReadToEndAsync();
@@ -488,9 +700,12 @@ public class ObservabilityMiddleware
         }
     }
    
+    /// <summary>
+    /// Updates the response body of the operation record.
+    /// </summary>
     private static async Task UpdateResponseBody(OperationRecord record, HttpContext context)
     {
-        if (record.ResponseBodyIgnored != true)
+        if (record.ResponseBodyMode != LucWebCaptureType.Ignored)
         {
             context.Response.Body.Seek(0, SeekOrigin.Begin);
             var responseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();
@@ -518,6 +733,9 @@ public class ObservabilityMiddleware
         }
     }
 
+    /// <summary>
+    /// Handles a LucWebResponseException by generating a standardized error response.
+    /// </summary>
     private static async Task HandleLucWebResponseException(LucWebResponseException e, OperationRecord record, HttpContext context)
     {
         var response = new LucWebResponseBase
@@ -537,6 +755,9 @@ public class ObservabilityMiddleware
         await context.Response.WriteAsync(responseString);
     }
 
+    /// <summary>
+    /// Handles a general exception by generating a standardized error response.
+    /// </summary>
     private static async Task HandleGeneralException(Exception e, OperationRecord record, HttpContext context)
     {
         var response = new LucWebResponseBase
@@ -554,3 +775,5 @@ public class ObservabilityMiddleware
         await context.Response.WriteAsync(responseString);
     }
 }
+
+
