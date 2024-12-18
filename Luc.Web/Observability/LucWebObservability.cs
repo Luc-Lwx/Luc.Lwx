@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Globalization;
+using System.Diagnostics.CodeAnalysis;
 
 public class LucWebObservabilityConfig
 {
@@ -39,6 +40,7 @@ public enum LucWebBodyType
 }
 
 
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
 public class OperationRecord
 {    
     [JsonPropertyName("dh")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] [JsonConverter(typeof(LucUtilDatetimeConverter))]
@@ -50,6 +52,15 @@ public class OperationRecord
     [JsonPropertyName("pri")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] [JsonConverter(typeof(JsonStringEnumConverter))]
     public LucWebObservabilityImportance? Importance { get; set; } = null;   
     
+    [JsonPropertyName("req-host")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? Host { get; set; } = null;
+
+    [JsonPropertyName("remote-ip")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? RemoteIp { get; set; } = null;
+
+    [JsonPropertyName("remote-port")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int? RemotePort { get; set; } = null;
+
     [JsonPropertyName("req-path")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public string? RequestPath { get; set; } = null;
 
@@ -80,7 +91,6 @@ public class OperationRecord
     [JsonPropertyName("rsp-status")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int? ResponseStatus { get; set; } = null;
 
-
     [JsonPropertyName("rsp-body")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
     public string? ResponseBody { get; set; }
 
@@ -92,6 +102,53 @@ public class OperationRecord
 
     [JsonPropertyName("rsp-body-ignored")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool? ResponseBodyIgnored { get; set; } = null;
+
+    [JsonPropertyName("ctx-info")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public Dictionary<string,object>? ContextInfo { get; set; } = null;
+
+    [JsonPropertyName("auth-user-id")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    // Subject identifier - unique ID of the user
+    // Example: "sub": "1234567890"
+    public string? AuthUserId { get; set; } = null;
+    
+    [JsonPropertyName("auth-user-name")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    // Preferred username of the user
+    // Example: "preferred_username": "johndoe"
+    public string? AuthUserName { get; set; } = null;
+    
+    [JsonPropertyName("auth-user-email")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    // Email address of the user
+    // Example: "email": "johndoe@example.com"
+    public string? AuthEmail { get; set; } = null;
+    
+    [JsonPropertyName("auth-user-fullname")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    // Full name of the user
+    // Example: "name": "John Doe"
+    public string? AuthFullName { get; set; } = null;    
+    
+    [JsonPropertyName("auth-azp")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    // Authorized party - client ID of the application
+    // Example: "azp": "myclient"
+    public string? AuthAuthorizedParty { get; set; } = null;
+    
+    [JsonPropertyName("auth-aud")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    // Audience - intended recipients of the token
+    // Example: "aud": "myclient"
+    public string? AuthAudience { get; set; } = null;
+    
+    [JsonPropertyName("auth-roles")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    // Roles assigned to the user in the realm
+    // Example: "realm_access": "{\"roles\":[\"user\",\"admin\"]}"
+    public string? AuthRoles { get; set; } = null;
+    
+    [JsonPropertyName("auth-resources")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    // Roles assigned to the user for specific resources
+    // Example: "resource_access": "{\"myclient\":{\"roles\":[\"custom-role\"]}}"
+    public string? AuthResources { get; set; } = null;
+
+    [JsonPropertyName("auth-extra")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public Dictionary<string, string>? AuthExtra { get; set; } = null
 }
 
 public interface ILucWebObservabilityOutput 
@@ -145,6 +202,25 @@ public static class HttpContextExtensions
             record.RequestBodyType = LucWebBodyType.Json;            
         }        
     }
+
+    public static void LucWebAddContextInfo(this HttpContext context, string key, object value)
+    {
+        var record = context.LucWebRequireOperationRecord();
+
+        if (record.ContextInfo == null)
+        {
+            record.ContextInfo = [];
+        }
+
+        record.ContextInfo[key] = value;
+    }
+
+    public static void LucWebRemoveContextInfo(this HttpContext context, string key)
+    {
+        var record = context.LucWebRequireOperationRecord();
+
+        record.ContextInfo?.Remove(key);
+    }
 }
 
 public class ObservabilityMiddleware 
@@ -169,6 +245,11 @@ public class ObservabilityMiddleware
 
         context.LucWebSetOperationRecord(record);
 
+        // Set Host, RemoteIp, and RemotePort
+        record.Host = context.Request.Host.Value;
+        record.RemoteIp = context.Connection.RemoteIpAddress?.ToString();
+        record.RemotePort = context.Connection.RemotePort;
+
         Stream originalBodyStream;
         if( record.ResponseBodyIgnored != true )
         {
@@ -186,6 +267,9 @@ public class ObservabilityMiddleware
         {
             await UpdateRequestBody(record, context);
         }
+
+        // Extract and parse JWT token
+        ExtractJwtTokenInfo(record, context);
 
         try
         {
@@ -217,6 +301,67 @@ public class ObservabilityMiddleware
         }
 
         output.Publish(record);
+    }
+
+    private static void ExtractJwtTokenInfo(OperationRecord record, HttpContext context)
+    {
+        var user = context.User;
+
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            foreach (var claim in user.Claims)
+            {
+                switch (claim.Type)
+                {
+                    case "sub":
+                        // Subject identifier - unique ID of the user
+                        // Example: "sub": "1234567890"
+                        record.AuthUserId = claim.Value;
+                        break;
+                    case "preferred_username":
+                        // Preferred username of the user
+                        // Example: "preferred_username": "johndoe"
+                        record.AuthUserName = claim.Value;
+                        break;
+                    case "email":
+                        // Email address of the user
+                        // Example: "email": "johndoe@example.com"
+                        record.AuthEmail = claim.Value;
+                        break;
+                    case "name":
+                        // Full name of the user
+                        // Example: "name": "John Doe"
+                        record.AuthFullName = claim.Value;
+                        break;
+                    case "azp":
+                        // Authorized party - client ID of the application
+                        // Example: "azp": "myclient"
+                        record.AuthAuthorizedParty = claim.Value;
+                        break;
+                    case "aud":
+                        // Audience - intended recipients of the token
+                        // Example: "aud": "myclient"
+                        record.AuthAudience = claim.Value;
+                        break;
+                    case "realm_access":
+                        // Roles assigned to the user in the realm
+                        // Example: "realm_access": "{\"roles\":[\"user\",\"admin\"]}"
+                        record.AuthRoles = claim.Value;
+                        break;
+                    case "resource_access":
+                        // Roles assigned to the user for specific resources
+                        // Example: "resource_access": "{\"myclient\":{\"roles\":[\"custom-role\"]}}"
+                        record.AuthResources = claim.Value;
+                        break;
+                    // ...existing code...
+                    default:
+                         // Capture extra claims
+                        record.AuthExtra ??= [];
+                        record.AuthExtra[claim.Type] = claim.Value;
+                        break;
+                }
+            }
+        }
     }
 
     private OperationRecord? CreateOperationRecord(HttpContext context) 
@@ -295,6 +440,7 @@ public class ObservabilityMiddleware
     private static void UpdateRequestHeaders(OperationRecord record, HttpContext context)
     {
         record.RequestHeaders = context.Request.Headers
+            .Where(kvp => !string.Equals(kvp.Key, "Host", StringComparison.OrdinalIgnoreCase))
             .GroupBy(kvp => kvp.Key, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(
                 g => g.Key,
