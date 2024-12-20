@@ -69,17 +69,17 @@ internal partial class LucWebGenerator_Type
         foreach (var attribute in attributes)
         {
             var attr = attribute.AttributeClass;
-            if (attr?.ToDisplayString() == typeof(LucEndpointAttribute).FullName)
+            if (attr?.ToDisplayString() == typeof(LwxEndpointAttribute).FullName)
             {                        
                 var processor = new LucWebGenerator_Method_Endpoint(this, method, attribute);
                 processor.Execute();
             }
-            if (attr?.ToDisplayString() == typeof(LucAuthPolicyAttribute).FullName)
+            if (attr?.ToDisplayString() == typeof(LwxAuthPolicyAttribute).FullName)
             {                        
                 var processor = new LucWebGenerator_Method_AuthPolicy(this, method, attribute);
                 processor.Execute();
             }
-            if (attr?.ToDisplayString() == typeof(LucAuthSchemeAttribute).FullName)
+            if (attr?.ToDisplayString() == typeof(LwxAuthSchemeAttribute).FullName)
             {                        
                 var processor = new LucWebGenerator_Method_AuthScheme(this, method, attribute);
                 processor.Execute();
@@ -97,7 +97,7 @@ internal partial class LucWebGenerator_Type
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC005", 
-                msgFormat: """Luc.Web: The namespace can't contain the 'src' element.""", 
+                msgFormat: """LWX: The namespace can't contain the 'src' element.""", 
                 srcLocation: Type.GetLocation() 
             );
             return;
@@ -109,7 +109,7 @@ internal partial class LucWebGenerator_Type
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC003", 
-                msgFormat: $"""Luc.Web: The type name '{TypeName}' must start with '{TypeAssemblyName}'.""", 
+                msgFormat: $"""LWX: The type name '{TypeName}' must start with '{TypeAssemblyName}'.""", 
                 srcLocation: Type.GetLocation() 
             );
             return;
@@ -134,7 +134,7 @@ internal partial class LucWebGenerator_Type
                     ( 
                         msgSeverity: DiagnosticSeverity.Error, 
                         msgId: "LUC012", 
-                        msgFormat: $"""Luc.Web: The type {TypeNameFull} must be in the source file {expectedFileDir}/{expectedFileName}_*.cs""", 
+                        msgFormat: $"""LWX: The type {TypeNameFull} must be in the source file {expectedFileDir}/{expectedFileName}_*.cs""", 
                         srcLocation: Type.GetLocation() 
                     );
                     return;
@@ -148,7 +148,7 @@ internal partial class LucWebGenerator_Type
                     ( 
                         msgSeverity: DiagnosticSeverity.Error, 
                         msgId: "LUC004", 
-                        msgFormat: $"""Luc.Web: The type {TypeNameFull} must be in the source file {expectedFile}""", 
+                        msgFormat: $"""LWX: The type {TypeNameFull} must be in the source file {expectedFile}""", 
                         srcLocation: Type.GetLocation() 
                     );
                     return;
@@ -165,7 +165,7 @@ internal partial class LucWebGenerator_Type
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC001", 
-                msgFormat: $"""Luc.Web: The utilization of Controller is forbidden! Use [LucEndpoint] instead.""", 
+                msgFormat: $"""LWX: The utilization of Controller is forbidden! Use [LwxEndpoint] instead.""", 
                 srcLocation: Type.GetLocation() 
             );
         }
@@ -178,7 +178,7 @@ internal partial class LucWebGenerator_Type
                 ( 
                     msgSeverity: DiagnosticSeverity.Error, 
                     msgId: "LUC002", 
-                    msgFormat: $"""Luc.Web: The utilization of [Controller] is forbidden! Use [LucEndpoint] instead.""", 
+                    msgFormat: $"""LWX: The utilization of [Controller] is forbidden! Use [LwxEndpoint] instead.""", 
                     srcLocation: attr.ApplicationSyntaxReference?.GetSyntax().GetLocation() 
                 );
             }

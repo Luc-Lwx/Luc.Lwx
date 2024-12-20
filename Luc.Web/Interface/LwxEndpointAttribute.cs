@@ -1,10 +1,10 @@
 using System;
-using Luc.Web.Observability;
+using Luc.Web.LwxActivityLog;
 
 namespace Luc.Web.Interface;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class LucEndpointAttribute : Attribute
+public class LwxEndpointAttribute : Attribute
 {
     /// <summary>
     /// The path in which you want to publish your endpoint (ex /example/abc)
@@ -42,40 +42,17 @@ public class LucEndpointAttribute : Attribute
     public required string SwaggerFuncDescription { get; set; }
 
     /// <summary>
-    /// Luc.Web enforce the naming of the class to match the endpoint path. When you need to disable this rule for your endpoint, explain to reviewers why. 
+    /// LWX: enforce the naming of the class to match the endpoint path. When you need to disable this rule for your endpoint, explain to reviewers why. 
     /// </summary>
     public string? LowMaintanability_Naming_Justification { get; set; } = null;
 
     /// <summary>
-    /// Luc.Web enforce the naming of the class to match the endpoint path. When you need to disable this rule for your endpoint, explain to reviewers why. 
+    /// LWX: enforce the naming of the class to match the endpoint path. When you need to disable this rule for your endpoint, explain to reviewers why. 
     /// </summary>
     public string? LowMaintanability_ParameterInPath_Justification { get; set; } = null;
 
     /// <summary>
-    /// Luc.Web enforce all paths to begin with the apimagner path. When you need to disable this rule for your endpoint, explain to reviewers why.
+    /// LWX: enforce all paths to begin with the apimagner path. When you need to disable this rule for your endpoint, explain to reviewers why.
     /// </summary>
     public string? LowMaintanability_NotInApiManagerPath_Justification { get; set; } = null;
-
-    /// <summary>
-    /// Inform the importance of this step for archiving and monitoring purposes
-    /// </summary>
-    /// <remarks>
-    /// When the API modifies userdata, changes authorization, make purchases, the importance should be high.
-    /// </remarks>
-    public LucWebObservabilityImportance ObservabilityImportance { get; internal set; }
-
-    /// <summary>
-    /// Inform the step for archiving and monitoring purposes
-    /// </summary>
-    public LucWebObservabilityStep ObservabilityStep { get; internal set; }
-
-    /// <summary>
-    /// Inform how the request body should be handled (default is to be captured)
-    /// </summary>
-    public LucWebCaptureType ObservabilityRequestBodyMode { get; internal set; }
-
-    /// <summary>
-    /// Inform how the response body should be handled (default is to be captured)
-    /// </summary>
-    public LucWebCaptureType ObservabilityResponseBodyMode { get; internal set; }
 }

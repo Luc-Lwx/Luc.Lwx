@@ -197,7 +197,7 @@ internal static partial class LucWebGeneratorExtensions
                     id: msgId,
                     title: msgFormat,
                     messageFormat: msgFormat,
-                    category: LucWebGenerator.LucEndpointCategory,
+                    category: LucWebGenerator.LwxEndpointCategory,
                     msgSeverity,
                     isEnabledByDefault: true
                 ), 

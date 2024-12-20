@@ -13,7 +13,7 @@ namespace Luc.Web.Generator;
 [Generator]
 internal class LucWebGenerator : IIncrementalGenerator
 {
-    public const string LucEndpointCategory = "Luc.Web";    
+    public const string LwxEndpointCategory = "Luc.Web";    
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {

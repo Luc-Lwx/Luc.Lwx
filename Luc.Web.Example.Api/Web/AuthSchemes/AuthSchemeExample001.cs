@@ -9,7 +9,7 @@ namespace Luc.Web.Example.Api.Web.AuthSchemes;
 
 public static partial class AuthSchemeExample001
 { 
-  [LucAuthScheme]
+  [LwxAuthScheme()]
   public static void Configure( AuthenticationBuilder authBuilder ) 
   {
     authBuilder.AddJwtBearer

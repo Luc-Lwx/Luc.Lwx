@@ -312,7 +312,7 @@ internal partial class LucWebGenerator_Assembly
                     id: msgId,
                     title: msgFormat,
                     messageFormat: msgFormat,
-                    category: LucWebGenerator.LucEndpointCategory,
+                    category: LucWebGenerator.LwxEndpointCategory,
                     msgSeverity,
                     isEnabledByDefault: true
                 ), 

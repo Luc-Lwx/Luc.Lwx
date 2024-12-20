@@ -28,7 +28,7 @@ internal class LucWebGenerator_Method_AuthPolicy
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0011", 
-                msgFormat: $"""Luc.Web: The type {Type.TypeNameFull} must be a partial class""", 
+                msgFormat: $"""LWX: The type {Type.TypeNameFull} must be a partial class""", 
                 srcLocation: Type.Type.GetLocation() 
             );
             return;
@@ -40,7 +40,7 @@ internal class LucWebGenerator_Method_AuthPolicy
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0012", 
-                msgFormat: $"""Luc.Web: The type {Type.TypeNameFull} must be public""", 
+                msgFormat: $"""LWX: The type {Type.TypeNameFull} must be public""", 
                 srcLocation: Type.Type.GetLocation() 
             );
             return;
@@ -52,7 +52,7 @@ internal class LucWebGenerator_Method_AuthPolicy
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0013", 
-                msgFormat: $"""Luc.Web: The method {Method.Identifier.Text} must be public""", 
+                msgFormat: $"""LWX: The method {Method.Identifier.Text} must be public""", 
                 srcLocation: Method.GetLocation() 
             );
             return;
@@ -64,7 +64,7 @@ internal class LucWebGenerator_Method_AuthPolicy
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0014", 
-                msgFormat: $"""Luc.Web: The method {Method.Identifier.Text} must be static""", 
+                msgFormat: $"""LWX: The method {Method.Identifier.Text} must be static""", 
                 srcLocation: Method.GetLocation() 
             );
             return;
@@ -78,7 +78,7 @@ internal class LucWebGenerator_Method_AuthPolicy
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC006", 
                 msgFormat: $"""
-                    Luc.Web: The authentication policies must be in the namespace {Type.TypeAssemblyName}.Web.AuthPolicies 
+                    LWX: The authentication policies must be in the namespace {Type.TypeAssemblyName}.Web.AuthPolicies 
 
                     Found: {Type.TypeNamespaceName}                    
                     Assembly Name: {Type.TypeAssemblyName}
@@ -96,7 +96,7 @@ internal class LucWebGenerator_Method_AuthPolicy
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC026", 
                 msgFormat: $"""
-                    Luc.Web: Authentication policies types must start with AuthPolicy
+                    LWX: Authentication policies types must start with AuthPolicy
 
                     Ex: AuthPolicyExample001
                     Found: {Type.TypeName}
@@ -119,7 +119,7 @@ internal class LucWebGenerator_Method_AuthPolicy
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC01232", 
                 msgFormat: $"""
-                    Luc.Web: The generatedMethodName '{generatedMethodName}' is not a valid method name
+                    LWX: The generatedMethodName '{generatedMethodName}' is not a valid method name
                     """, 
                 srcLocation: Attr.LucGetAttributeArgumentLocation("GeneratedMethodName") 
             );
@@ -133,7 +133,7 @@ internal class LucWebGenerator_Method_AuthPolicy
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC00419", 
                 msgFormat: $"""
-                    Luc.Web: The method '{Method.Identifier.Text}' must be named 'Configure'
+                    LWX: The method '{Method.Identifier.Text}' must be named 'Configure'
                     """, 
                 srcLocation: Method.GetLocation() 
             );
@@ -181,7 +181,7 @@ internal class LucWebGenerator_Method_AuthPolicy
             msgSeverity: DiagnosticSeverity.Info, 
             msgId: "LUC008", 
             msgFormat: $$"""
-                Luc.Web: Fragment includedd in the generated method                                
+                LWX: Fragment includedd in the generated method                                
 
                 Method Fragment:
 

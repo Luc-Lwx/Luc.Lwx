@@ -1,7 +1,7 @@
 namespace Luc.Web.Interface;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class LucAuthPolicyAttribute : Attribute
+public class LwxAuthPolicyAttribute : Attribute
 {
     /// <summary>
     /// This controls the generated method name.

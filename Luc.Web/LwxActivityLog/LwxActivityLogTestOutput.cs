@@ -1,16 +1,16 @@
 
 using System.Collections.Concurrent;
 
-namespace Luc.Web.Observability;
+namespace Luc.Web.LwxActivityLog;
 
 /// <summary>
 /// This class is used to store the output of the observability system for testing purposes.
 /// </summary>
-public class LucWebObservabilityTestOutput : ILucWebObservabilityOutput
+public class LwxActivityLogTestOutput : ILwxActivityLogOutput
 {
-    private readonly ConcurrentDictionary<string, List<OperationRecord>> _records = new();
+    private readonly ConcurrentDictionary<string, List<LwxRecord>> _records = new();
     
-    public void Publish(OperationRecord record)
+    public void Publish(LwxRecord record)
     {
         if (record.RequestPath == null)
         {
@@ -27,7 +27,7 @@ public class LucWebObservabilityTestOutput : ILucWebObservabilityOutput
             });
     }
 
-    public IReadOnlyDictionary<string, List<OperationRecord>> GetRecords()
+    public IReadOnlyDictionary<string, List<LwxRecord>> GetRecords()
     {
         return _records;
     }

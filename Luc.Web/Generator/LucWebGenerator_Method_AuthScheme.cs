@@ -28,7 +28,7 @@ internal class LucWebGenerator_Method_AuthScheme
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0011", 
-                msgFormat: $"""Luc.Web: The type {Type.TypeNameFull} must be a partial class""", 
+                msgFormat: $"""LWX: The type {Type.TypeNameFull} must be a partial class""", 
                 srcLocation: Type.Type.GetLocation() 
             );
             return;
@@ -40,7 +40,7 @@ internal class LucWebGenerator_Method_AuthScheme
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0012", 
-                msgFormat: $"""Luc.Web: The type {Type.TypeNameFull} must be public""", 
+                msgFormat: $"""LWX: The type {Type.TypeNameFull} must be public""", 
                 srcLocation: Type.Type.GetLocation() 
             );
             return;
@@ -52,7 +52,7 @@ internal class LucWebGenerator_Method_AuthScheme
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0013", 
-                msgFormat: $"""Luc.Web: The method {Method.Identifier.Text} must be public""", 
+                msgFormat: $"""LWX: The method {Method.Identifier.Text} must be public""", 
                 srcLocation: Method.GetLocation() 
             );
             return;
@@ -64,7 +64,7 @@ internal class LucWebGenerator_Method_AuthScheme
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0014", 
-                msgFormat: $"""Luc.Web: The method {Method.Identifier.Text} must be static""", 
+                msgFormat: $"""LWX: The method {Method.Identifier.Text} must be static""", 
                 srcLocation: Method.GetLocation() 
             );
             return;
@@ -76,7 +76,7 @@ internal class LucWebGenerator_Method_AuthScheme
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0123", 
-                msgFormat: $"""Luc.Web: The type {Type.TypeNameFull} must be in the namespace {Type.TypeAssemblyName}.Web.AuthSchemes""", 
+                msgFormat: $"""LWX: The type {Type.TypeNameFull} must be in the namespace {Type.TypeAssemblyName}.Web.AuthSchemes""", 
                 srcLocation: Type.Type.GetLocation() 
             );
             return;
@@ -89,7 +89,7 @@ internal class LucWebGenerator_Method_AuthScheme
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0123", 
                 msgFormat: $"""
-                    Luc.Web: The type {Type.TypeNameFull} must be in the namespace {Type.TypeAssemblyName}.Web.AuthSchemes.AuthScheme<name>
+                    LWX: The type {Type.TypeNameFull} must be in the namespace {Type.TypeAssemblyName}.Web.AuthSchemes.AuthScheme<name>
                     
                     The <name> should be replaced by the desired scheme name.
                     """, 
@@ -110,7 +110,7 @@ internal class LucWebGenerator_Method_AuthScheme
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC01232", 
                 msgFormat: $"""
-                    Luc.Web: The generatedMethodName '{generatedMethodName}' is not a valid method name
+                    LWX: The generatedMethodName '{generatedMethodName}' is not a valid method name
                     """, 
                 srcLocation: Attr.LucGetAttributeArgumentLocation("GeneratedMethodName") 
             );
@@ -124,7 +124,7 @@ internal class LucWebGenerator_Method_AuthScheme
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC00418", 
                 msgFormat: $"""
-                    Luc.Web: The Name '{AuthSchemeName}' needs to be a valid property name
+                    LWX: The Name '{AuthSchemeName}' needs to be a valid property name
                     """, 
                 srcLocation: Type.Type.GetLocation() 
             );
@@ -138,7 +138,7 @@ internal class LucWebGenerator_Method_AuthScheme
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC00419", 
                 msgFormat: $"""
-                    Luc.Web: The method '{Method.Identifier.Text}' must be named 'Configure'
+                    LWX: The method '{Method.Identifier.Text}' must be named 'Configure'
                     """, 
                 srcLocation: Method.GetLocation() 
             );
@@ -191,7 +191,7 @@ internal class LucWebGenerator_Method_AuthScheme
             msgSeverity: DiagnosticSeverity.Info, 
             msgId: "LUC008", 
             msgFormat: $$"""
-                Luc.Web: Fragment includedd in the generated method                                
+                LWX: Fragment includedd in the generated method                                
 
                 Method Body Fragment:
 

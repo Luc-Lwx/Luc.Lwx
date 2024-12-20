@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
+using Luc.Web.LwxActivityLog;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -27,7 +28,7 @@ internal partial class LucWebGenerator_Method_Endpoint(
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0011", 
-                msgFormat: $"""Luc.Web: The type {Type.TypeNameFull} must be a partial class""", 
+                msgFormat: $"""LWX: The type {Type.TypeNameFull} must be a partial class""", 
                 srcLocation: Type.Type.GetLocation() 
             );
             return;
@@ -39,7 +40,7 @@ internal partial class LucWebGenerator_Method_Endpoint(
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0012", 
-                msgFormat: $"""Luc.Web: The type {Type.TypeNameFull} must be public""", 
+                msgFormat: $"""LWX: The type {Type.TypeNameFull} must be public""", 
                 srcLocation: Type.Type.GetLocation() 
             );
             return;
@@ -51,7 +52,7 @@ internal partial class LucWebGenerator_Method_Endpoint(
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0013", 
-                msgFormat: $"""Luc.Web: The method {Method.Identifier.Text} must be public""", 
+                msgFormat: $"""LWX: The method {Method.Identifier.Text} must be public""", 
                 srcLocation: Method.GetLocation() 
             );
             return;
@@ -63,7 +64,7 @@ internal partial class LucWebGenerator_Method_Endpoint(
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0014", 
-                msgFormat: $"""Luc.Web: The method {Method.Identifier.Text} must be static""", 
+                msgFormat: $"""LWX: The method {Method.Identifier.Text} must be static""", 
                 srcLocation: Method.GetLocation() 
             );
             return;
@@ -75,11 +76,28 @@ internal partial class LucWebGenerator_Method_Endpoint(
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC006", 
-                msgFormat: $"""Luc.Web: The type {Type.TypeNameFull} must be in the namespace {Type.TypeAssemblyName}.Web.Endpoints""", 
+                msgFormat: $"""LWX: The type {Type.TypeNameFull} must be in the namespace {Type.TypeAssemblyName}.Web.Endpoints""", 
                 srcLocation: Type.Type.GetLocation() 
             );
             return;
         } 
+
+        
+        var attributes = Type.TypeSemanticModel.GetDeclaredSymbol(_method)?.GetAttributes();
+        var lwxActivityLogAttribute = attributes?.FirstOrDefault( a => a.AttributeClass?.ToDisplayString() == typeof(LwxActivityLogAttribute).FullName );
+        if( lwxActivityLogAttribute == null )
+        {
+            Type.ReportWarning
+            ( 
+                msgSeverity: DiagnosticSeverity.Error, 
+                msgId: "LUC0015", 
+                msgFormat: $"""LWX: The method {Method.Identifier.Text} must have a [LwxActivityLog]""", 
+                srcLocation: Method.GetLocation() 
+            );
+            return;
+        }
+        
+
 
         // get attribute params
         var attrMethodAndPath = Attr.LucGetAttributeValueAsString( "Path" );
@@ -96,7 +114,7 @@ internal partial class LucWebGenerator_Method_Endpoint(
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0018", 
                 msgFormat: $"""
-                    Luc.Web: The generatedMethodName '{generatedMethodName}' is not a valid method name
+                    LWX: The generatedMethodName '{generatedMethodName}' is not a valid method name
                     """, 
                 srcLocation: Attr.LucGetAttributeArgumentLocation("GeneratedMethodName") 
             );
@@ -111,7 +129,7 @@ internal partial class LucWebGenerator_Method_Endpoint(
                 msgId: "LUC0014",
                 msgSeverity: DiagnosticSeverity.Error,
                 msgFormat: """
-                    Luc.Web: The path should be 'POST /path'
+                    LWX: The path should be 'POST /path'
                     
                     where the path should be:                    
                     * GET for operations without request body; 
@@ -141,7 +159,7 @@ internal partial class LucWebGenerator_Method_Endpoint(
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0022", 
                 msgFormat: $$"""
-                    Luc.Web: The utilization of parameters in path is not recomended
+                    LWX: The utilization of parameters in path is not recomended
 
                     In place of: POST /myapp/mycollection/{collectionId}
                     Use          POST /myapp/mycollection?collectionId={collectionId}
@@ -157,7 +175,7 @@ internal partial class LucWebGenerator_Method_Endpoint(
 
                     If you really need this, you can supress this warning using:
                     
-                    [LucEndpoint(
+                    [LwxEndpoint(
                         Path = "{attrMethod} {attrPath}",
                         LowMaintanability_ParameterInPath_Justification = "I need this because of ..."
                         ...
@@ -177,7 +195,7 @@ internal partial class LucWebGenerator_Method_Endpoint(
                     msgSeverity: DiagnosticSeverity.Error, 
                     msgId: "LUC06546", 
                     msgFormat: $$"""
-                        Luc.Web: The appsettings.json LucWeb:ApiManagerPath must not end with a slash
+                        LWX: The appsettings.json LucWeb:ApiManagerPath must not end with a slash
                     
                         The appsettings.json of your project must contain a section like this:
 
@@ -207,7 +225,7 @@ internal partial class LucWebGenerator_Method_Endpoint(
                         msgSeverity: DiagnosticSeverity.Error, 
                         msgId: "LUC0215", 
                         msgFormat: $$"""
-                            Luc.Web: Your API does not violate the rule NotInApiManagerPath!
+                            LWX: Your API does not violate the rule NotInApiManagerPath!
                             
                             The use of LowMaintanability_NotInApiManagerPath_Justification is only allowed when the rule is violated
 
@@ -232,7 +250,7 @@ internal partial class LucWebGenerator_Method_Endpoint(
                         msgSeverity: DiagnosticSeverity.Error, 
                         msgId: "LUC0015", 
                         msgFormat: $$"""
-                            Luc.Web: The path must start with {apiManagerPath}/
+                            LWX: The path must start with {apiManagerPath}/
 
                             It is recomended that you use the same prefix that you will use to publish it.
 
@@ -254,7 +272,7 @@ internal partial class LucWebGenerator_Method_Endpoint(
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0016", 
                 msgFormat: $$"""
-                    Luc.Web: The appsettings.json must declare the LucWeb:ApiManagerPath
+                    LWX: The appsettings.json must declare the LucWeb:ApiManagerPath
 
                     The {{Type.TypeAssemblyName}}.csproj must contains
 
@@ -304,7 +322,7 @@ internal partial class LucWebGenerator_Method_Endpoint(
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0013", 
                 msgFormat: $"""
-                    Luc.Web: The path {attrPath} must be implemented in the type {expectedFullTypeName}
+                    LWX: The path {attrPath} must be implemented in the type {expectedFullTypeName}
 
                     expectedTypeNameReference: {expectedTypeNameReference}
                     expectedShortTypeName: {expectedShortTypeName}
@@ -329,7 +347,7 @@ internal partial class LucWebGenerator_Method_Endpoint(
                 ( 
                     msgSeverity: DiagnosticSeverity.Error, 
                     msgId: "LUC0017", 
-                    msgFormat: $"""Luc.Web: The method {attrMethod} is not supported by dotnet core minimal APIs""", 
+                    msgFormat: $"""LWX: The method {attrMethod} is not supported by dotnet core minimal APIs""", 
                     srcLocation: Attr.LucGetAttributeArgumentLocation("Path") 
                 );
                 return;
@@ -349,9 +367,9 @@ internal partial class LucWebGenerator_Method_Endpoint(
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0019", 
                 msgFormat: $"""
-                    Luc.Web: The AuthPolicy must be defined as the example bellow
+                    LWX: The AuthPolicy must be defined as the example bellow
                     
-                    [LucEndpoint(
+                    [LwxEndpoint(
                         Path = "{attrMethodAndPath}",
                         AuthPolicy = typeof(AuthPolicyExample001),
                         ...
@@ -369,9 +387,9 @@ internal partial class LucWebGenerator_Method_Endpoint(
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0019", 
                 msgFormat: $"""
-                    Luc.Web: The AuthPolicy must be a class that starts with AuthPolicy as in the example bellow
+                    LWX: The AuthPolicy must be a class that starts with AuthPolicy as in the example bellow
                     
-                    [LucEndpoint(
+                    [LwxEndpoint(
                         Path = "{attrMethodAndPath}",
                         AuthPolicy = typeof(AuthPolicyExample001),
                         ...
@@ -391,7 +409,7 @@ internal partial class LucWebGenerator_Method_Endpoint(
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC00419", 
                 msgFormat: $"""
-                    Luc.Web: The method '{Method.Identifier.Text}' must be named 'Execute'
+                    LWX: The method '{Method.Identifier.Text}' must be named 'Execute'
                     """, 
                 srcLocation: Method.GetLocation() 
             );
@@ -439,7 +457,7 @@ internal partial class LucWebGenerator_Method_Endpoint(
             msgSeverity: DiagnosticSeverity.Info, 
             msgId: "LUC008", 
             msgFormat: $$"""
-                Luc.Web: Fragment includedd in the generated method
+                LWX: Fragment includedd in the generated method
                                 
                 Mapping: {{attrMethodAndPath}}
                 Method: {{expectedFullTypeName}}.Execute

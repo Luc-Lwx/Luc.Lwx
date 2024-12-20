@@ -5,7 +5,7 @@ namespace Luc.Web.Example.Api.Web.AuthPolicies;
 
 public static partial class AuthPolicyExample001
 {
-  [LucAuthPolicy]
+  [LwxAuthPolicy]
   public static void Configure( AuthorizationPolicyBuilder policy ) 
   { 
     policy.RequireAuthenticatedUser();
