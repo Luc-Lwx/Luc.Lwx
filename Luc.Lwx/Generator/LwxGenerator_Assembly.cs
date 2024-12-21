@@ -136,7 +136,52 @@ internal partial class LwxGenerator_Assembly
             }    
         }
 
-       
+        /*
+        // Parse the whole syntax tree to identify method calls of WebApplication.MapGet, MapPost, MapDelete, MapPut, etc.
+        var minimalApiMethods = new[] 
+        { 
+            "MapGet", 
+            "MapPost", 
+            "MapDelete", 
+            "MapPut", 
+            "MapPatch", 
+            "MapOptions", 
+            "MapHead" 
+        };
+        foreach (var typeSymbol in TypeSymbols)
+        {
+            var root = typeSymbol.Node.SyntaxTree.GetRoot();
+            var methodCalls = root.DescendantNodes().OfType<InvocationExpressionSyntax>()
+                .Where(invocation => invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
+                                     minimalApiMethods.Contains(memberAccess.Name.Identifier.Text));
+
+            foreach (var methodCall in methodCalls)
+            {
+                var semanticModel = typeSymbol.SemanticModel;
+                var symbolInfo = semanticModel.GetSymbolInfo(methodCall);
+                var methodSymbol = symbolInfo.Symbol as IMethodSymbol;
+
+                if (methodSymbol != null && methodSymbol.ContainingType.ToDisplayString() == typeof(WebApplication).FullName)
+                {
+                    var containingClass = methodCall.Ancestors().OfType<ClassDeclarationSyntax>().FirstOrDefault();
+                    if (containingClass != null)
+                    {
+                        var classSymbol = semanticModel.GetDeclaredSymbol(containingClass);
+                        if (classSymbol != null && !classSymbol.ContainingNamespace.ToDisplayString().EndsWith(".Generated"))
+                        {
+                            ReportWarning
+                            (
+                                msgSeverity: DiagnosticSeverity.Error,
+                                msgId: "LUC0913",
+                                msgFormat: $"WebApplication.{methodSymbol.Name} should only be called from generated classes.",
+                                srcLocation: methodCall.GetLocation()
+                            );
+                        }
+                    }
+                }
+            }
+        }
+*/
         GenerateEndpointMappings();
         GenerateAuthPolicyMappings();
         GenerateAuthSchemeMappings();

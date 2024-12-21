@@ -115,7 +115,18 @@ internal partial class LwxGenerator_Type
             return;
         }
 
-        if( TypeSymbol.DeclaredAccessibility == Accessibility.Public )
+        // Check if class name ends with "Dto" and doesn't have the [DynamicallyAccessedMembers] attribute
+        if (TypeSymbol.Name.EndsWith("Dto") && !TypeSymbol.GetAttributes().Any(attr => attr.AttributeClass?.Name == nameof(DynamicallyAccessedMembersAttribute)))
+        {
+            ReportWarning(
+                msgSeverity: DiagnosticSeverity.Warning,
+                msgId: "LUC013",
+                msgFormat: $"""LWX: The type {TypeNameFull} ends with 'Dto' and should be annotated with [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)].""",
+                srcLocation: TypeSymbol.Locations.FirstOrDefault()
+            );
+        }
+
+        if( TypeSymbol.DeclaredAccessibility == Accessibility.Public && TypeSymbol.ContainingType == null )
         {      
             var relativeTypeName = TypeNameFull.Replace( TypeAssemblyName+".", "");
             var expectedFile = $"{relativeTypeName.Replace(".","/")}";
@@ -134,7 +145,7 @@ internal partial class LwxGenerator_Type
                     ( 
                         msgSeverity: DiagnosticSeverity.Error, 
                         msgId: "LUC012", 
-                        msgFormat: $"""LWX: The type {TypeNameFull} must be in the source file {expectedFileDir}/{expectedFileName}_*.cs""", 
+                        msgFormat: $"""LWX: The type {TypeNameFull} must be in the source file {expectedFileDir}/{expectedFileName}.cs or {expectedFileDir}/{expectedFileName}_*.cs""", 
                         srcLocation: Type.GetLocation() 
                     );
                     return;

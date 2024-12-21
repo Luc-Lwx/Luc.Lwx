@@ -7,6 +7,7 @@ public enum LwxActivityImportance
     Medium,
     High,
     Critical,    
+    Example
 }
 
 

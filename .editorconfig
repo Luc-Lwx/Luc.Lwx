@@ -22,9 +22,8 @@ dotnet_naming_style.camel_case.word_separator = _
 dotnet_naming_rule.types_should_be_pascal_case.severity = none
 
 # Disable specific rules
-# Do not enforce camel case naming on this project (Justification: In libs is important to prefix the class with the library name to avoid polluting the global namespace)
-dotnet_diagnostic.S101.severity = none
 # Do not warn redundant jumps (Justification: Redundant jumps are important because they make the code more readable)
 dotnet_diagnostic.S3626.severity = none
 # You can make this method static (Justification: This rule is bugged, it appears on methods that implement an interface and methods that use class data)
 dotnet_diagnostic.S2325.severity = none
+dotnet_diagnostic.CS1998.severity = none

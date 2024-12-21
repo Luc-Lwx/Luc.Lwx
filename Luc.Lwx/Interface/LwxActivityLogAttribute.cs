@@ -21,6 +21,12 @@ public class LwxActivityLogAttribute : Attribute
     /// </summary>
     public required LwxActionStep Step { get; set; }
 
+
+    /// <summary>
+    /// A short description of what this operation does
+    /// </summary>
+    public required string? ShortDescription { get; set; } = null;
+
     /// <summary>
     /// Inform how the request body should be handled (default is to be captured)
     /// </summary>
