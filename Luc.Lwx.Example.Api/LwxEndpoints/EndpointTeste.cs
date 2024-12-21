@@ -1,8 +1,8 @@
-using Luc.Lwx.Example.Api.Web.AuthPolicies;
+using Luc.Lwx.Example.Api.LwxAuthPolicies;
 using Luc.Lwx.Interface;
 using Luc.Lwx.LwxActivityLog;
 
-namespace Luc.Lwx.Example.Api.Web.Endpoints;
+namespace Luc.Lwx.Example.Api.LwxEndpoints;
 
 
 public static partial class EndpointTeste 

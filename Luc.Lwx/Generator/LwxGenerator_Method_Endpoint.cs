@@ -69,13 +69,13 @@ internal partial class LwxGenerator_Method_Endpoint(
             return;
         }
 
-        if( !Type.TypeNameFull.StartsWith( $"{Type.TypeAssemblyName}.Web.Endpoints." ) )
+        if( !Type.TypeNameFull.StartsWith( $"{Type.TypeAssemblyName}.LwxEndpoints." ) )
         {
             Type.ReportWarning
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC006", 
-                msgFormat: $"""LWX: The type {Type.TypeNameFull} must be in the namespace {Type.TypeAssemblyName}.Web.Endpoints""", 
+                msgFormat: $"""LWX: The type {Type.TypeNameFull} must be in the namespace {Type.TypeAssemblyName}.LwxEndpoints""", 
                 srcLocation: Type.Type.GetLocation() 
             );
             return;
@@ -299,7 +299,7 @@ internal partial class LwxGenerator_Method_Endpoint(
             return;
         }
 
-        var expectedTypeNameBase = $"{Type.TypeAssemblyName}.Web.Endpoints";      
+        var expectedTypeNameBase = $"{Type.TypeAssemblyName}.LwxEndpoints";      
         var expectedTypeNameReference = attrPath[apiManagerPath.Length..].Trim('/');        
         expectedTypeNameReference = expectedTypeNameReference.Replace( "{", "param-" );
         expectedTypeNameReference = expectedTypeNameReference.Replace( "}", "" );

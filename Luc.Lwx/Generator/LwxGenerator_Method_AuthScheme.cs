@@ -70,13 +70,13 @@ internal class LwxGenerator_Method_AuthScheme
             return;
         }
 
-        if( !Type.TypeNameFull.StartsWith( $"{Type.TypeAssemblyName}.Web.AuthSchemes." ) )
+        if( !Type.TypeNameFull.StartsWith( $"{Type.TypeAssemblyName}.LwxAuthSchemes." ) )
         {
             Type.ReportWarning
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0123", 
-                msgFormat: $"""LWX: The type {Type.TypeNameFull} must be in the namespace {Type.TypeAssemblyName}.Web.AuthSchemes""", 
+                msgFormat: $"""LWX: The type {Type.TypeNameFull} must be in the namespace {Type.TypeAssemblyName}.LwxAuthSchemes""", 
                 srcLocation: Type.Type.GetLocation() 
             );
             return;
@@ -89,7 +89,7 @@ internal class LwxGenerator_Method_AuthScheme
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0123", 
                 msgFormat: $"""
-                    LWX: The type {Type.TypeNameFull} must be in the namespace {Type.TypeAssemblyName}.Web.AuthSchemes.AuthScheme<name>
+                    LWX: The type {Type.TypeNameFull} must be in the namespace {Type.TypeAssemblyName}.LwxAuthSchemes.AuthScheme<name>
                     
                     The <name> should be replaced by the desired scheme name.
                     """, 
