@@ -1,0 +1,30 @@
+root = true
+
+# Set the charset to UTF-8
+[*.{cs,cshtml}]
+charset = utf-8
+
+# Naming rules
+dotnet_naming_rule.camel_case_classes.severity = none
+dotnet_naming_rule.camel_case_classes.symbols = classes
+dotnet_naming_rule.camel_case_classes.style = camel_case
+
+dotnet_naming_symbols.classes.applicable_kinds = class
+dotnet_naming_symbols.classes.applicable_accessibilities = *
+dotnet_naming_symbols.classes.required_modifiers = *
+
+dotnet_naming_style.camel_case.capitalization = camel_case
+dotnet_naming_style.camel_case.required_prefix = _
+dotnet_naming_style.camel_case.required_suffix = _
+dotnet_naming_style.camel_case.word_separator = _
+
+
+dotnet_naming_rule.types_should_be_pascal_case.severity = none
+
+# Disable specific rules
+# Do not enforce camel case naming on this project (Justification: In libs is important to prefix the class with the library name to avoid polluting the global namespace)
+dotnet_diagnostic.S101.severity = none
+# Do not warn redundant jumps (Justification: Redundant jumps are important because they make the code more readable)
+dotnet_diagnostic.S3626.severity = none
+# You can make this method static (Justification: This rule is bugged, it appears on methods that implement an interface and methods that use class data)
+dotnet_diagnostic.S2325.severity = none
