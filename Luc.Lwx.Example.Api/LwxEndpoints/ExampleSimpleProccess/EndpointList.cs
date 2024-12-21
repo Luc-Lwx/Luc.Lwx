@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using Luc.Lwx.Example.Api.LwxAuthPolicies;
-using Luc.Lwx.Example.Api.Model;
 using Luc.Lwx.Interface;
 using Luc.Lwx.LwxActivityLog;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +22,7 @@ public static partial class EndpointList
       Step = LwxActionStep.Finish,
       ShortDescription = "Lists all example processes"
     )]
-    public async static Task<ListResponseDto> Execute
+    public async static Task<ResponseDto> Execute
     ( 
       HttpContext ctx,
       [FromQuery(Name="filter1")] string? filter1,
@@ -30,13 +30,37 @@ public static partial class EndpointList
     ) 
     {
       // Retrieve the list of processes here
-      return new ListResponseDto 
+      return new ResponseDto 
       { 
-          Processes = new[] 
-          {
-              new ProcessDto { ProcId = 123, Status = "active", CreatedAt = "2023-10-01T12:00:00Z" },
-              new ProcessDto { ProcId = 124, Status = "completed", CreatedAt = "2023-09-30T12:00:00Z" }
-          }
+          Ok = true,
+          ProcList =
+          [
+              new ResponseProccessDto { Id = 123, Status = "active", CreatedAt = "2023-10-01T12:00:00Z" },
+              new ResponseProccessDto { Id = 124, Status = "completed", CreatedAt = "2023-09-30T12:00:00Z" }
+          ]
       };
+    }
+
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+    public class ResponseDto
+    {
+        [JsonPropertyName("ok")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]                 
+        public required bool Ok { get; set; }
+        
+        [JsonPropertyName("proc-list")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]                 
+        public ResponseProccessDto[]? ProcList { get; set; }
+    }
+
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+    public class ResponseProccessDto
+    {
+        [JsonPropertyName("id")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]       
+        public long Id { get; set; }
+
+        [JsonPropertyName("status")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]       
+        public string? Status { get; set; }
+
+        [JsonPropertyName("created-at")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string? CreatedAt { get; set; }
     }
 }

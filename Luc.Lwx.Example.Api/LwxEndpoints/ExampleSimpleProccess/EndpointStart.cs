@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using Luc.Lwx.Example.Api.LwxAuthPolicies;
 using Luc.Lwx.Interface;
 using Luc.Lwx.LwxActivityLog;
@@ -21,32 +22,34 @@ public static partial class EndpointStart
       Step = LwxActionStep.Finish,
       ShortDescription = "Starts the example process"
     )]
-    public async static Task<StartResponseDto> Execute
+    public async static Task<ResponseDto> Execute
     ( 
       HttpContext ctx,
-      [FromBody] StartRequestDto request
+      [FromBody] RequestDto request
     ) 
     {
       // Start the process here
-      return new StartResponseDto 
+      return new ResponseDto 
       { 
-          ProcId = 123, 
-          Status = "started", 
-          StartedAt = "2023-10-01T12:00:00Z" 
+          Ok = true,
+          ProcId = 1209830912380192,           
       };
     }
 
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
-    public class StartRequestDto
+    public class RequestDto
     {
-        public int Abc { get; set; }
+        [JsonPropertyName("name")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public required string Name { get; set; }
     }
 
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
-    public class StartResponseDto
+    public class ResponseDto
     {
-        public int ProcId { get; set; }
-        public string Status { get; set; }
-        public string StartedAt { get; set; }
+        [JsonPropertyName("ok")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool Ok { get; set; }
+
+        [JsonPropertyName("proc-id")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public long ProcId { get; set; }
     }
 }

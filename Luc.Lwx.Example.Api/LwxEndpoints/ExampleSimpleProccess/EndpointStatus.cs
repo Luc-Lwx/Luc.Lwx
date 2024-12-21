@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using Luc.Lwx.Example.Api.LwxAuthPolicies;
-using Luc.Lwx.Example.Api.Model;
 using Luc.Lwx.Interface;
 using Luc.Lwx.LwxActivityLog;
 using Microsoft.AspNetCore.Mvc;
@@ -22,29 +22,27 @@ public static partial class EndpointStatus
       Step = LwxActionStep.Finish,
       ShortDescription = "Retrieves the status of the example process"
     )]
-    public async static Task<StatusResponseDto> Execute
+    public async static Task<ResponseDto> Execute
     ( 
       HttpContext ctx,
       [FromQuery(Name="proc_id")] decimal proc_id
     ) 
     {
       // Retrieve the process status here
-      return new StatusResponseDto 
+      return new ResponseDto 
       { 
-          ProcId = proc_id, 
-          Status = "active", 
-          StepsCompleted = 1, 
-          CreatedAt = "2023-10-01T12:00:00Z", 
-          LastUpdated = "2023-10-01T12:30:00Z" 
+          Ok = true,
+          Status = "active"
       };
     }
 
-    public class StatusResponseDto
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+    public class ResponseDto
     {
-        public decimal ProcId { get; set; }
+        [JsonPropertyName("ok")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public required bool Ok { get; set; }
+
+        [JsonPropertyName("status")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string Status { get; set; }
-        public int StepsCompleted { get; set; }
-        public string CreatedAt { get; set; }
-        public string LastUpdated { get; set; }
     }
 }
