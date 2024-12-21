@@ -33,7 +33,7 @@ public class LwxActivityLogMiddleware
             return;
         }
 
-        context.Lwx_SetOperationRecord(record);
+        context.SetLwxActivityRecord(record);
 
         // Set Host, RemoteIp, and RemotePort
         record.Host = context.Request.Host.Value;
