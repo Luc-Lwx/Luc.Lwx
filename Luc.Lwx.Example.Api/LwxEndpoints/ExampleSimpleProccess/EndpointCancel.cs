@@ -4,6 +4,7 @@ using Luc.Lwx.Interface;
 using Luc.Lwx.LwxActivityLog;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
+using Luc.Lwx.Example.Api.Model;
 
 namespace Luc.Lwx.Example.Api.LwxEndpoints.ExampleSimpleProccess;
 
@@ -22,29 +23,17 @@ public static partial class EndpointCancel
       Step = LwxActionStep.Finish,
       ShortDescription = "Cancels the example process"
     )]
-    public async static Task<ResponseDto> Execute
+    public async static Task<ExampleSimpleProccessCancelRequestDto> Execute
     ( 
       HttpContext ctx,
       [FromQuery(Name="proc_id")] decimal proc_id,
-      [FromBody] RequestDto request
+      [FromBody] ExampleSimpleProccessCancelResponseDto request
     ) 
     {
       // Cancel the process here
-      return new ResponseDto { Ok = true };
+      return new ExampleSimpleProccessCancelRequestDto { Ok = true };
     }
 
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
-    public class ResponseDto
-    {
-        [JsonPropertyName("ok")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public bool Ok { get; set; }
-    }
-
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
-    public class RequestDto
-    {
-        [JsonPropertyName("are_you_sure")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public bool AreYouSure { get; set; }
-    }
+  
 }
 

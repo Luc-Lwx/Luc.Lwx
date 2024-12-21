@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Luc.Lwx.LwxActivityLog;
 
@@ -18,6 +19,13 @@ public static class LwxActivityLogExtensions
     public static IServiceCollection SetLwxActivityLogConfig(this IServiceCollection services, LwxActivityLogConfig config )
     {        
         services.AddSingleton<LwxActivityLogConfig>(config);
+        return services;
+    }
+
+    public static IServiceCollection SetLwxActivityLogOutput(this IServiceCollection services, ILwxActivityLogOutput output )
+    {     
+        services.AddTransient<LwxActivityLogMiddleware>();   
+        services.AddSingleton<ILwxActivityLogOutput>(output);
         return services;
     }
 

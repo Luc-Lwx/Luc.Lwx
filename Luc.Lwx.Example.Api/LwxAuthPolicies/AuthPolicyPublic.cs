@@ -8,6 +8,6 @@ public static partial class AuthPolicyPublic
   [LwxAuthPolicy]
   public static void Configure( AuthorizationPolicyBuilder policy ) 
   { 
-    // this is a public policy, there is nothing to do here    
+    policy.RequireAssertion( context => true );
   }
 }

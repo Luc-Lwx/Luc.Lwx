@@ -1,0 +1,30 @@
+
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/Luc.Lwx.Example.Api/Luc.Lwx.Example.Api.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/Luc.Lwx.Example.Api/Luc.Lwx.Example.Api.csproj",
+        "--configuration",
+        "Debug",
+        "--output",
+        "${workspaceFolder}/Luc.Lwx.Example.Api/bin/Debug/net8.0/linux-x64/publish"
+      ],
+      "problemMatcher": "$msCompile"
+    }
+  ]
+}

@@ -264,10 +264,9 @@ public class LwxActivityLogMiddleware
     {
         record.RequestHeaders = context.Request.Headers
             .Where(kvp => !string.Equals(kvp.Key, "Host", StringComparison.OrdinalIgnoreCase))
-            .GroupBy(kvp => kvp.Key, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(
-                g => g.Key,
-                g => string.Join("\r\n", g.SelectMany(v => v.Value))
+                kvp => kvp.Key,
+                kvp => string.Join("\r\n", kvp.Value.ToArray())
             );
     }
 
@@ -277,10 +276,9 @@ public class LwxActivityLogMiddleware
     private static void UpdateResponseHeaders(LwxRecord record, HttpContext context)
     {
         record.ResponseHeaders = context.Response.Headers
-            .GroupBy(kvp => kvp.Key, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(
-                g => g.Key,
-                g => string.Join("\r\n", g.SelectMany(v => v.Value))
+                kvp => kvp.Key,
+                kvp => string.Join("\r\n", kvp.Value.ToArray())
             );
     }
 

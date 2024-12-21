@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Luc.Lwx.Generator;
 
+[SuppressMessage("","S101")]
 internal partial class LwxGenerator_Type 
 {
     internal LwxGenerator_Assembly TheAssembly { get; private init; }
@@ -87,6 +88,8 @@ internal partial class LwxGenerator_Type
         }
     }
     
+    [SuppressMessage("","S3776")]
+    [SuppressMessage("","S3626")]
     private void DoEnforceNamingConventions() 
     {
         var wrongNamespace = $"{TypeAssemblyName}.src.";

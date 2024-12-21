@@ -4,6 +4,7 @@ using Luc.Lwx.Interface;
 using Luc.Lwx.LwxActivityLog;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
+using Luc.Lwx.Example.Api.Model;
 
 namespace Luc.Lwx.Example.Api.LwxEndpoints.ExampleSimpleProccess;
 
@@ -22,34 +23,16 @@ public static partial class EndpointStep2
       Step = LwxActionStep.Finish,
       ShortDescription = "Executes step 2 of the example process"
     )]
-    public async static Task<ResponseDto> Execute
+    public async static Task<ExampleSimpleProccessStep2ResponseDto> Execute
     ( 
       HttpContext ctx,
       [FromQuery(Name="proc_id")] decimal proc_id,
-      [FromBody] RequestDto request
+      [FromBody] ExampleSimpleProccessStep2RequestDto request
     ) 
     {
       // Process the request here
-      return new ResponseDto { Ok = true };
+      return new ExampleSimpleProccessStep2ResponseDto { Ok = true };
     }
 
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
-    public class RequestDto
-    {
-        [JsonPropertyName("param4")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public long Param4 { get; set; }
-
-        [JsonPropertyName("param5")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public string? Param5 { get; set; }
-
-        [JsonPropertyName("param6")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public string? Param6 { get; set; }
-    }
-
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
-    public class ResponseDto
-    {
-        [JsonPropertyName("ok")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public required bool Ok { get; set; }
-    }
+    
 }

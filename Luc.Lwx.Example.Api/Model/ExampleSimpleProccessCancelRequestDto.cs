@@ -4,11 +4,8 @@ using System.Text.Json.Serialization;
 namespace Luc.Lwx.Example.Api.Model;
 
 [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
-public class ExampleSimpleProccessStartResponseDto
+public class ExampleSimpleProccessCancelRequestDto
 {
     [JsonPropertyName("ok")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool Ok { get; set; }
-
-    [JsonPropertyName("proc-id")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public long ProcId { get; set; }
 }

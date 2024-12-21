@@ -1,0 +1,55 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET Executable",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "publish",
+      "program": "${workspaceFolder}/Luc.Lwx.Example.Api/bin/Debug/net8.0/linux-x64/publish/Luc.Lwx.Example.Api",
+      "args": ["--urls","http://localhost:65232"],
+      "cwd": "${workspaceFolder}/Luc.Lwx.Example.Api",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "launchBrowser": {
+        "enabled": true,
+        "args": "${auto-detect-url}",
+        "windows": {
+          "command": "cmd.exe",
+          "args": "/C start ${auto-detect-url}"
+        },
+        "osx": {
+          "command": "open"
+        },
+        "linux": {
+          "command": "xdg-open"
+        }
+      }
+    },
+    {
+      "name": ".NET DLL",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "dotnet",
+      "args": ["${workspaceFolder}/Luc.Lwx.Example.Api/bin/Debug/net8.0/linux-x64/Luc.Lwx.Example.Api.dll","--urls","http://localhost:65232"],
+      "cwd": "${workspaceFolder}/Luc.Lwx.Example.Api",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "launchBrowser": {
+        "enabled": true,
+        "args": "${auto-detect-url}",
+        "windows": {
+          "command": "cmd.exe",
+          "args": "/C start ${auto-detect-url}"
+        },
+        "osx": {
+          "command": "open"
+        },
+        "linux": {
+          "command": "xdg-open"
+        }
+      }
+    }
+  ]
+}
