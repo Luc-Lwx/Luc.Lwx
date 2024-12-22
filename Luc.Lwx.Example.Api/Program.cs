@@ -1,6 +1,7 @@
 using Luc.Lwx.Example.Api.Generated;
 using Luc.Lwx.LwxActivityLog;
 using Luc.Lwx.LwxConfig;
+using Luc.Lwx.LwxHealthCheck;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,7 @@ builder.Services.SetLwxActivityLogOutput(new LwxActivityLogTestOutput() { });
 builder.MapAuthSchemes_LucLwxExampleApi();
 builder.MapAuthPolicies_LucLwxExampleApi();
 builder.Services.AddSwaggerGen();
+builder.AddLwxHealthCheck();
 
 var app = builder.Build();
 
@@ -24,9 +26,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseLwxActivityLog();
+app.UseLwxHealthCheck();
 
 app.MapGet("/", () => "Hello World!");
 app.MapEndpoints_LucLwxExampleApi();
 app.MapSwagger();
+app.MapHealthChecks("/healthz");
 
 await app.RunAsync();
