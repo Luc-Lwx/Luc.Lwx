@@ -15,8 +15,8 @@
     <!-- PublishReadyToRun compile as binnary (without trimming and AOT)-->    
     <PublishReadyToRun>true</PublishReadyToRun>
     <PublishReadyToRunEmitSymbols>true</PublishReadyToRunEmitSymbols>
-    <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
-    
+    <PublishReadyToRunComposite>true</PublishReadyToRunComposite>    
+
     <!-- Plataform and optimizations -->
     <RuntimeIdentifier>linux-x64</RuntimeIdentifier> 
     <OptimizationPreference>size</OptimizationPreference>

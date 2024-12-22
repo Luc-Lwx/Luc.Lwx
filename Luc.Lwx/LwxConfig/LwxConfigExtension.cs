@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
-namespace Luc.Lwx.LwxConfig
+namespace Luc.Lwx.LwxConfig;
 
 public static class LwxConfigExtension
 {
