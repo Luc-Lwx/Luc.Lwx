@@ -1,6 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
-using Luc.Lwx.Interface;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -10,16 +8,16 @@ namespace Luc.Lwx.Generator;
 [SuppressMessage("","S101")]
 internal partial class LwxGenerator_Type 
 {
-    internal LwxGenerator_Assembly TheAssembly { get; private init; }
-    internal GeneratorSyntaxContext TypeContext { get; private init; }
-    internal ClassDeclarationSyntax Type { get; private init; }
-    internal SemanticModel TypeSemanticModel { get; private init; }
-    internal INamedTypeSymbol TypeSymbol { get; private init; }
-    internal string TypeName { get; private init; }
-    internal string TypeNameFull { get; private init; }
-    internal string TypeNamespaceName { get; private init; }
-    internal string TypeInFile { get; private init; }
-    internal string TypeAssemblyName { get; private init; }
+    internal LwxGenerator_Assembly TheAssembly { get; private set; }
+    internal GeneratorSyntaxContext TypeContext { get; private set; }
+    internal ClassDeclarationSyntax Type { get; private set; }
+    internal SemanticModel TypeSemanticModel { get; private set; }
+    internal INamedTypeSymbol TypeSymbol { get; private set; }
+    internal string TypeName { get; private set; }
+    internal string TypeNameFull { get; private set; }
+    internal string TypeNamespaceName { get; private set; }
+    internal string TypeInFile { get; private set; }
+    internal string TypeAssemblyName { get; private set; }
 
     internal string? AuthPolicyName { get; private set; } = null;
     internal string? AuthPolicySrcMethodBody { get; private set; } = null;
@@ -70,17 +68,17 @@ internal partial class LwxGenerator_Type
         foreach (var attribute in attributes)
         {
             var attr = attribute.AttributeClass;
-            if (attr?.ToDisplayString() == typeof(LwxEndpointAttribute).FullName)
+            if (attr?.ToDisplayString() == LwxConstants.LwxEndpointAttribute_FullName)
             {                        
                 var processor = new LwxGenerator_Method_Endpoint(this, method, attribute);
                 processor.Execute();
             }
-            if (attr?.ToDisplayString() == typeof(LwxAuthPolicyAttribute).FullName)
+            if (attr?.ToDisplayString() == LwxConstants.LwxAuthPolicyAttribute_FullName)
             {                        
                 var processor = new LwxGenerator_Method_AuthPolicy(this, method, attribute);
                 processor.Execute();
             }
-            if (attr?.ToDisplayString() == typeof(LwxAuthSchemeAttribute).FullName)
+            if (attr?.ToDisplayString() == LwxConstants.LwxAuthSchemeAttribute_FullName)
             {                        
                 var processor = new LwxGenerator_Method_AuthScheme(this, method, attribute);
                 processor.Execute();

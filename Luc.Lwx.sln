@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luc.Lwx", "Luc.Lwx\Luc.Lwx.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luc.Lwx.Example.Api", "Luc.Lwx.Example.Api\Luc.Lwx.Example.Api.csproj", "{D6196D0E-38F8-4F61-AAB5-9C4BED3A7ECC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luc.Lwx.Generator", "Luc.Lwx.Generator\Luc.Lwx.Generator.csproj", "{DE322F0E-E0EB-4017-B77A-1AF62EA01278}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,5 +30,9 @@ Global
 		{D6196D0E-38F8-4F61-AAB5-9C4BED3A7ECC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6196D0E-38F8-4F61-AAB5-9C4BED3A7ECC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6196D0E-38F8-4F61-AAB5-9C4BED3A7ECC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE322F0E-E0EB-4017-B77A-1AF62EA01278}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE322F0E-E0EB-4017-B77A-1AF62EA01278}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE322F0E-E0EB-4017-B77A-1AF62EA01278}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE322F0E-E0EB-4017-B77A-1AF62EA01278}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
@@ -6,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Luc.Lwx.Generator;
 
+[SuppressMessage("","S101")]
 internal static partial class LwxGenerator_Extensions
 {
     public static string LucGetAttributeValueAsString
@@ -100,7 +102,7 @@ internal static partial class LwxGenerator_Extensions
                 result.Add( LucPathElementToCamelCase( pathElement ) );
             }
         }        
-        return string.Join('.', result);
+        return string.Join(".", result);
     }
 
     /// <summary>
@@ -120,7 +122,7 @@ internal static partial class LwxGenerator_Extensions
         }
         else 
         {
-            return path[..pos];
+            return path.Substring(0,pos);
         }
     }
 
@@ -134,12 +136,12 @@ internal static partial class LwxGenerator_Extensions
     /// </returns>
     public static string LucRemoveTrailingSlashIfExists( this string path ) 
     {
-        return path.EndsWith('/') ? path[..^1] : path;
+        return path.EndsWith("/") ? path.Substring(0,path.Length-1) : path;
     }
 
     public static string LucRemoveRootSlashIfExists( this string path ) 
     {
-        return path.EndsWith('/') ? path[1..] : path;
+        return path.EndsWith("/") ? path.Substring(0,path.Length-1) : path;
     }
 
 
@@ -161,7 +163,7 @@ internal static partial class LwxGenerator_Extensions
         }
         else 
         {
-            return path[pos..];
+            return path.Substring(pos);
         }
     }
 
@@ -208,9 +210,14 @@ internal static partial class LwxGenerator_Extensions
     }
 
 
-    [GeneratedRegex("^[a-zA-Z_][a-zA-Z0-9_]*$")]
-    private static partial Regex RegexValidMethodName();
+    
+    private static Regex RegexValidMethodName() {
+        return new Regex("^[a-zA-Z_][a-zA-Z0-9_]*$");
+    }
+    
+    private static Regex RegexValidPropertyName() {
+        return new Regex("^[A-Z_][a-zA-Z0-9_]*$");
+    }
 
-    [GeneratedRegex("^[A-Z_][a-zA-Z0-9_]*$")]
-    private static partial Regex RegexValidPropertyName();
+    
 }

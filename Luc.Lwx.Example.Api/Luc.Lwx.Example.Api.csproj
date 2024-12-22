@@ -10,7 +10,7 @@
     <DebugType>portable</DebugType>
     <StripSymbols>false</StripSymbols>
     <StackTraceSupport>true</StackTraceSupport>
-    <DebuggerSupport>true</DebuggerSupport>
+    <DebuggerSupport>true</DebuggerSupport> 
 
     <!-- PublishReadyToRun compile as binnary (without trimming and AOT)-->    
     <PublishReadyToRun>true</PublishReadyToRun>
@@ -19,7 +19,7 @@
     
     <!-- Plataform and optimizations -->
     <RuntimeIdentifier>linux-x64</RuntimeIdentifier> 
-    <OptimizationPreference>Speed</OptimizationPreference>
+    <OptimizationPreference>size</OptimizationPreference>
     
     <!--
     AOT is not ready for production. 
@@ -38,15 +38,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Luc.Lwx\Luc.Lwx.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
     <AdditionalFiles Include="appsettings.json" />
-  </ItemGroup>    
-  
+    <ProjectReference Include="..\Luc.Lwx.Generator\Luc.Lwx.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="8.0.11" />
+    <ProjectReference Include="..\Luc.Lwx\Luc.Lwx.csproj"/>    
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate" Version="8.0.11" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.1.0" />    
-  </ItemGroup>
+  </ItemGroup>    
+  
   
 </Project>

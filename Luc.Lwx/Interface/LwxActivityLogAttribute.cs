@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
+using Luc.Lwx.LwxActivityLog;
 
-namespace Luc.Lwx.LwxActivityLog;
+namespace Luc.Lwx.Interface;
 
 /// <summary>
 /// This attribute is set the endpoint activity log generation options

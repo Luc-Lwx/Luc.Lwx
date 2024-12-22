@@ -23,8 +23,12 @@ internal partial class LwxGenerator_Assembly
 
     public void AddEndpointMappingMethod(string group, LwxGenerator_Method_Endpoint methodSrc)
     {
-        var groupMap = EndpointMappingMethods.GetValueOrDefault(group);
-        if( groupMap == null )
+        List<LwxGenerator_Method_Endpoint> groupMap;
+        if( EndpointMappingMethods.ContainsKey(group) )
+        {
+            groupMap = EndpointMappingMethods[group];
+        }
+        else
         {
             groupMap = [];
             EndpointMappingMethods.Add(group, groupMap);
@@ -35,8 +39,12 @@ internal partial class LwxGenerator_Assembly
     // FUTURE: improve this to pass only a descriptor with the essential fields 
     public void AddPolicyType(string group, LwxGenerator_Method_AuthPolicy processor )
     {
-        var groupMap = PolicyTypes.GetValueOrDefault(group);
-        if( groupMap == null )
+        List<LwxGenerator_Method_AuthPolicy> groupMap;
+        if( PolicyTypes.ContainsKey(group) )
+        {
+            groupMap = PolicyTypes[group];
+        }
+        else
         {
             groupMap = [];
             PolicyTypes.Add(group, groupMap);
@@ -47,8 +55,12 @@ internal partial class LwxGenerator_Assembly
     // FUTURE: improve this to pass only a descriptor with the essential fields
     public void AddSchemeType(string group, LwxGenerator_Method_AuthScheme processor )
     {
-        var groupMap = SchemeTypes.GetValueOrDefault(group);
-        if( groupMap == null )
+        List<LwxGenerator_Method_AuthScheme> groupMap;
+        if( SchemeTypes.ContainsKey(group) )
+        {
+            groupMap = SchemeTypes[group];
+        }
+        else
         {
             groupMap = [];
             SchemeTypes.Add(group, groupMap);
@@ -94,7 +106,6 @@ internal partial class LwxGenerator_Assembly
         appSettings.Lwx ??= new AppSettingsSectionDto();   
         AppSettings = appSettings;
         
-        
         if(typeSymbols.FirstOrDefault().Node is TypeDeclarationSyntax firstType)
         {
             ProjectDir = Path.GetDirectoryName(firstType.SyntaxTree.FilePath) ?? throw new InvalidOperationException("Project directory not found");
@@ -107,7 +118,7 @@ internal partial class LwxGenerator_Assembly
         if( typeSymbols.Length != 0 )
         {
             _assemblyName = typeSymbols[0].SemanticModel.Compilation.AssemblyName ?? throw new InvalidOperationException("Assembly name not found");                        
-        }                
+        }                   
     }    
 
     public void Execute() 
@@ -126,10 +137,7 @@ internal partial class LwxGenerator_Assembly
                     msgSeverity: DiagnosticSeverity.Error, 
                     msgId: "LUC0912", 
                     msgFormat: $"""
-                        The LucWebGenerator threw an exception: 
-                        
-                        {ex.Message},
-                        {ex.StackTrace}
+                        LwxGenerator Exception: {ex.Message}, {ex.StackTrace?.Replace("\n", " ")?.Replace("\r", " ")}
                         """, 
                     srcLocation: typeSymbol.Node.GetLocation() 
                 );
@@ -182,10 +190,25 @@ internal partial class LwxGenerator_Assembly
             }
         }
 */
-        GenerateEndpointMappings();
-        GenerateAuthPolicyMappings();
-        GenerateAuthSchemeMappings();
-          
+
+        try
+        {
+            GenerateEndpointMappings();
+            GenerateAuthPolicyMappings();
+            GenerateAuthSchemeMappings();
+        }
+        catch( Exception e )
+        {
+            ReportWarning
+            ( 
+                msgSeverity: DiagnosticSeverity.Error, 
+                msgId: "LUC0914", 
+                msgFormat: $"""
+                    Unexpected exception: {e.Message} {e.StackTrace?.Replace("\n", " ")}
+                    """, 
+                srcLocation: null 
+            );
+        }
     }
 
     private void GenerateEndpointMappings() 

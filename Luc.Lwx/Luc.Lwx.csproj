@@ -43,11 +43,6 @@
 
   
   <ItemGroup>
-    <!-- inclui as bibliotecas necessárias para implementar o gerador de código -->
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" />
-    <!-- this is for AOT analisys -->
-    <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="8.0.11" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.1.0" />    
   </ItemGroup>
 

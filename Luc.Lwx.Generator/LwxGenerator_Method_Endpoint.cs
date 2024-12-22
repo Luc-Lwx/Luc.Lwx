@@ -1,12 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
-using Luc.Lwx.LwxActivityLog;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Luc.Lwx.Generator;
 
+[SuppressMessage("","S101")]
 internal partial class LwxGenerator_Method_Endpoint(
     LwxGenerator_Type _type,
     MethodDeclarationSyntax _method,
@@ -19,6 +19,7 @@ internal partial class LwxGenerator_Method_Endpoint(
 
     internal string? EndpointSrcMethodBody { get; private set; } = null;
     
+    [SuppressMessage("","S3776")]
     internal void Execute()
     {
         if( !Type.TypeSymbol.LucIsPartialType() )
@@ -83,7 +84,7 @@ internal partial class LwxGenerator_Method_Endpoint(
 
         
         var attributes = Type.TypeSemanticModel.GetDeclaredSymbol(_method)?.GetAttributes();
-        var lwxActivityLogAttribute = attributes?.FirstOrDefault( a => a.AttributeClass?.ToDisplayString() == typeof(LwxActivityLogAttribute).FullName );
+        var lwxActivityLogAttribute = attributes?.FirstOrDefault( a => a.AttributeClass?.ToDisplayString() == LwxConstants.LwxActivityLogAttribute_FullName );
         if( lwxActivityLogAttribute == null )
         {
             Type.ReportWarning
@@ -187,7 +188,7 @@ internal partial class LwxGenerator_Method_Endpoint(
         var apiManagerPath = Type.TheAssembly.AppSettings?.Lwx?.ApiManagerPath;
         if( apiManagerPath != null )
         {
-            if( apiManagerPath.EndsWith( '/' ) )      
+            if( apiManagerPath.EndsWith( "/" ) )      
             {
                 Type.ReportWarning
                 ( 
@@ -300,7 +301,7 @@ internal partial class LwxGenerator_Method_Endpoint(
         }
 
         var expectedTypeNameBase = $"{Type.TypeAssemblyName}.LwxEndpoints";      
-        var expectedTypeNameReference = attrPath[apiManagerPath.Length..].Trim('/');        
+        var expectedTypeNameReference = attrPath.Substring( apiManagerPath.Length ).Trim('/');        
         expectedTypeNameReference = expectedTypeNameReference.Replace( "{", "param-" );
         expectedTypeNameReference = expectedTypeNameReference.Replace( "}", "" );
 
@@ -468,7 +469,10 @@ internal partial class LwxGenerator_Method_Endpoint(
             srcLocation: Attr.ApplicationSyntaxReference?.GetSyntax().GetLocation()
         );        
     }
-
-    [GeneratedRegex("^(\\S*) (/.*)$", RegexOptions.IgnoreCase, "en-US")]
-    private static partial Regex EndpointPathPattern();
+         
+    public static Regex EndpointPathPattern()
+    {
+        string pattern = "^(\\S*) (/.*)$";
+        return new Regex(pattern, RegexOptions.CultureInvariant|RegexOptions.IgnoreCase|RegexOptions.Compiled);
+    }
 }
