@@ -12,4 +12,10 @@ This project is an experiment using the dotnet source code generator (plugin) to
   - create extension functions on WebApplication to map endpoints
   - create extension functions on WebApplicationBuilder to map authentication schemes
   - create extension functions on WebApplicationBuilder to map authentication policies
-* Activity Log Middleware
+* Utilities  
+  - Activity Log Middleware
+  - Development Configuration Loader
+  - Health Check Fix
+  - Swagger Gen (using Swashbuckle)
+* Binnary compilation using the PublishReadyToRun mechanism
+
