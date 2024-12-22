@@ -1,9 +1,11 @@
 using Luc.Lwx.Example.Api.Generated;
 using Luc.Lwx.LwxActivityLog;
+using Luc.Lwx.LwxConfig;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.RequireLwxDevConfig();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.SetLwxActivityLogConfig(new LwxActivityLogConfig() { });
