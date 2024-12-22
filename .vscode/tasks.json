@@ -19,10 +19,12 @@
       "args": [
         "publish",
         "${workspaceFolder}/Luc.Lwx.Example.Api/Luc.Lwx.Example.Api.csproj",
+        "--runtime", "linux-x64",
+        "--self-contained",        
         "--configuration",
         "Debug",
         "--output",
-        "${workspaceFolder}/Luc.Lwx.Example.Api/bin/Debug/net8.0/linux-x64/publish"
+        "${workspaceFolder}/Luc.Lwx.Example.Api/bin/Debug/net8.0/linux-x64/publish"        
       ],
       "problemMatcher": "$msCompile"
     }

@@ -7,16 +7,23 @@
       "request": "launch",
       "preLaunchTask": "publish",
       "program": "${workspaceFolder}/Luc.Lwx.Example.Api/bin/Debug/net8.0/linux-x64/publish/Luc.Lwx.Example.Api",
-      "args": ["--urls","http://localhost:65232"],
+      "args": [
+        "--urls",
+        "http://localhost:65232"
+      ],
       "cwd": "${workspaceFolder}/Luc.Lwx.Example.Api",
       "stopAtEntry": false,
       "console": "internalConsole",
+      //"justMyCode": true,
+      "logging": {
+        "moduleLoad": false
+      },
       "launchBrowser": {
         "enabled": true,
-        "args": "${auto-detect-url}",
+        "args": "${auto-detect-url}/swagger",
         "windows": {
           "command": "cmd.exe",
-          "args": "/C start ${auto-detect-url}"
+          "args": "/C start ${auto-detect-url}/swagger"
         },
         "osx": {
           "command": "open"
@@ -32,16 +39,24 @@
       "request": "launch",
       "preLaunchTask": "build",
       "program": "dotnet",
-      "args": ["${workspaceFolder}/Luc.Lwx.Example.Api/bin/Debug/net8.0/linux-x64/Luc.Lwx.Example.Api.dll","--urls","http://localhost:65232"],
+      "args": [
+        "${workspaceFolder}/Luc.Lwx.Example.Api/bin/Debug/net8.0/linux-x64/Luc.Lwx.Example.Api.dll",
+        "--urls",
+        "http://localhost:65232"
+      ],
       "cwd": "${workspaceFolder}/Luc.Lwx.Example.Api",
       "stopAtEntry": false,
+      "justMyCode": true,
+      "logging": {
+        "moduleLoad": false
+      },
       "console": "internalConsole",
       "launchBrowser": {
         "enabled": true,
-        "args": "${auto-detect-url}",
+        "args": "${auto-detect-url}/swagger",
         "windows": {
           "command": "cmd.exe",
-          "args": "/C start ${auto-detect-url}"
+          "args": "/C start ${auto-detect-url}/swagger"
         },
         "osx": {
           "command": "open"
@@ -49,7 +64,7 @@
         "linux": {
           "command": "xdg-open"
         }
-      }
+      }            
     }
   ]
 }

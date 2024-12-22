@@ -7,17 +7,38 @@
     <Nullable>enable</Nullable>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>    
     <OutputType>Library</OutputType>
+    
+    <!-- Debug symbols allow the files and line numbers to appear on the stack trace -->
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <StripSymbols>false</StripSymbols>
+    <StackTraceSupport>true</StackTraceSupport>
+    <DebuggerSupport>true</DebuggerSupport>
 
-    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
-
-    <PublishTrimmed>true</PublishTrimmed> 
+    <!-- PublishReadyToRun compile as binnary (without trimming and AOT)-->    
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishReadyToRunEmitSymbols>true</PublishReadyToRunEmitSymbols>
+    <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
+    
+    <!-- Plataform and optimizations -->
     <RuntimeIdentifier>linux-x64</RuntimeIdentifier> 
-    <PublishAot>true</PublishAot> 
-    <!-- trim mode = 
-         link => aggressive, remove all unused code 
-         copyused => remove unused code, but keep assemblies that is used        
+    <OptimizationPreference>Speed</OptimizationPreference>
+    
+    <!--
+    AOT is not ready for production. 
+    Among other things:
+    * Stack trace doesn't show the class, method, source file and line number or any other form to track the error location.
+    * Reflection doesn't work well and it is necessary to find lots of workarrounds for simple things.
+    * The size gains are good, but in micro services the size is already small <300mb per container.  
+
+    <PublishAot>false</PublishAot> 
+    <PublishTrimmed>false</PublishTrimmed> 
+    <TrimMode>partial</TrimMode>
+    <TrimmerRemoveSymbols>false</TrimmerRemoveSymbols>
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
     -->
-    <TrimMode>link</TrimMode> 
+
+
   </PropertyGroup>
 
   
