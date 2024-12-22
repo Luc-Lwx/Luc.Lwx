@@ -16,7 +16,7 @@ public static partial class EndpointStart
       SwaggerFuncName = "Start Example Process",
       SwaggerFuncSummary = "Starts the example process",
       SwaggerFuncDescription = "This endpoint initiates the example process.",
-      SwaggerGroupTitle = "grupo da api de testes"
+      SwaggerGroupTitle = "Example Proccess (Recomended)"
     )]
     [LwxActivityLog(
       Imporance = LwxActivityImportance.High,

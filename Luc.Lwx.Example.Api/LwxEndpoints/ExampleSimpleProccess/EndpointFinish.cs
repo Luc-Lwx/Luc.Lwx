@@ -17,7 +17,7 @@ public static partial class EndpointFinish
       SwaggerFuncName = "Finish Example Process",
       SwaggerFuncSummary = "Finishes the example process",
       SwaggerFuncDescription = "This endpoint handles the completion of the example process.",
-      SwaggerGroupTitle = "grupo da api de testes"
+      SwaggerGroupTitle = "Example Proccess (Recomended)"
     )]
     [LwxActivityLog(
       Imporance = LwxActivityImportance.High,

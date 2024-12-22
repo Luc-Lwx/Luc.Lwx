@@ -16,7 +16,7 @@ public static partial class EndpointList
       SwaggerFuncName = "List Example Processes",
       SwaggerFuncSummary = "Lists all example processes",
       SwaggerFuncDescription = "This endpoint retrieves a list of all example processes based on the provided filters.",
-      SwaggerGroupTitle = "grupo da api de testes"
+      SwaggerGroupTitle = "Example Proccess (Recomended)"
     )]
     [LwxActivityLog(
       Imporance = LwxActivityImportance.High,

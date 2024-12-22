@@ -27,3 +27,7 @@ dotnet_diagnostic.S3626.severity = none
 # You can make this method static (Justification: This rule is bugged, it appears on methods that implement an interface and methods that use class data)
 dotnet_diagnostic.S2325.severity = none
 dotnet_diagnostic.CS1998.severity = none
+# Trim warning (Justification: I enabled reflection for json)
+dotnet_diagnostic.IL2026.severity = none
+# Trim warning (Justification: I enabled reflection for json)
+dotnet_diagnostic.IL3050.severity = none

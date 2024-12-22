@@ -16,7 +16,7 @@ public static partial class EndpointCancel
       SwaggerFuncName = "Cancel Example Process",
       SwaggerFuncSummary = "Cancels the example process",
       SwaggerFuncDescription = "This endpoint handles the cancellation of the example process.",
-      SwaggerGroupTitle = "grupo da api de testes"
+      SwaggerGroupTitle = "Example Proccess (Recomended)"
     )]
     [LwxActivityLog(
       Imporance = LwxActivityImportance.High,

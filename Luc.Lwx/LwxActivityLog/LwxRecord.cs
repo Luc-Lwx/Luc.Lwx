@@ -23,7 +23,7 @@ public class LwxRecord
     /// </summary>
     [JsonPropertyName("step")] 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<LwxActionStep>))]
     public LwxActionStep? Step { get; set; } = null;
 
     /// <summary>
@@ -31,7 +31,7 @@ public class LwxRecord
     /// </summary>
     [JsonPropertyName("pri")] 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<LwxActivityImportance>))]
     public LwxActivityImportance? Importance { get; set; } = null;   
     
     /// <summary>
@@ -103,7 +103,7 @@ public class LwxRecord
     /// </summary>
     [JsonPropertyName("req-body-mode")] 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<LwxRecordBodyCaptureMode>))]
     public LwxRecordBodyCaptureMode? RequestBodyMode { get; set; } = null;
 
     /// <summary>
@@ -154,7 +154,7 @@ public class LwxRecord
     /// </summary>
     [JsonPropertyName("rsp-body-mode")] 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<LwxRecordBodyCaptureMode>))]
     public LwxRecordBodyCaptureMode? ResponseBodyMode { get; set; } = null;
 
     /// <summary>

@@ -1,13 +1,14 @@
-# Simple Proccess (Old Way)
+# Simple Process (Old Way)
 
-Many developers like to put parameters in the request_path, but we do not like that because it compromises the performance and maintainability of the application.
+Many developers like to put parameters in the request path, but we do not like that because it compromises the performance and maintainability of the application.
 
-Having said that, this example includes the handling of a small proccess:
+## Endpoint List
 
-POST /apimanager-prefix/example-param-in-path/{id}/start
-PUT /apimanager-prefix/example-param-in-path/{id}/step1
-PUT /apimanager-prefix/example-param-in-path/{id}/step2
-DELETE /apimanager-prefix/example-param-in-path/{id}/cancel
-PUT /apimanager-prefix/example-param-in-path/{id}/finish
+### Endpoint: Start Example Process
+**Class:** `<assembly>.LwxEndpoints.ExampleParamInPath.ParamId.EndpointStart`
+
+**Request:** `POST /apimanager-prefix/example-param-in-path/{id}/start`
+
+**Request Body:**
 
 

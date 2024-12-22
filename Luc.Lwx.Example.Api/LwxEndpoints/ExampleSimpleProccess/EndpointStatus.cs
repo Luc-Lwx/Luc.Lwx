@@ -16,7 +16,7 @@ public static partial class EndpointStatus
       SwaggerFuncName = "Example Process Status",
       SwaggerFuncSummary = "Gets the status of the example process",
       SwaggerFuncDescription = "This endpoint retrieves the current status of the example process.",
-      SwaggerGroupTitle = "grupo da api de testes"
+      SwaggerGroupTitle = "Example Proccess (Recomended)"
     )]
     [LwxActivityLog(
       Imporance = LwxActivityImportance.High,

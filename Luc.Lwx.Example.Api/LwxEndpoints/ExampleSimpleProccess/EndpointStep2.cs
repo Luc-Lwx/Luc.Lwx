@@ -16,7 +16,7 @@ public static partial class EndpointStep2
       SwaggerFuncName = "Example Step 2",
       SwaggerFuncSummary = "Executes the second step of the example process",
       SwaggerFuncDescription = "This endpoint handles the execution of the second step in the example process.",
-      SwaggerGroupTitle = "grupo da api de testes"
+      SwaggerGroupTitle = "Example Proccess (Recomended)"
     )]
     [LwxActivityLog(
       Imporance = LwxActivityImportance.High,
