@@ -440,7 +440,7 @@ internal partial class LwxGenerator_Method_Endpoint(
                         {{srcFuncNameFragment}}
                         .WithTags( [ {{SymbolDisplay.FormatLiteral(swaggerGroupTitle,true)}} ] )
                         .WithSummary( {{SymbolDisplay.FormatLiteral(swaggerFuncSummary,true)}} )
-                        .WithDescription( {{SymbolDisplay.FormatLiteral(swaggerFuncSummary,true)}} )
+                        .WithDescription( {{SymbolDisplay.FormatLiteral(swaggerFuncDescription,true)}} )
                         .RequireAuthorization( {{SymbolDisplay.FormatLiteral(authPolicyName,true)}} )                          
                         ;            
 

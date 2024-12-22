@@ -118,17 +118,6 @@ internal partial class LwxGenerator_Type
             return;
         }
 
-        // Check if class name ends with "Dto" and doesn't have the [DynamicallyAccessedMembers] attribute
-        if (TypeSymbol.Name.EndsWith("Dto") && !TypeSymbol.GetAttributes().Any(attr => attr.AttributeClass?.Name == nameof(DynamicallyAccessedMembersAttribute)))
-        {
-            ReportWarning(
-                msgSeverity: DiagnosticSeverity.Warning,
-                msgId: "LUC013",
-                msgFormat: $"""LWX: The type {TypeNameFull} ends with 'Dto' and should be annotated with [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)].""",
-                srcLocation: TypeSymbol.Locations.FirstOrDefault()
-            );
-        }
-
         if( TypeSymbol.DeclaredAccessibility == Accessibility.Public && TypeSymbol.ContainingType == null )
         {      
             var relativeTypeName = TypeNameFull.Replace( TypeAssemblyName+".", "");
