@@ -4,11 +4,15 @@ using Luc.Lwx.Interface;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using System.Text.Json;
 
 namespace Luc.Lwx.LwxConfig;
 
 public static class LwxConfigExtension
 {
+    
+
+
     public static WebApplicationBuilder RequireLwxDevConfig(this WebApplicationBuilder builder)
     {
         return builder.RequireLwxDevConfig(Assembly.GetCallingAssembly());
@@ -144,6 +148,196 @@ public static class LwxConfigExtension
             """;
     }
 
+
+    /// <summary>
+    /// Get a required string configuration with an additional explanation in the error message
+    /// </summary>    
+    public static string LwxRequireConfig(this IConfiguration configuration, string keyName, string explanation = "")
+    {
+        var value = configuration[keyName];
+        if (string.IsNullOrEmpty(value))
+        {
+            throw new LwxConfigException($$"""
+                
+                Configuration value for key '{keyName}' is missing or empty.
+
+                The configuration should be set in:
+
+                    appsettings.json (for non-sensitive configuration)
+                    
+                    LwxDevConfig/appsettings-*.json during local development
+
+                    The key Abc:Cde:Efg should be set on those files like:
+                        
+                    {
+                        "Abc": {
+                            "Cde": {
+                                "Efg": "value"
+                            }
+                        }
+                    }
+
+                    After is set in the appsettings.json, for production environment can be set as environment variable:
+
+                    ABC__CDE__EFG=value
+
+                    In dotnet, two underscores are used to separate the levels of the configuration.
+
+                {{explanation}}
+                """
+            );
+        }
+        return value;
+    }
+   
+
+    /// <summary>
+    /// Get a required configuration value and bind it to an object of type T with an additional explanation in the error message
+    /// </summary>
+    public static T LwxRequireConfig<T>(this IConfiguration configuration, string keyName, string explanation = "")
+    {
+        var section = configuration.GetSection(keyName);
+        if (!section.Exists())
+        {
+            throw new LwxConfigException($$"""
+            
+                
+                Configuration section for key '{keyName}' is missing or empty.
+
+                {{explanation}}
+
+                The configuration should be set in:
+
+                    appsettings.json (for non-sensitive configuration)
+                    
+                    LwxDevConfig/appsettings-*.json during local development
+
+                    The key Abc:Cde:Efg should be set on those files like:
+                        
+                    {
+                        "Abc": {
+                            "Cde": {
+                                "Efg": "value"
+                            }
+                        }
+                    }
+
+                    After is set in the appsettings.json, for production environment can be set as environment variable:
+
+                    ABC__CDE__EFG=value
+
+                    In dotnet, two underscores are used to separate the levels of the configuration.
+
+                """
+            );
+        }
+        var obj = section.Get<T>();
+        if (EqualityComparer<T>.Default.Equals(obj, default(T)))
+        {
+            throw new LwxConfigException($"Failed to bind configuration section for key '{keyName}' to type '{typeof(T)}'. {explanation}");
+        }
+        return obj!;
+    }
+
+    /// <summary>
+    /// Get a required configuration value and deserialize it into an object of type T
+    /// </summary>
+    public static T LwxRequireConfigObject<T>(this IConfiguration configuration, string keyName, string explanation = "")
+    {
+        var section = configuration.GetSection(keyName);
+        if (!section.Exists())
+        {
+            throw new LwxConfigException($$"""
+                
+                Configuration section for key '{keyName}' is missing or empty.
+
+                {{explanation}}
+
+                The configuration should be set in:
+
+                    appsettings.json (for non-sensitive configuration)
+                    
+                    LwxDevConfig/appsettings-*.json during local development
+
+                    The key Abc:Cde:Efg should be set on those files like:
+                        
+                    {
+                        "Abc": {
+                            "Cde": {
+                                "Efg": "value"
+                            }
+                        }
+                    }
+
+                    After is set in the appsettings.json, for production environment can be set as environment variable:
+
+                    ABC__CDE__EFG=value
+
+                    In dotnet, two underscores are used to separate the levels of the configuration.
+
+                """
+            );
+        }
+        var obj = section.Get<T>();
+        if (EqualityComparer<T>.Default.Equals(obj, default(T)))
+        {
+            throw new LwxConfigException($"Failed to bind configuration section for key '{keyName}' to type '{typeof(T)}'. {explanation}");
+        }
+        return obj!;
+    }
+
+    /// <summary>
+    /// Get a required string configuration with an additional explanation in the error message
+    /// </summary>    
+    public static string LwxRequireConfig(this IServiceProvider serviceProvider, string keyName, string explanation = "")
+    {
+        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+        return configuration.LwxRequireConfig(keyName, explanation);
+    }
+
+    /// <summary>
+    /// Get a required configuration value and bind it to an object of type T with an additional explanation in the error message
+    /// </summary>
+    public static T LwxRequireConfig<T>(this IServiceProvider serviceProvider, string keyName, string explanation = "")
+    {
+        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+        return configuration.LwxRequireConfig<T>(keyName, explanation);
+    }
+    
+
+    /// <summary>
+    /// Get a required string configuration with an additional explanation in the error message
+    /// </summary>    
+    public static string LwxRequireConfig(this IApplicationBuilder app, string keyName, string explanation = "")
+    {
+        var configuration = app.ApplicationServices.GetRequiredService<IConfiguration>();
+        return configuration.LwxRequireConfig(keyName, explanation);
+    }
+
+    /// <summary>
+    /// Get a required configuration value and bind it to an object of type T with an additional explanation in the error message
+    /// </summary>
+    public static T LwxRequireConfig<T>(this IApplicationBuilder app, string keyName, string explanation = "")
+    {
+        var configuration = app.ApplicationServices.GetRequiredService<IConfiguration>();
+        return configuration.LwxRequireConfig<T>(keyName, explanation);
+    }
+
+    /// <summary>
+    /// Get a required string configuration with an additional explanation in the error message
+    /// </summary>    
+    public static string RequireConfigValue(this WebApplicationBuilder builder, string keyName, string explanation = "")
+    {
+        return builder.Configuration.LwxRequireConfig(keyName, explanation);
+    }
+
+    /// <summary>
+    /// Get a required configuration value and bind it to an object of type T with an additional explanation in the error message
+    /// </summary>
+    public static T RequireConfigValue<T>(this WebApplicationBuilder builder, string keyName, string explanation = "")
+    {
+        return builder.Configuration.LwxRequireConfig<T>(keyName, explanation);
+    }
 
     public static bool IsTestEnvironment(this IHostEnvironment environment)
     {
