@@ -39,6 +39,9 @@
     -->
 
 
+    <!-- by default, dotnet uses the as many threads as we have logical cores and this may cause problems in containers -->
+    <ThreadPoolMinThreads>8</ThreadPoolMinThreads>
+    <ThreadPoolMaxThreads>64</ThreadPoolMaxThreads>
   </PropertyGroup>
 
   
