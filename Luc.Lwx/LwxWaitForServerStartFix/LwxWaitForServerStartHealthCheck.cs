@@ -1,21 +1,13 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace Luc.Lwx.LwxHealthCheck;
+namespace Luc.Lwx.LwxWaitForServerStartFix;
 
 /// <summary>
 /// Custom health check that waits for the application to start.
 /// </summary>
-internal class LwxHealthCheck : IHealthCheck
+internal class LwxWaitForServerStartHealthCheck(TaskCompletionSource<bool> appStartedTcs) : IHealthCheck
 {
-    private readonly TaskCompletionSource<bool> _appStartedTcs;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="LwxHealthCheck"/> class.
-    /// </summary>
-    public LwxHealthCheck(TaskCompletionSource<bool> appStartedTcs)
-    {
-        _appStartedTcs = appStartedTcs;
-    }
+    private readonly TaskCompletionSource<bool> _appStartedTcs = appStartedTcs;
 
     /// <summary>
     /// Checks the health of the application.

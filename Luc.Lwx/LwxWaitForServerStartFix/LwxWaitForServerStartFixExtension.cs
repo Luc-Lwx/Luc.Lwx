@@ -5,12 +5,12 @@ using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace Luc.Lwx.LwxHealthCheck;
+namespace Luc.Lwx.LwxWaitForServerStartFix;
 
 /// <summary>
 /// Extension methods for adding and using LwxHealthCheck.
 /// </summary>
-public static class LwxHealthCheckExtension
+public static class LwxWaitForServerStartFixExtension
 {
     private static readonly TaskCompletionSource<bool> _appStartedTcs = new();
 
@@ -33,7 +33,7 @@ public static class LwxHealthCheckExtension
     /// 
     /// </code>
     /// </summary>
-    public static IApplicationBuilder UseLwxHealthCheck(this IApplicationBuilder app)
+    public static IApplicationBuilder LwxAddWaitServerStartFix(this IApplicationBuilder app)
     {            
         var lifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
         lifetime.ApplicationStarted.Register(() => _appStartedTcs.TrySetResult(true));
@@ -59,10 +59,10 @@ public static class LwxHealthCheckExtension
     /// 
     /// </code>        
     /// </summary>
-    public static WebApplicationBuilder AddLwxHealthCheck(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder LwxAddWaitServerStartFix(this WebApplicationBuilder builder)
     {
         builder.Services.AddHealthChecks()
-            .AddCheck("LwxHealthCheck", new LwxHealthCheck(_appStartedTcs));
+            .AddCheck("LwxHealthCheck", new LwxWaitForServerStartHealthCheck(_appStartedTcs));
         return builder;
     }
 }
