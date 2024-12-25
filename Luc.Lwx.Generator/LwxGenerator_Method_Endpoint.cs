@@ -185,7 +185,7 @@ internal partial class LwxGenerator_Method_Endpoint(
             );    
         }
         
-        var apiManagerPath = Type.TheAssembly.AppSettings?.Lwx?.ApiManagerPath;
+        var apiManagerPath = Type.TheAssembly.ApiManagerPath;
         if( apiManagerPath != null )
         {
             if( apiManagerPath.EndsWith( "/" ) )      
@@ -195,22 +195,15 @@ internal partial class LwxGenerator_Method_Endpoint(
                     msgSeverity: DiagnosticSeverity.Error, 
                     msgId: "LUC06546", 
                     msgFormat: $$"""
-                        LWX: The appsettings.json Lwx:ApiManagerPath must not end with a slash
-                    
-                        The appsettings.json of your project must contain a section like this:
+                        The ApiManagerPath in appsettings.json cannot end with a slash.
+
+                        Please set the ApiManagerPath in your appsettings.json like this:
 
                         {
-                            ...
-                            "Lwx": 
-                            {
-                                "ApiManagerPath": "/api/v1" <-- can't end in a slash
-                                "SwaggerDescription": "",
-                                "SwaggerContactEmail": "",
-                                "SwaggerContactPhone": "",
-                                "SwaggerAuthor": ""
+                            "Lwx": {
+                                "ApiManagerPath": "/api-manager-path" <-- CAN'T END WITH A SLASH
                             }
-                        }                        
-
+                        }
                         """, 
                     srcLocation: Attr.LucGetAttributeArgumentLocation("Path") 
                 );
@@ -241,23 +234,27 @@ internal partial class LwxGenerator_Method_Endpoint(
             {
                 if( justificationForPathNotInApiManagerPrefix.LucIsNullOrEmpty() )
                 {
-                    // essa regra foi desabilitada pelo dev
-                }
-                else
-                {
                     Type.ReportWarning
                     ( 
                         msgSeverity: DiagnosticSeverity.Error, 
                         msgId: "LUC0015", 
                         msgFormat: $$"""
-                            LWX: The path must start with {apiManagerPath}/
+                            LWX: The path must start with {{apiManagerPath}}/
 
-                            It is recomended that you use the same prefix that you will use to publish it.
+                            It is recommended that you use the same prefix that you will use to publish it.
 
                             If you need to disable this rule, you can use the justification LowMaintanability_NotInApiManagerPath_Justification
 
                             Api Manager Base: {{apiManagerPath}}
                             Api Path: {{attrPath}}
+
+                            The Api Manager Base is set in the appsettings.json like this
+
+                            {
+                                "Lwx": {
+                                    "ApiManagerPath": "/api-manager-path"
+                                }
+                            }
                             """, 
                         srcLocation: Attr.LucGetAttributeArgumentLocation("Path") 
                     );
@@ -272,28 +269,18 @@ internal partial class LwxGenerator_Method_Endpoint(
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC0016", 
                 msgFormat: $$"""
-                    LWX: The appsettings.json must declare the Lwx:ApiManagerPath
+                    The ApiManagerPath is not found in appsettings.json.
 
-                    The {{Type.TypeAssemblyName}}.csproj must contains
-
-                    <ItemGroup>
-                        <AdditionalFiles Include="appsettings.json" />
-                    </ItemGroup>    
-                
-                    And the appsettings.json of your project must contain a section like this:
+                    Please set the ApiManagerPath in your appsettings.json like this:
 
                     {
-                        ...
-                        "LucWeb": 
-                        {
-                            "ApiManagerPath": "/api/v1"
-                            "SwaggerDescription": "",
-                            "SwaggerContactEmail": "",
-                            "SwaggerContactPhone": "",
-                            "SwaggerAuthor": ""
+                        "Lwx": {
+                            "ApiManagerPath": "/api-manager-path"
                         }
-                    }                        
+                    }
 
+                    You can find the ApiManagerPath in the configuration section of your project. 
+                    It is typically located in the appsettings.json file or in the environment variables.
                     """, 
                 srcLocation: Attr.LucGetAttributeArgumentLocation("Path") 
             );
@@ -358,7 +345,7 @@ internal partial class LwxGenerator_Method_Endpoint(
         var swaggerFuncSummary = Attr.LucGetAttributeValueAsString("SwaggerFuncSummary");
         var swaggerFuncDescription = Attr.LucGetAttributeValueAsString("SwaggerFuncDescription");
         var swaggerFuncName = Attr.LucGetAttributeValueAsString("SwaggerFuncName");
-        var authPolicy = Attr.LucGetAttributeValueAsType("AuthPolicy");
+        var authPolicy = Attr.LucGetAttributeValueAsType(LwxConstants.AuthPolicy);
 
         if( authPolicy == null ) 
         {
@@ -375,12 +362,12 @@ internal partial class LwxGenerator_Method_Endpoint(
                         ...
                     )]
                     """, 
-                srcLocation: Attr.LucGetAttributeArgumentLocation("AuthPolicy") 
+                srcLocation: Attr.LucGetAttributeArgumentLocation(LwxConstants.AuthPolicy) 
             );
             return;
         }
 
-        if( !authPolicy.Name.StartsWith("AuthPolicy") ) 
+        if( !authPolicy.Name.StartsWith(LwxConstants.AuthPolicy) ) 
         {
             Type.ReportWarning
             ( 

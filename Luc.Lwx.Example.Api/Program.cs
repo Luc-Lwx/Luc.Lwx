@@ -1,23 +1,30 @@
 using Luc.Lwx.Example.Api.Generated;
 using Luc.Lwx.LwxActivityLog;
 using Luc.Lwx.LwxConfig;
+using Luc.Lwx.LwxSetupSwagger;
 using Luc.Lwx.LwxWaitForServerStartFix;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.LwxConfigureSwagger(
+    title: "Luc.Lwx.Example.Api",
+    description: "This is an example API for Luc.Lwx",
+    contactEmail: "lucas@example.com",
+    author: "Lucas",
+    version: "v1",
+    additionalUrls: [ "https://apis.example.com" ]
+);
+
 builder.RequireLwxDevConfig();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.SetLwxActivityLogConfig(new LwxActivityLogConfig() { });
-builder.Services.SetLwxActivityLogOutput(new LwxActivityLogTestOutput() { });
+builder.SetLwxActivityLogConfig(new LwxActivityLogConfig() { });
+builder.SetLwxActivityLogOutput(new LwxActivityLogTestOutput() { });
 builder.MapAuthSchemes_LucLwxExampleApi();
 builder.MapAuthPolicies_LucLwxExampleApi();
-builder.Services.AddSwaggerGen();
 builder.LwxAddWaitServerStartFix();
 
 var app = builder.Build();
-
+app.LwxConfigureSwagger();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

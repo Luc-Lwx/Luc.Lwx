@@ -4,28 +4,23 @@ namespace Luc.Lwx.LwxActivityLog;
 
 public static class LwxActivityLogExtensions
 {
-    /// <summary>
-    /// Adds the ObservabilityMiddleware to the application's request pipeline.
-    /// </summary>
     public static IApplicationBuilder UseLwxActivityLog(this IApplicationBuilder app)
     {
         return app.UseMiddleware<LwxActivityLogMiddleware>();
     }
-
-    /// <summary>
-    /// Registers the ObservabilityMiddleware and its dependencies in the service collection.
-    /// </summary>
-    public static IServiceCollection SetLwxActivityLogConfig(this IServiceCollection services, LwxActivityLogConfig config )
+    public static WebApplicationBuilder SetLwxActivityLogConfig(this WebApplicationBuilder builder, LwxActivityLogConfig config )
     {        
-        services.AddSingleton<LwxActivityLogConfig>(config);
-        return services;
-    }
+        builder.Logging.ClearProviders();
+        builder.Logging.AddConsole();
 
-    public static IServiceCollection SetLwxActivityLogOutput(this IServiceCollection services, ILwxActivityLogOutput output )
-    {     
-        services.AddTransient<LwxActivityLogMiddleware>();   
-        services.AddSingleton<ILwxActivityLogOutput>(output);
-        return services;
+        builder.Services.AddSingleton<LwxActivityLogConfig>(config);
+        return builder;
+    }
+    public static WebApplicationBuilder SetLwxActivityLogOutput(this WebApplicationBuilder builder, ILwxActivityLogOutput output )
+    {
+        builder.Services.AddTransient<LwxActivityLogMiddleware>();   
+        builder.Services.AddSingleton<ILwxActivityLogOutput>(output);           
+        return builder;
     }
 
     private const string s_operationRecordKey = "OperationRecord";

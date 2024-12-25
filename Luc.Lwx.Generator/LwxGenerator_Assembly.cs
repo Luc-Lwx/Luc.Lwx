@@ -21,6 +21,13 @@ internal partial class LwxGenerator_Assembly
     public Dictionary<string,List<LwxGenerator_Method_AuthPolicy>> PolicyTypes { get; internal set; } = [];
     public Dictionary<string,List<LwxGenerator_Method_AuthScheme>> SchemeTypes { get; internal set; } = [];
 
+    public string? ApiManagerPath { get; set; } = null;
+    public string? SwaggerTitle { get; set; } = null;
+    public string? SwaggerDescription { get; set; } = null;
+    public string? SwaggerContactEmail { get; set; } = null;
+    public string? SwaggerContactPhone { get; set; } = null;
+    public string? SwaggerAuthor { get; set; } = null;
+
     public void AddEndpointMappingMethod(string group, LwxGenerator_Method_Endpoint methodSrc)
     {
         List<LwxGenerator_Method_Endpoint> groupMap;
@@ -78,7 +85,7 @@ internal partial class LwxGenerator_Assembly
     { 
         Context = sourceProductionContext;
         TypeSymbols = typeSymbols;
-
+     
         AppSettingsDto? appSettings = null;            
         try 
         {
@@ -105,6 +112,13 @@ internal partial class LwxGenerator_Assembly
         appSettings ??= new AppSettingsDto();   
         appSettings.Lwx ??= new AppSettingsSectionDto();   
         AppSettings = appSettings;
+
+        ApiManagerPath = AppSettings.Lwx?.ApiManagerPath;
+        SwaggerTitle = AppSettings.Lwx?.SwaggerTitle;
+        SwaggerDescription = AppSettings.Lwx?.SwaggerDescription;
+        SwaggerContactEmail = AppSettings.Lwx?.SwaggerContactEmail;
+        SwaggerContactPhone = AppSettings.Lwx?.SwaggerContactPhone;
+        SwaggerAuthor = AppSettings.Lwx?.SwaggerAuthor;
         
         if(typeSymbols.FirstOrDefault().Node is TypeDeclarationSyntax firstType)
         {
