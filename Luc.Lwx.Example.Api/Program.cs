@@ -1,6 +1,7 @@
 using Luc.Lwx.Example.Api.Generated;
 using Luc.Lwx.LwxActivityLog;
 using Luc.Lwx.LwxConfig;
+using Luc.Lwx.LwxCors;
 using Luc.Lwx.LwxSetupSwagger;
 using Luc.Lwx.LwxWaitForServerStartFix;
 
@@ -14,14 +15,16 @@ builder.LwxConfigureSwagger(
     version: "v1",
     additionalUrls: [ "https://apis.example.com" ]
 );
-
-builder.RequireLwxDevConfig();
-builder.Services.AddEndpointsApiExplorer();
-builder.SetLwxActivityLogConfig(new LwxActivityLogConfig() { });
-builder.SetLwxActivityLogOutput(new LwxActivityLogTestOutput() { });
+builder.LwxConfigureCors();
+builder.LwxLoadConfig();
+builder.LwxConfigureActivityLog();
+builder.LwxConfigureActivityLogOutput(new LwxActivityLogTestOutput() { });
 builder.MapAuthSchemes_LucLwxExampleApi();
 builder.MapAuthPolicies_LucLwxExampleApi();
-builder.LwxAddWaitServerStartFix();
+builder.LwxConfigureHealthCheckFix();
+
+builder.Services.AddEndpointsApiExplorer();
+
 
 var app = builder.Build();
 app.LwxConfigureSwagger();
@@ -32,8 +35,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseLwxActivityLog();
-app.LwxAddWaitServerStartFix();
+app.LwxConfigureActivityLog();
+app.LwxConfigureHealhCheckFix();
 
 app.MapGet("/", () => "Hello World!");
 app.MapEndpoints_LucLwxExampleApi();
