@@ -5,14 +5,6 @@ using System.Text;
 using System.Text.Json;
 using System.Globalization;
 
-/// <summary>
-/// Represents the output interface for observability.
-/// </summary>
-public interface ILwxActivityLogOutput 
-{
-    void Publish(LwxRecord record);
-}
-
 public class LwxActivityLogMiddleware 
 (
     ILwxActivityLogOutput output,

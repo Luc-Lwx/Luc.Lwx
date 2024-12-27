@@ -1,23 +1,36 @@
 using System.Text.Json;
+using Luc.Lwx.Interface;
 
 namespace Luc.Lwx.LwxActivityLog;
 
 public static class LwxActivityLogExtensions
 {
-    public static IApplicationBuilder UseLwxActivityLog(this IApplicationBuilder app)
+    public static IApplicationBuilder LwxConfigureActivityLog(this IApplicationBuilder app)
     {
         return app.UseMiddleware<LwxActivityLogMiddleware>();
     }
-    public static WebApplicationBuilder SetLwxActivityLogConfig(this WebApplicationBuilder builder, LwxActivityLogConfig config )
+
+    public static WebApplicationBuilder LwxConfigureActivityLog(this WebApplicationBuilder builder)
     {        
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
-
-        builder.Services.AddSingleton<LwxActivityLogConfig>(config);
+     
+        var configSection = builder.Configuration.GetSection("LwxActivityLog") ?? throw new LwxConfigException("LwxActivityLog section is missing in the configuration file.");
+        try
+        {
+            var config = configSection.Get<LwxActivityLogConfig>() ?? throw new LwxConfigException(GenerateConfigErrorMessage("Invalid format for LwxActivityLog section in the configuration file."));
+            builder.Services.AddSingleton(config);            
+        }
+        catch (Exception ex)
+        {
+            throw new LwxConfigException(GenerateConfigErrorMessage("Error reading LwxActivityLog configuration section"), ex);
+        }
+        
         return builder;
     }
-    public static WebApplicationBuilder SetLwxActivityLogOutput(this WebApplicationBuilder builder, ILwxActivityLogOutput output )
-    {
+
+    public static WebApplicationBuilder LwxConfigureActivityLogOutput(this WebApplicationBuilder builder, ILwxActivityLogOutput output)
+    {        
         builder.Services.AddTransient<LwxActivityLogMiddleware>();   
         builder.Services.AddSingleton<ILwxActivityLogOutput>(output);           
         return builder;
@@ -46,7 +59,7 @@ public static class LwxActivityLogExtensions
     public static void SetLwxActivityRecordResponseBodyJson(this HttpContext context, object jsonObject)
     {
         var record = context.Lwx_RequireOperationRecord();        
-        if( record.ResponseBodyMode != LwxRecordBodyCaptureMode.Ignored )
+        if (record.ResponseBodyMode != LwxRecordBodyCaptureMode.Ignored)
         {
             throw new InvalidOperationException("The Lwx_AddResponseBodyJson can only be called if the [LwxEndpoint] attribute does have the ObservabilityIgnoreResponseBody=true.");
         }
@@ -64,7 +77,7 @@ public static class LwxActivityLogExtensions
     public static void SetLwxActivityRecordRequestBodyJson(this HttpContext context, object jsonObject)
     {
         var record = context.Lwx_RequireOperationRecord();        
-        if( record.RequestBodyMode != LwxRecordBodyCaptureMode.Ignored )
+        if (record.RequestBodyMode != LwxRecordBodyCaptureMode.Ignored)
         {
             throw new InvalidOperationException("The Lwx_AddRequestBodyJson can only be called if the [LwxEndpoint] attribute does have the ObservabilityIgnoreResponseBody=true.");
         }
@@ -97,6 +110,32 @@ public static class LwxActivityLogExtensions
 
         record.ContextInfo?.Remove(key);
     }
-}
 
+    private static string GenerateConfigErrorMessage(string message)
+    {
+        return $$"""
+
+
+            {{message}}
+
+            The LwxActivityLog should be configured in appsettings.json file like:
+
+            "LwxActivityLog": 
+            {
+                "FixIpAddr": true,
+                "IgnoreEndpointsWithoutAttribute": true,
+                "ErrorHandler": true
+            }
+
+            If you are using kubernetes, and needs to override the config values, you can use the following environment variables:
+
+                LwxActivityLog__FixIpAddr=true
+                LwxActivityLog__IgnoreEndpointsWithoutAttribute=true
+                LwxActivityLog__ErrorHandler=true
+
+            This is usually in a configmap insice an yaml.
+
+            """;
+    }
+}
 
