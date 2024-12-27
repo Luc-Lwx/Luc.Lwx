@@ -12,7 +12,7 @@ namespace Luc.Lwx.LwxConfig;
 
 public static class LwxConfigExtension
 {
-    public static WebApplicationBuilder RequireLwxDevConfig(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder LwxLoadConfig(this WebApplicationBuilder builder)
     {
         return builder.RequireLwxDevConfig(Assembly.GetCallingAssembly());
     }
@@ -148,6 +148,8 @@ public static class LwxConfigExtension
     }
 
 
+
+
     /// <summary>
     /// Get a required string configuration with an additional explanation in the error message
     /// </summary>    
@@ -157,8 +159,35 @@ public static class LwxConfigExtension
         var value = configuration[keyName] ?? defaultValue;
         if (!string.IsNullOrEmpty(isRequired) && string.IsNullOrEmpty(value))
         {
-            
-            
+            throw new LwxConfigException($$"""
+                
+                Configuration value for key '{{keyName}}' is missing or empty.
+
+                The configuration should be set in:
+
+                    appsettings.json (for non-sensitive configuration)
+                    
+                    LwxDevConfig/appsettings-*.json during local development
+
+                    The key Abc:Cde:Efg should be set on those files like:
+                        
+                    {
+                        "Abc": {
+                            "Cde": {
+                                "Efg": "value"
+                            }
+                        }
+                    }
+
+                    After is set in the appsettings.json, for production environment can be set as environment variable:
+
+                    ABC__CDE__EFG=value
+
+                    In dotnet, two underscores are used to separate the levels of the configuration.
+
+                {{isRequired}}
+                """
+            );
         }
         return value;
     }

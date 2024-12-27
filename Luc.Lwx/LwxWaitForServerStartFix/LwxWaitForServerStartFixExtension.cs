@@ -33,7 +33,7 @@ public static class LwxWaitForServerStartFixExtension
     /// 
     /// </code>
     /// </summary>
-    public static IApplicationBuilder LwxAddWaitServerStartFix(this IApplicationBuilder app)
+    public static IApplicationBuilder LwxConfigureHealhCheckFix(this IApplicationBuilder app)
     {            
         var lifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
         lifetime.ApplicationStarted.Register(() => _appStartedTcs.TrySetResult(true));
@@ -59,7 +59,7 @@ public static class LwxWaitForServerStartFixExtension
     /// 
     /// </code>        
     /// </summary>
-    public static WebApplicationBuilder LwxAddWaitServerStartFix(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder LwxConfigureHealthCheckFix(this WebApplicationBuilder builder)
     {
         builder.Services.AddHealthChecks()
             .AddCheck("LwxHealthCheck", new LwxWaitForServerStartHealthCheck(_appStartedTcs));
