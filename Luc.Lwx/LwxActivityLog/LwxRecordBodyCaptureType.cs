@@ -2,9 +2,10 @@ namespace Luc.Lwx.LwxActivityLog;
 
 public enum LwxRecordBodyCaptureMode
 {    
-    Custom,
-    Ignored,
-    Modified
+    Captured,    
+    Modified,
+    Ignored,    
+    Custom
 }
 
 

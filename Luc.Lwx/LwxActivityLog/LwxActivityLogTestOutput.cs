@@ -8,9 +8,9 @@ namespace Luc.Lwx.LwxActivityLog;
 /// </summary>
 public class LwxActivityLogTestOutput : ILwxActivityLogOutput
 {
-    private readonly ConcurrentDictionary<string, List<LwxRecord>> _records = new();
+    private readonly ConcurrentDictionary<string, List<LwxActivityRecord>> _records = new();
     
-    public void Publish(LwxRecord record)
+    public void Publish(LwxActivityRecord record)
     {
         if (record.RequestPath == null)
         {
@@ -27,7 +27,7 @@ public class LwxActivityLogTestOutput : ILwxActivityLogOutput
             });
     }
 
-    public IReadOnlyDictionary<string, List<LwxRecord>> GetRecords()
+    public IReadOnlyDictionary<string, List<LwxActivityRecord>> GetRecords()
     {
         return _records;
     }

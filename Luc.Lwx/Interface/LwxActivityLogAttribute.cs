@@ -31,11 +31,11 @@ public class LwxActivityLogAttribute : Attribute
     /// <summary>
     /// Inform how the request body should be handled (default is to be captured)
     /// </summary>
-    public LwxRecordBodyCaptureMode? RequestBodyMode { get; set; } = null;
+    public bool CaptureRequestBody { get; set; } = true;
 
     /// <summary>
     /// Inform how the response body should be handled (default is to be captured)
     /// </summary>
-    public LwxRecordBodyCaptureMode? ResponseBodyMode { get; set; } = null;
+    public bool CaptureResponseBody { get; set; } = true;
 
 }

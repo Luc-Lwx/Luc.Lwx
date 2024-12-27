@@ -4,6 +4,7 @@ using Luc.Lwx.Interface;
 using System.Text;
 using System.Text.Json;
 using System.Globalization;
+using System.Diagnostics.CodeAnalysis;
 
 public class LwxActivityLogMiddleware 
 (
@@ -33,7 +34,7 @@ public class LwxActivityLogMiddleware
         record.RemotePort = context.Connection.RemotePort;
 
         Stream originalBodyStream;
-        if( record.ResponseBodyMode != LwxRecordBodyCaptureMode.Ignored )
+        if( record.ResponseBodyCapture )
         {
             originalBodyStream = context.Response.Body;
             context.Response.Body = new MemoryStream();
@@ -45,7 +46,7 @@ public class LwxActivityLogMiddleware
 
         UpdateRequestHeaders(record, context);
       
-        if( record.RequestBodyMode != LwxRecordBodyCaptureMode.Ignored )
+        if( record.RequestBodyCapture )
         {
             await UpdateRequestBody(record, context);
         }
@@ -79,7 +80,7 @@ public class LwxActivityLogMiddleware
 
         UpdateResponseHeaders(record, context);
 
-        if( record.ResponseBodyMode != LwxRecordBodyCaptureMode.Ignored )
+        if( record.ResponseBodyCapture )
         {
             await UpdateResponseBody(record, context);
             context.Response.Body.Seek(0, SeekOrigin.Begin);
@@ -92,7 +93,7 @@ public class LwxActivityLogMiddleware
     /// <summary>
     /// Creates an OperationRecord based on the current HttpContext.
     /// </summary>
-    private LwxRecord? CreateActivityLogRecord(HttpContext context) 
+    private LwxActivityRecord? CreateActivityLogRecord(HttpContext context) 
     {
         var endpoint = context.GetEndpoint();
         var lwxActivtyLogAttribute = endpoint?.Metadata.GetMetadata<LwxActivityLogAttribute>();
@@ -118,33 +119,24 @@ public class LwxActivityLogMiddleware
             requestPathParams["path"] = context.Request.Path.ToString();
         }
 
-        var result = new LwxRecord
+        var result = new LwxActivityRecord
         {
             RequestPath = routePattern, 
             RequestPathParams = requestPathParams,
             Importance = lwxActivtyLogAttribute?.Imporance,
-            Step = lwxActivtyLogAttribute?.Step,               
-            RequestBodyMode = lwxActivtyLogAttribute?.RequestBodyMode,
-            ResponseBodyMode = lwxActivtyLogAttribute?.ResponseBodyMode
-        };        
-
-        // when the user declared that will provide a custom body, we need to set the default to ignored         
-        if( result.RequestBodyMode == LwxRecordBodyCaptureMode.Custom )
-        {
-            result.RequestBodyMode = LwxRecordBodyCaptureMode.Ignored;
-        }
-        // when the user declared that will provide a custom body, we need to set the default to ignored 
-        if( result.ResponseBodyMode == LwxRecordBodyCaptureMode.Custom )
-        {
-            result.ResponseBodyMode = LwxRecordBodyCaptureMode.Ignored;
-        }        
+            Step = lwxActivtyLogAttribute?.Step,                           
+            RequestBodyCapture = lwxActivtyLogAttribute?.CaptureRequestBody ?? false,
+            ResponseBodyCapture = lwxActivtyLogAttribute?.CaptureResponseBody ?? false
+        };                
+               
         return result;
     }
 
     /// <summary>
     /// Extracts and parses the JWT token information from the HttpContext.
     /// </summary>
-    private static void ExtractJwtTokenInfo(LwxRecord record, HttpContext context)
+    [SuppressMessage("","S1172")]
+    private static void ExtractJwtTokenInfo(LwxActivityRecord record, HttpContext context)
     {
         var user = context.User;
 
@@ -252,7 +244,8 @@ public class LwxActivityLogMiddleware
     /// <summary>
     /// Updates the request headers of the operation record.
     /// </summary>
-    private static void UpdateRequestHeaders(LwxRecord record, HttpContext context)
+    [SuppressMessage("","S1172")]
+    private static void UpdateRequestHeaders(LwxActivityRecord record, HttpContext context)
     {
         record.RequestHeaders = context.Request.Headers
             .Where(kvp => !string.Equals(kvp.Key, "Host", StringComparison.OrdinalIgnoreCase))
@@ -265,7 +258,8 @@ public class LwxActivityLogMiddleware
     /// <summary>
     /// Updates the response headers of the operation record.
     /// </summary>
-    private static void UpdateResponseHeaders(LwxRecord record, HttpContext context)
+    [SuppressMessage("","S1172")]
+    private static void UpdateResponseHeaders(LwxActivityRecord record, HttpContext context)
     {
         record.ResponseHeaders = context.Response.Headers
             .ToDictionary(
@@ -277,9 +271,9 @@ public class LwxActivityLogMiddleware
     /// <summary>
     /// Updates the request body of the operation record.
     /// </summary>
-    private static async Task UpdateRequestBody(LwxRecord record, HttpContext context)
+    private static async Task UpdateRequestBody(LwxActivityRecord record, HttpContext context)
     {
-        if (record.RequestBodyMode != LwxRecordBodyCaptureMode.Ignored)
+        if (record.RequestBodyCapture)
         {
             context.Request.EnableBuffering();
             var requestBody = await new StreamReader(context.Request.Body).ReadToEndAsync();
@@ -307,9 +301,9 @@ public class LwxActivityLogMiddleware
         }
     }
    
-    private static async Task UpdateResponseBody(LwxRecord record, HttpContext context)
+    private static async Task UpdateResponseBody(LwxActivityRecord record, HttpContext context)
     {
-        if (record.ResponseBodyMode != LwxRecordBodyCaptureMode.Ignored)
+        if (record.ResponseBodyCapture)
         {
             context.Response.Body.Seek(0, SeekOrigin.Begin);
             var responseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();

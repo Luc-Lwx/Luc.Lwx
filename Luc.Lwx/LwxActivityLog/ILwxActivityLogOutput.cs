@@ -5,7 +5,7 @@ namespace Luc.Lwx.LwxActivityLog;
 /// </summary>
 public interface ILwxActivityLogOutput 
 {
-    void Publish(LwxRecord record);
+    void Publish(LwxActivityRecord record);
 }
 
 

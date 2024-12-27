@@ -3,12 +3,14 @@ namespace Luc.Lwx.LwxActivityLog;
 using Luc.Lwx.Util;
 using System.Text.Json.Serialization;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using Luc.Lwx.Interface;
 
 /// <summary>
 /// Represents an operation record for observability purposes.
 /// </summary>
 [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
-public class LwxRecord
+public class LwxActivityRecord
 {
     /// <summary>
     /// The timestamp when the operation was recorded.
@@ -98,6 +100,9 @@ public class LwxRecord
     [JsonConverter(typeof(LwxJsonConverter_RawField))]
     public string? RequestBodyJson { get; set; } = null;
 
+    [JsonIgnore]
+    internal bool RequestBodyCapture { get; set; }
+
     /// <summary>
     /// Indicates whether the request body is ignored.
     /// </summary>
@@ -132,7 +137,7 @@ public class LwxRecord
     /// </summary>
     [JsonPropertyName("rsp-body")] 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
-    public string? ResponseBody { get; set; }
+    public string? ResponseBody { get; set; }    
 
     /// <summary>
     /// The type of the response body (e.g., Json, Text, Base64).
@@ -156,6 +161,9 @@ public class LwxRecord
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonConverter(typeof(JsonStringEnumConverter<LwxRecordBodyCaptureMode>))]
     public LwxRecordBodyCaptureMode? ResponseBodyMode { get; set; } = null;
+
+    [JsonIgnore]
+    internal bool ResponseBodyCapture { get; set; }
 
     /// <summary>
     /// Additional context information.
@@ -234,6 +242,77 @@ public class LwxRecord
     [JsonPropertyName("auth-extra")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public Dictionary<string, string>? AuthExtra { get; set; } = null;
+
+
+  
+    /// <summary>
+    /// Adds the specified object as the response body JSON.
+    /// </summary>
+    public void SetResponseBodyJson(object jsonObject)
+    {
+        SetResponseBody(JsonSerializer.Serialize(jsonObject), LwxRecordBodyType.Json);        
+    }
+
+    /// <summary>
+    /// Adds the specified object as the response body JSON.
+    /// </summary>
+    public void SetResponseBody(string text, LwxRecordBodyType type)
+    {
+        if( ResponseBodyCapture ) 
+        {
+            throw new InvalidOperationException("Response body can only be set if the CaptureResponseBody=false on [LwxActivityLog]");
+        }
+        ResponseBodyType = type;
+        if( type == LwxRecordBodyType.Json)
+        {
+            ResponseBody = null;
+            ResponseBodyJson = text;
+        }   
+        else
+        {
+            ResponseBody = text;
+            ResponseBodyJson = null;            
+        }                                    
+        ResponseBodyMode = LwxRecordBodyCaptureMode.Custom;                
+    }
+
+    public void SetRequestBody(object jsonObject)
+    {
+        SetRequestBody(JsonSerializer.Serialize(jsonObject), LwxRecordBodyType.Json);        
+    }
+      
+    public void SetRequestBody(string content, LwxRecordBodyType type )
+    {
+        RequestBodyType = type;            
+        if( type == LwxRecordBodyType.Json)
+        {
+            RequestBodyJson = content;
+            RequestBodyType = type;            
+        }   
+        else
+        {
+            RequestBody = content;
+            RequestBodyType = type;            
+        }            
+        RequestBodyMode = LwxRecordBodyCaptureMode.Custom;                
+    }
+
+    /// <summary>
+    /// Adds context information with the specified key and value.
+    /// </summary>
+    public void SetContextInfo(string key, object value)
+    {
+        ContextInfo ??= [];
+        ContextInfo[key] = value;
+    }
+
+    /// <summary>
+    /// Removes the context information with the specified key.
+    /// </summary>
+    public void RemoveContextInfo(string key)
+    {
+        ContextInfo?.Remove(key);
+    }
 }
 
 

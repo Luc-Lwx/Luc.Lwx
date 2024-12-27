@@ -9,7 +9,7 @@ namespace Luc.Lwx;
 [JsonSerializable(typeof(int))]
 [JsonSerializable(typeof(float))]
 [JsonSerializable(typeof(LwxResponseDto))]
-[JsonSerializable(typeof(LwxRecord))]
+[JsonSerializable(typeof(LwxActivityRecord))]
 public partial class SourceGenerationContext : JsonSerializerContext
 {
 }
