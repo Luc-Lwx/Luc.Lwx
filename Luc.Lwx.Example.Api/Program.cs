@@ -1,11 +1,26 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization.Metadata;
+using Luc.Lwx;
 using Luc.Lwx.Example.Api.Generated;
 using Luc.Lwx.LwxActivityLog;
 using Luc.Lwx.LwxConfig;
 using Luc.Lwx.LwxCors;
 using Luc.Lwx.LwxSetupSwagger;
 using Luc.Lwx.LwxStartupFix;
+using Microsoft.AspNetCore.Http.Json;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<JsonOptions>(options =>
+{
+    options.SerializerOptions.TypeInfoResolver = JsonTypeInfoResolver.Combine
+    (
+        Luc.Lwx.Example.Api.SourceGenerationContext.Default,
+        Luc.Lwx.SourceGenerationContext.Default
+    );
+});
+
+
 
 builder.LwxConfigureSwagger(
     title: "Luc.Lwx.Example.Api",
