@@ -3,6 +3,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Luc.Lwx.LwxConfig;
 using System.Linq;
+using System.Configuration.Assemblies;
+using System.Security.Cryptography;
+using System.Text;
+using Luc.Lwx.Util;
 
 namespace Luc.Lwx.LwxSetupSwagger;
 
@@ -83,17 +87,39 @@ public static partial class SwaggerSetup
             }
 
             c.InferSecuritySchemes();                
+
+            c.CustomSchemaIds(GetSchemaId);
         });
     }
+
+    
+   
 
     public static void LwxConfigureSwagger(this IApplicationBuilder app)
     {
         app.UseSwaggerUI(c =>
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-            c.DefaultModelsExpandDepth(-1); // Disable the models section
-            c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None); // Collapse all sections
-            c.EnableTryItOutByDefault(); // Enable "try it out" by default
+            c.DefaultModelsExpandDepth(-1); 
+            c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None); 
+            c.EnableTryItOutByDefault(); 
         });
     }  
+
+    private static string GetSchemaId(Type type)
+    {   
+        var result = type.FullName;
+        if (result == null)
+        {
+            return "t" + Guid.NewGuid().ToString();
+        }
+        var assemblyName = type.Assembly?.GetName()?.Name;
+        if (assemblyName != null)
+        {            
+            result = result[(assemblyName.Length + 1)..];
+            var hash = assemblyName.LwxHashSha1Hex()[..8];
+            result = $"n{hash}.{result}";
+        }
+        return result;
+    }
 }
