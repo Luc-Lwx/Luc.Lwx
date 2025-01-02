@@ -42,25 +42,25 @@ internal partial class LwxGenerator_Type
     }
 
 
-    public void ExecutePhase1() 
+    public void DoProccess() 
     {        
-        DoEnforceNamingConventions();
+        DoProcessNamingConventions();
         DoBlockOldStyleEndpoints();                
-        DoProcessMethods();
+        DoProccessMethods();
     }
   
-    private void DoProcessMethods() 
+    private void DoProccessMethods() 
     {
         foreach (var member in Type.Members)
-        {
+        {   
             if (member is MethodDeclarationSyntax method)
             {
-                DoProcessMethod(method);
+                DoProcessMethodAttributes(method);
             }
         }
     }
 
-    private void DoProcessMethod(MethodDeclarationSyntax method) 
+    private void DoProcessMethodAttributes(MethodDeclarationSyntax method) 
     {        
         var attributes = TypeSemanticModel.GetDeclaredSymbol(method)?.GetAttributes();
         if (attributes == null) return;
@@ -85,10 +85,11 @@ internal partial class LwxGenerator_Type
             }
         }
     }
+
     
     [SuppressMessage("","S3776")]
     [SuppressMessage("","S3626")]
-    private void DoEnforceNamingConventions() 
+    private void DoProcessNamingConventions() 
     {
         var wrongNamespace = $"{TypeAssemblyName}.src.";
 

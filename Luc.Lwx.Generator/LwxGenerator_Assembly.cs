@@ -20,7 +20,7 @@ internal partial class LwxGenerator_Assembly
     public Dictionary<string,List<LwxGenerator_Method_Endpoint>> EndpointMappingMethods { get; internal set; } = [];
     public Dictionary<string,List<LwxGenerator_Method_AuthPolicy>> PolicyTypes { get; internal set; } = [];
     public Dictionary<string,List<LwxGenerator_Method_AuthScheme>> SchemeTypes { get; internal set; } = [];
-
+    
     public string? ApiManagerPath { get; set; } = null;
     public string? SwaggerTitle { get; set; } = null;
     public string? SwaggerDescription { get; set; } = null;
@@ -43,7 +43,6 @@ internal partial class LwxGenerator_Assembly
         groupMap.Add(methodSrc);        
     }
 
-    // FUTURE: improve this to pass only a descriptor with the essential fields 
     public void AddPolicyType(string group, LwxGenerator_Method_AuthPolicy processor )
     {
         List<LwxGenerator_Method_AuthPolicy> groupMap;
@@ -59,7 +58,6 @@ internal partial class LwxGenerator_Assembly
         groupMap.Add(processor);        
     }
 
-    // FUTURE: improve this to pass only a descriptor with the essential fields
     public void AddSchemeType(string group, LwxGenerator_Method_AuthScheme processor )
     {
         List<LwxGenerator_Method_AuthScheme> groupMap;
@@ -74,6 +72,7 @@ internal partial class LwxGenerator_Assembly
         }
         groupMap.Add(processor);        
     }
+
 
 
     public LwxGenerator_Assembly
@@ -142,7 +141,7 @@ internal partial class LwxGenerator_Assembly
             try 
             {
                 var processClass = new LwxGenerator_Type(this, typeSymbol);                
-                processClass.ExecutePhase1();                       
+                processClass.DoProccess();                       
             }
             catch( Exception ex )
             {
@@ -158,58 +157,12 @@ internal partial class LwxGenerator_Assembly
             }    
         }
 
-        /*
-        // Parse the whole syntax tree to identify method calls of WebApplication.MapGet, MapPost, MapDelete, MapPut, etc.
-        var minimalApiMethods = new[] 
-        { 
-            "MapGet", 
-            "MapPost", 
-            "MapDelete", 
-            "MapPut", 
-            "MapPatch", 
-            "MapOptions", 
-            "MapHead" 
-        };
-        foreach (var typeSymbol in TypeSymbols)
-        {
-            var root = typeSymbol.Node.SyntaxTree.GetRoot();
-            var methodCalls = root.DescendantNodes().OfType<InvocationExpressionSyntax>()
-                .Where(invocation => invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
-                                     minimalApiMethods.Contains(memberAccess.Name.Identifier.Text));
-
-            foreach (var methodCall in methodCalls)
-            {
-                var semanticModel = typeSymbol.SemanticModel;
-                var symbolInfo = semanticModel.GetSymbolInfo(methodCall);
-                var methodSymbol = symbolInfo.Symbol as IMethodSymbol;
-
-                if (methodSymbol != null && methodSymbol.ContainingType.ToDisplayString() == typeof(WebApplication).FullName)
-                {
-                    var containingClass = methodCall.Ancestors().OfType<ClassDeclarationSyntax>().FirstOrDefault();
-                    if (containingClass != null)
-                    {
-                        var classSymbol = semanticModel.GetDeclaredSymbol(containingClass);
-                        if (classSymbol != null && !classSymbol.ContainingNamespace.ToDisplayString().EndsWith(".Generated"))
-                        {
-                            ReportWarning
-                            (
-                                msgSeverity: DiagnosticSeverity.Error,
-                                msgId: "LUC0913",
-                                msgFormat: $"WebApplication.{methodSymbol.Name} should only be called from generated classes.",
-                                srcLocation: methodCall.GetLocation()
-                            );
-                        }
-                    }
-                }
-            }
-        }
-*/
-
         try
         {
             GenerateEndpointMappings();
             GenerateAuthPolicyMappings();
             GenerateAuthSchemeMappings();
+
         }
         catch( Exception e )
         {
@@ -383,6 +336,7 @@ internal partial class LwxGenerator_Assembly
     }
 
 
+   
     internal void ReportWarning( DiagnosticSeverity msgSeverity, string msgId, string msgFormat, Location? srcLocation, params object[] msgArgs ) 
     {
         Context.ReportDiagnostic
