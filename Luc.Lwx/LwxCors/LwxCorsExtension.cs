@@ -97,11 +97,40 @@ public static class LwxCorsExtension
         {
             "LwxCors": 
             {
-                "AllowedOrigins": "https://example.com,https://another.example.com",
+                "AllowedOrigins": "https://example.com, https://another.example.com",
                 "AllowedMethods": "GET, POST, PUT, DELETE",
                 "AllowedHeaders": "Content-Type, Authorization"
             }
         }
+
+        In kubernetes you may want to override the values using the configmap:
+
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+            name: my-config
+              data:
+                /publish/appsettings.json: |
+                    {
+                        "LwxCors": 
+                        {
+                            "AllowedOrigins": "https://example.com, https://another.example.com",
+                            "AllowedMethods": "GET, POST, PUT, DELETE",
+                            "AllowedHeaders": "Content-Type, Authorization"
+                        }
+                    }
+
+        In kubernetes you may want to override the values using the configmap:
+
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: my-config
+              data:        
+                LwxCors__AllowedOrigins: https://example.com, https://another.example.com
+                LwxCors__AllowedMethods: GET, POST, PUT, DELETE
+                LwxCors__AllowedHeaders: Content-Type, Authorization
+
         """;
     }
 }
