@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using Luc.Lwx.Example.Api.LwxAuthPolicies;
-using Luc.Lwx.Example.Api.Model;
 using Luc.Lwx.Interface;
 using Luc.Lwx.LwxActivityLog;
 using Microsoft.AspNetCore.Mvc;
@@ -23,19 +22,28 @@ public static partial class EndpointStatus
       Step = LwxActionStep.Finish,
       ShortDescription = "Retrieves the status of the example process"
     )]
-    public async static Task<ExampleSimpleProccessStatusResponseDto> Execute
+    public async static Task<ResponseDto> Execute
     ( 
       HttpContext ctx,
       [FromQuery(Name="proc_id")] decimal proc_id
     ) 
     {
       // Retrieve the process status here
-      return new ExampleSimpleProccessStatusResponseDto 
+      return new ResponseDto 
       { 
           Ok = true,
           Status = "active"
       };
     }
 
-    
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+    public class ResponseDto
+    {
+        [JsonPropertyName("ok")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public required bool Ok { get; set; }
+
+        [JsonPropertyName("status")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string? Status { get; set; } = null;
+    }
+
 }

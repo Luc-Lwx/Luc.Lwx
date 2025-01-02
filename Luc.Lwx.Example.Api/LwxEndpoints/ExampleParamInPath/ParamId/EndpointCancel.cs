@@ -1,5 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using Luc.Lwx.Example.Api.LwxAuthPolicies;
-using Luc.Lwx.Example.Api.Model;
 using Luc.Lwx.Interface;
 using Luc.Lwx.LwxActivityLog;
 using Microsoft.AspNetCore.Mvc;
@@ -22,13 +23,27 @@ public static partial class EndpointCancel
       Step = LwxActionStep.Finish,
       ShortDescription = "Cancel the example process"
     )]
-    public async static Task<ExampleParamInPathCancelResponseDto> Execute
+    public async static Task<ResponseDto> Execute
     ( 
       HttpContext ctx,
       [FromRoute(Name="id")] int id
     ) 
-    {
+    {      
       // Process the request here
-      return new ExampleParamInPathCancelResponseDto { Ok = true };
+      return new ResponseDto { Ok = true };
+    }
+
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+    public class RequestDto
+    {
+        [JsonPropertyName("data")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string? Data { get; set; }
+    }
+    
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+    public class ResponseDto
+    {
+        [JsonPropertyName("ok")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool Ok { get; set; }
     }
 }

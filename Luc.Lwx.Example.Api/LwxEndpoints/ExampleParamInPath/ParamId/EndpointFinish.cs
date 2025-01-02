@@ -1,5 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using Luc.Lwx.Example.Api.LwxAuthPolicies;
-using Luc.Lwx.Example.Api.Model;
 using Luc.Lwx.Interface;
 using Luc.Lwx.LwxActivityLog;
 using Microsoft.AspNetCore.Mvc;
@@ -22,14 +23,28 @@ public static partial class EndpointFinish
       Step = LwxActionStep.Finish,
       ShortDescription = "Finish the example process"
     )]
-    public async static Task<ExampleParamInPathFinishResponseDto> Execute
+    public async static Task<ResponseDto> Execute
     ( 
       HttpContext ctx,
       [FromRoute(Name="id")] int id,
-      [FromBody] ExampleParamInPathFinishRequestDto request
+      [FromBody] RequestDto request
     ) 
     {
       // Process the request here
-      return new ExampleParamInPathFinishResponseDto { Ok = true };
+      return new ResponseDto { Ok = true };
+    }
+
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+    public class RequestDto
+    {
+        [JsonPropertyName("ok")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool Ok { get; set; }
+    }
+
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+    public class ResponseDto
+    {
+        [JsonPropertyName("ok")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool Ok { get; set; }
     }
 }
