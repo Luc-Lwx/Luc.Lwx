@@ -5,22 +5,17 @@ using Luc.Lwx.Example.Api.Generated;
 using Luc.Lwx.LwxActivityLog;
 using Luc.Lwx.LwxConfig;
 using Luc.Lwx.LwxCors;
+using Luc.Lwx.LwxJsonOptions;
 using Luc.Lwx.LwxSetupSwagger;
 using Luc.Lwx.LwxStartupFix;
 using Microsoft.AspNetCore.Http.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<JsonOptions>(options =>
-{
-    options.SerializerOptions.TypeInfoResolver = JsonTypeInfoResolver.Combine
-    (
-        Luc.Lwx.Example.Api.SourceGenerationContext.Default,
-        Luc.Lwx.SourceGenerationContext.Default
-    );
-});
-
-
+builder.LwxAddJsonTypeResolvers(
+    Luc.Lwx.Example.Api.SourceGenerationContext.Default,
+    Luc.Lwx.SourceGenerationContext.Default
+);
 
 builder.LwxConfigureSwagger(
     title: "Luc.Lwx.Example.Api",
