@@ -120,6 +120,6 @@ public static partial class SwaggerSetup
             var hash = assemblyName.LwxHashSha1Hex()[..8];
             result = $"n{hash}.{result}";
         }
-        return result;
+        return result.Replace('.', '_').Replace('+', '_');
     }
 }
