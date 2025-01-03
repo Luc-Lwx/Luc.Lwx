@@ -6,7 +6,7 @@ namespace Luc.Lwx.LwxAuth;
 
 internal static class LwxAuthExtensions
 {
-    internal static void LwxDefaultAccessPolicyIsDenied(this WebApplicationBuilder builder)
+    internal static void LwxDefaultAccessPolicyIsDenied(this IHostApplicationBuilder builder)
     {
       var setupState = builder.LwxGetSetupState();
       if (!setupState.IsAuthSchemeInitialized)

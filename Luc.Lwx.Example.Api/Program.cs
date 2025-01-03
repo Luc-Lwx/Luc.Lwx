@@ -8,14 +8,14 @@ using Luc.Lwx.LwxCors;
 using Luc.Lwx.LwxJsonOptions;
 using Luc.Lwx.LwxSetupSwagger;
 using Luc.Lwx.LwxStartupFix;
+using Luc.Lwx.LwxTemplates;
+using Luc.Lwx.Generated;
 using Microsoft.AspNetCore.Http.Json;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = new LwxApiBuilder(args);
 
-builder.LwxAddJsonTypeResolvers(
-    Luc.Lwx.Example.Api.SourceGenerationContext.Default,
-    Luc.Lwx.SourceGenerationContext.Default
-);
+builder.LwxAddTypeInfoResolver( Luc.Lwx.Example.Api.SourceGenerationContext.Default );
+builder.LwxAddTypeInfoResolver( Luc.Lwx.SourceGenerationContext.Default );    
 
 builder.LwxConfigureSwagger(
     title: "Luc.Lwx.Example.Api",
@@ -27,31 +27,13 @@ builder.LwxConfigureSwagger(
         "https://apis.example.com" 
     ]
 );
-builder.LwxConfigureCors();
-builder.LwxLoadConfig();
-builder.LwxConfigureActivityLog();
 builder.LwxConfigureActivityLogOutput(new LwxActivityLogTestOutput() { });
+
 builder.MapAuthSchemes_LucLwxExampleApi();
 builder.MapAuthPolicies_LucLwxExampleApi();
-builder.LwxConfigureStartupFix();
 
-builder.Services.AddEndpointsApiExplorer();
-
-
-var app = builder.Build();
-app.LwxConfigureSwagger();
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.LwxConfigureActivityLog();
-app.LwxConfigureStartupFix();
+var app = await builder.Build();
 
 app.MapEndpoints_LucLwxExampleApi();
-app.MapSwagger();
-app.MapHealthChecks("/healthz");
 
 await app.RunAsync();

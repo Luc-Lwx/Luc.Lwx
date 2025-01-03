@@ -5,9 +5,9 @@ namespace Luc.Lwx.LwxJsonOptions;
 
 public static class LwxJsonTypeResolverExtension
 {
-    public static void LwxAddJsonTypeResolvers
+    public static IHostApplicationBuilder LwxAddJsonTypeResolvers
     (
-        this WebApplicationBuilder builder, 
+        this IHostApplicationBuilder builder, 
         params IJsonTypeInfoResolver[] options
     )
     {
@@ -17,5 +17,7 @@ public static class LwxJsonTypeResolverExtension
         {
             options.SerializerOptions.TypeInfoResolver = combined;
         });
+
+        return builder;
     }
 }

@@ -29,7 +29,7 @@ public static class LwxCorsExtension
     /// </code>
     /// </example>
     /// </summary>
-    public static WebApplicationBuilder LwxConfigureCors(this WebApplicationBuilder builder)
+    public static IHostApplicationBuilder LwxConfigureCors(this IHostApplicationBuilder builder)
     {
         var corsSection = builder.Configuration.GetSection("LwxCors");
         if (!corsSection.Exists())

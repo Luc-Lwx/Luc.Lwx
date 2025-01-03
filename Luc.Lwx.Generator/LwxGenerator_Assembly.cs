@@ -241,7 +241,7 @@ internal partial class LwxGenerator_Assembly
 
             srcMethods.Append($$"""
                 
-                    public static void {{group.Key}}(this WebApplicationBuilder builder)
+                    public static void {{group.Key}}(this IHostApplicationBuilder builder)
                     {
                         builder.Services.{{group.Key}}();
                     }
@@ -295,7 +295,7 @@ internal partial class LwxGenerator_Assembly
 
             srcMethods.Append($$"""
                     
-                        public static void {{group.Key}}(this WebApplicationBuilder builder)
+                        public static void {{group.Key}}(this IHostApplicationBuilder builder)
                         {
                             builder.Services.{{group.Key}}();
                         }

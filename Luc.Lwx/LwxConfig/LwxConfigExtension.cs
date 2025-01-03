@@ -12,11 +12,12 @@ namespace Luc.Lwx.LwxConfig;
 
 public static class LwxConfigExtension
 {
-    public static WebApplicationBuilder LwxLoadConfig(this WebApplicationBuilder builder)
+    public static IHostApplicationBuilder LwxLoadConfig(this IHostApplicationBuilder builder)
     {
-        return builder.RequireLwxDevConfig(Assembly.GetCallingAssembly());
+        var assembly = Assembly.GetEntryAssembly() ?? throw new LwxConfigException("Entry assembly not found.");
+        return builder.RequireLwxDevConfig(assembly);
     }
-    public static WebApplicationBuilder RequireLwxDevConfig(this WebApplicationBuilder builder, Assembly assembly)
+    public static IHostApplicationBuilder RequireLwxDevConfig(this IHostApplicationBuilder builder, Assembly assembly)
     {
         switch (builder.Environment.EnvironmentName)
         {

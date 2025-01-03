@@ -5,12 +5,12 @@ namespace Luc.Lwx.LwxActivityLog;
 
 public static class LwxActivityLogSetupExtensions
 {
-    public static IApplicationBuilder LwxConfigureActivityLog(this IApplicationBuilder app)
+    internal static IApplicationBuilder LwxConfigureActivityLog(this IApplicationBuilder app)
     {
         return app.UseMiddleware<LwxActivityLogMiddleware>();
     }
 
-    public static WebApplicationBuilder LwxConfigureActivityLog(this WebApplicationBuilder builder)
+    internal static IHostApplicationBuilder LwxConfigureActivityLog(this IHostApplicationBuilder builder)
     {        
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
@@ -29,7 +29,7 @@ public static class LwxActivityLogSetupExtensions
         return builder;
     }
 
-    public static WebApplicationBuilder LwxConfigureActivityLogOutput(this WebApplicationBuilder builder, ILwxActivityLogOutput output)
+    public static IHostApplicationBuilder LwxConfigureActivityLogOutput(this IHostApplicationBuilder builder, ILwxActivityLogOutput output)
     {        
         builder.Services.AddTransient<LwxActivityLogMiddleware>();   
         builder.Services.AddSingleton<ILwxActivityLogOutput>(output);           

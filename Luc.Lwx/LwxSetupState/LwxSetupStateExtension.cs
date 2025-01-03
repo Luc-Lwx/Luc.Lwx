@@ -2,7 +2,7 @@ namespace Luc.Lwx.LwxSetupState;
 
 public static class LwxSetupStateExtension
 {
-  internal static LwxSetupState LwxGetSetupState(this WebApplicationBuilder builder)
+  internal static LwxSetupState LwxGetSetupState(this IHostApplicationBuilder builder)
   {
     return builder.Services.LwxGetSetupState();
   }  

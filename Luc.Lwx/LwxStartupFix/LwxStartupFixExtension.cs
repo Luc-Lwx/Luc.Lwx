@@ -59,7 +59,7 @@ public static class LwxStartupFixExtension
     /// 
     /// </code>        
     /// </summary>
-    public static WebApplicationBuilder LwxConfigureStartupFix(this WebApplicationBuilder builder)
+    public static IHostApplicationBuilder LwxConfigureStartupFix(this IHostApplicationBuilder builder)
     {
         builder.Services.AddHealthChecks().AddCheck("LwxHealthCheck", new LwxStartupHealthCheck(_appStartedTcs));
         return builder;
