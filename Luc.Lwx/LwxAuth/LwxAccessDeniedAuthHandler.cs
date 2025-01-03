@@ -5,6 +5,9 @@ using Microsoft.Extensions.Options;
 
 namespace Luc.Lwx.LwxAuth;
 
+/// <summary>
+/// This class is the default handler to guarantee no access will be allowed except the ones that declare a valid authentication policy
+/// </summary>
 public class LwxAccessDeniedAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
     [SuppressMessage("","IDE0290")]
