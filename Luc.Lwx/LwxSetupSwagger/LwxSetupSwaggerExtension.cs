@@ -10,11 +10,11 @@ using Luc.Lwx.Util;
 
 namespace Luc.Lwx.LwxSetupSwagger;
 
-public static partial class SwaggerSetup
+public static partial class LwxSetupSwaggerExtension
 {
     public static void LwxConfigureSwagger
     (
-        this WebApplicationBuilder builder, 
+        this IHostApplicationBuilder builder, 
         string? title = null, 
         string? description = null, 
         string? contactEmail = null, 
@@ -58,9 +58,10 @@ public static partial class SwaggerSetup
         builder.Configuration.LwxValidateKeys("AppSettings:Lwx", new[] { 
             "SwaggerDescription", "SwaggerTitle", "SwaggerContactEmail", "SwaggerAuthor", "SwaggerVersion", "SwaggerAdditionalUrls" });
 
+        var urls = builder.Configuration["urls"]?.Split(";") ?? [];
         string[] serverUrls = [
-            .. (builder.WebHost?.GetSetting("urls")?.Split(";") ?? []), 
-            .. (additionalUrls ?? additionalUrlsConfig?.Split(";") ?? [])
+            .. urls, 
+            .. additionalUrls ?? additionalUrlsConfig?.Split(";") ?? []
         ];
 
         builder.Services.AddSwaggerGen(c =>
@@ -77,7 +78,7 @@ public static partial class SwaggerSetup
                 }
             });
             
-            foreach (var url in serverUrls ) 
+            foreach (var url in serverUrls) 
             {
                 c.AddServer(new OpenApiServer
                 {
