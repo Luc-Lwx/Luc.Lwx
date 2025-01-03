@@ -167,7 +167,7 @@ internal static partial class LwxGenerator_Extensions
         }
     }
 
-    public static bool LucIsNullOrEmpty( this string value ) 
+    public static bool LucIsNullOrEmpty( this string? value ) 
     {
         return string.IsNullOrEmpty( value );
     }

@@ -89,9 +89,9 @@ internal partial class LwxGenerator_Assembly
         try 
         {
             var appSettingsText = appSettingsFiles.FirstOrDefault();
-            if( appSettingsText != null )
+            if( !appSettingsText.LucIsNullOrEmpty() )
             {
-                appSettings = JsonSerializer.Deserialize<AppSettingsDto>(appSettingsText);
+                appSettings = JsonSerializer.Deserialize<AppSettingsDto>(appSettingsText!);
             }
         }
         catch( Exception ex )
