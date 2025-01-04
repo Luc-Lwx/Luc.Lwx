@@ -1,0 +1,38 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../Luc.Lwx.Examples"
+		}
+	],
+	"extensions": {
+		"unwantedRecommendations": [
+
+		],
+		"recommendations": [
+			"ms-dotnettools.csharp",
+			"ms-dotnettools.vscode-dotnet-runtime",
+			"ms-dotnettools.csdevkit",
+			"ms-azuretools.vscode-docker"
+		]
+	},
+	"settings": {
+		"dotnet.defaultSolution": "Luc.Util",		
+		"dotnet.codeLens.enableReferencesCodeLens": false,
+		"dotnet.navigation.navigateToDecompiledSources": true,
+		"dotnet.projects.enableAutomaticRestore": true,
+		"dotnet.symbolSearch.searchReferenceAssemblies": true,
+		"dotnet.backgroundAnalysis.analyzerDiagnosticsScope": "fullSolution",
+		"dotnet.backgroundAnalysis.compilerDiagnosticsScope": "fullSolution",		
+		"editor.tabSize": 4,	
+		"testing.coverageToolbarEnabled": true,		
+		"dotnet.testWindow.useTestingPlatformProtocol": false,
+		"testing.gutterEnabled": true,
+		"workbench.editorAssociations": 
+        {
+            "*.md": "vscode.markdown.preview.editor"
+        },
+	}
+}
