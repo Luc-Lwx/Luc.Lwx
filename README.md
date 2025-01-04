@@ -17,5 +17,7 @@ This project is an experiment using the dotnet source code generator (plugin) to
   - Development Configuration Loader
   - Health Check Fix
   - Swagger Gen (using Swashbuckle)
+  - Cors configuration
+  - Fake jwt issuer for testing
 * Binnary compilation using the PublishReadyToRun mechanism
 
