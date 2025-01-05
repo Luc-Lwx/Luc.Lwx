@@ -1,22 +1,27 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
 namespace Luc.Lwx.Interface;
 
 /// <summary>
-/// Base class for all Lwx Framework error responses.
+/// Interface for all Lwx Framework responses that are considered successful.
 /// </summary>
-[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
-public sealed class LwxResponseDto : ILwxResponseErr
+public interface ILwxResponseErr
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether the response is successful.
+    /// </summary>
     [JsonPropertyName("ok")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool? Ok { get; set; }
+    bool? Ok { get; set; }
 
+    /// <summary>   
+    /// Gets or sets the error code.
+    /// </summary>    
     [JsonPropertyName("err-id")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public string? ErrorCode { get; set; }
 
+    /// <summary>
+    /// Gets or sets the error message.
+    /// </summary>
     [JsonPropertyName("err-msg")] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public string? ErrorMessage { get; set; }
 }
-
-
