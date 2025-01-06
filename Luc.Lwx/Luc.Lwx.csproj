@@ -42,6 +42,14 @@
     <!-- by default, dotnet uses the as many threads as we have logical cores and this may cause problems in containers -->
     <ThreadPoolMinThreads>8</ThreadPoolMinThreads>
     <ThreadPoolMaxThreads>64</ThreadPoolMaxThreads>
+    
+    <PackageId>Luc.Lwx</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Lucas de Sousa-Brito</Authors>
+    <Company>None</Company>
+    <RepositoryUrl>https://github.com/Luc-Lwx/Luc.Lwx</RepositoryUrl>
+    <PackageTags>library</PackageTags>    
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
