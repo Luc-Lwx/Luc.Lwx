@@ -43,6 +43,7 @@
     <ThreadPoolMinThreads>8</ThreadPoolMinThreads>
     <ThreadPoolMaxThreads>64</ThreadPoolMaxThreads>
     
+    <IsPackable>true</IsPackable>
     <PackageId>Luc.Lwx</PackageId>
     <Version>1.0.0</Version>
     <Authors>Lucas de Sousa-Brito</Authors>
