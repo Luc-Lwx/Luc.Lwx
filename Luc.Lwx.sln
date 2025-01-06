@@ -5,8 +5,6 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luc.Lwx", "Luc.Lwx\Luc.Lwx.csproj", "{FFFF4F4F-3A08-446C-AA19-0F98857569E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luc.Lwx.Example.Api", "Luc.Lwx.Example.Api\Luc.Lwx.Example.Api.csproj", "{D6196D0E-38F8-4F61-AAB5-9C4BED3A7ECC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luc.Lwx.Generator", "Luc.Lwx.Generator\Luc.Lwx.Generator.csproj", "{DE322F0E-E0EB-4017-B77A-1AF62EA01278}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luc.Lwx.Tests", "Luc.Lwx.Tests\Luc.Lwx.Tests.csproj", "{AB18F1F5-5500-45F8-AFAE-9B85F4363CB8}"
