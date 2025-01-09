@@ -17,6 +17,7 @@
     <RepositoryUrl>https://github.com/lucas75/Luc.Lwx.Generator</RepositoryUrl>
     <PackageTags>library</PackageTags>    
     <RepositoryType>git</RepositoryType>
+    <Description>Gerador de código para a biblioteca Luc.Lwx</Description>
   </PropertyGroup>
 
   

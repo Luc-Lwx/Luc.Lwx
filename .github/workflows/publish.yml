@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     permissions:
       packages: write  
 
@@ -30,10 +30,17 @@ jobs:
     - name: Pack
       run: dotnet pack --configuration Release --no-build --output ./nupkg
 
-    - name: Publish to GitHub Packages
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: dotnet nuget push ./nupkg/*.nupkg -s https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json -k ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+    #- name: Publish to GitHub Packages
+    #  env:
+    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #  run: dotnet nuget push ./nupkg/*.nupkg -s https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json -k ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+
+    - name: Check NUGET_TOKEN
+      run: |
+        if [ -z "${{ secrets.NUGET_TOKEN }}" ]; then
+          echo "Error: NUGET_TOKEN is not set."
+          exit 1
+        fi
 
     - name: Publish to NuGet
       env:
