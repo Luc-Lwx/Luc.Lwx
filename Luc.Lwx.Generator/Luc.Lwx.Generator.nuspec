@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.7.2" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.7.2" />
+    </frameworkAssemblies>    
+  </metadata>
+</package>
