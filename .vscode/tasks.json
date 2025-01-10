@@ -24,7 +24,7 @@
         "--configuration",
         "Debug",
         "--output",
-        "${workspaceFolder}/Luc.Lwx.Example.Api/bin/Debug/net8.0/linux-x64/publish"        
+        "${workspaceFolder}/Luc.Lwx.Example.Api/bin/Debug/net8.0/publish"        
       ],
       "problemMatcher": "$msCompile"
     }
