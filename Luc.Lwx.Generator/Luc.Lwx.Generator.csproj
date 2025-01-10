@@ -1,28 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>    
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>        
     <IsRoslynComponent>true</IsRoslynComponent>
+
     <IncludeBuildOutput>false</IncludeBuildOutput>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>    
     
     <IsPackable>true</IsPackable>
     <PackageId>Luc.Lwx.Generator</PackageId>
-    <Version>1.0.0-rc.1</Version>
+    <Version>1.0.1</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>LGPL-2.1-only</PackageLicenseExpression>    
     <Authors>Lucas de Sousa-Brito</Authors>
     <Company>None</Company>
-    <RepositoryUrl>https://github.com/lucas75/Luc.Lwx.Generator</RepositoryUrl>
+    <RepositoryUrl>https://github.com/lucas75/Luc.Lwx</RepositoryUrl>
     <PackageTags>library</PackageTags>    
     <RepositoryType>git</RepositoryType>
     <Description>Gerador de código para a biblioteca Luc.Lwx</Description>
+    
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup> 
     <None Include="../README.md" Pack="true" PackagePath="README.md"/>
   </ItemGroup>
 
@@ -30,8 +33,11 @@
     <!-- inclui as bibliotecas necessárias para implementar o gerador de código -->
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" />        
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />  
+    <PackageReference Include="System.Text.Json" Version="8.0.5" /> 
   </ItemGroup>
  
+  <ItemGroup>
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
 
 </Project>
