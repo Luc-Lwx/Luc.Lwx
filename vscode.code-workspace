@@ -19,7 +19,7 @@
 		]
 	},
 	"settings": {
-		"dotnet.defaultSolution": "Luc.Util",		
+		"dotnet.defaultSolution": "Luc.Lwx",		
 		"dotnet.codeLens.enableReferencesCodeLens": false,
 		"dotnet.navigation.navigateToDecompiledSources": true,
 		"dotnet.projects.enableAutomaticRestore": true,
