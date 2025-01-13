@@ -54,6 +54,7 @@
     <PackageTags>library</PackageTags>    
     <RepositoryType>git</RepositoryType>    
     <Description>Luc.Lwx is a library that provides a set of tools to help you build your web api.</Description>
+    <PackageOutputPath>$(SolutionDir)/../nuget-local</PackageOutputPath>
     
   </PropertyGroup>
 

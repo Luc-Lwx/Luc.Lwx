@@ -13,7 +13,7 @@
     
     <IsPackable>true</IsPackable>
     <PackageId>Luc.Lwx.Generator</PackageId>
-    <Version>1.0.0-rc.5</Version>
+    <Version>1.0.0-rc.6</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>LGPL-2.1-only</PackageLicenseExpression>    
     <Authors>Lucas de Sousa-Brito</Authors>
@@ -22,7 +22,8 @@
     <PackageTags>library</PackageTags>    
     <RepositoryType>git</RepositoryType>
     <Description>Gerador de código para a biblioteca Luc.Lwx</Description>
-    
+    <PackageOutputPath>$(SolutionDir)/../nuget-local</PackageOutputPath>
+
   </PropertyGroup>
 
   <ItemGroup> 
