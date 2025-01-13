@@ -3,7 +3,7 @@ using Luc.Lwx.LwxAuth;
 using Luc.Lwx.Util;
 using Microsoft.AspNetCore.Authentication;
 
-namespace Luc.Lwx.LwxAuthSchemes;
+namespace Luc.Lwx.Web.AuthSchemes;
 
 /// <summary>
 /// This class is used to configure an authentication scheme for testing purposes
