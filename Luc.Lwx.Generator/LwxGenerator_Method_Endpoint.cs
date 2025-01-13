@@ -21,7 +21,9 @@ internal partial class LwxGenerator_Method_Endpoint(
     
     [SuppressMessage("","S3776")]
     internal void Execute()
-    {
+    {   
+        Type.TheAssembly.AllowedWebClasses.Add( Type.TypeNameFull );
+
         if( !Type.TypeSymbol.LucIsPartialType() )
         {
             Type.ReportWarning
@@ -70,13 +72,13 @@ internal partial class LwxGenerator_Method_Endpoint(
             return;
         }
 
-        if( !Type.TypeNameFull.StartsWith( $"{Type.TypeAssemblyName}.LwxEndpoints." ) )
+        if( !Type.TypeNameFull.StartsWith( $"{Type.TypeAssemblyName}.Web.Endpoints." ) )
         {
             Type.ReportWarning
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC006", 
-                msgFormat: $"""LWX: The type {Type.TypeNameFull} must be in the namespace {Type.TypeAssemblyName}.LwxEndpoints""", 
+                msgFormat: $"""LWX: The type {Type.TypeNameFull} must be in the namespace {Type.TypeAssemblyName}.Web.Endpoints""", 
                 srcLocation: Type.Type.GetLocation() 
             );
             return;
@@ -96,8 +98,75 @@ internal partial class LwxGenerator_Method_Endpoint(
             );
             return;
         }
-        
 
+        foreach( var parameter in Method.ParameterList.Parameters )
+        {
+            var parameterType = Type.TypeSemanticModel.GetTypeInfo(parameter.Type).Type;
+            var parameterName = parameter.Identifier.Text;
+            var parameterTypeName = parameterType?.ToDisplayString() ?? "";
+            if( parameterTypeName.StartsWith( $"{Type.TypeAssemblyName}" ) )
+            {
+                if( !parameterTypeName.StartsWith( $"{Type.TypeAssemblyName}.Web.Model." ) || !parameterTypeName.EndsWith( $"RequestDto" ) )
+                {
+                    Type.ReportWarning
+                    ( 
+                        msgSeverity: DiagnosticSeverity.Error, 
+                        msgId: "LUC0016", 
+                        msgFormat: $"""LWX: The parameter {parameterName} must be in the namespace {Type.TypeAssemblyName}.Web.Model and ends with RequestDto""", 
+                        srcLocation: parameter.GetLocation() 
+                    );
+                    return;
+                }
+                else 
+                {
+                    if( !Type.TheAssembly.AllowedWebClasses.Contains( parameterTypeName ) )
+                    {
+                        Type.TheAssembly.AllowedWebClasses.Add( parameterTypeName );
+                    }
+                }
+            }        
+        }
+
+        // get method return value type
+        var returnType = Type.TypeSemanticModel.GetTypeInfo(Method.ReturnType).Type;
+        var returnTypeName = returnType?.ToDisplayString() ?? "";
+
+        if( returnType is INamedTypeSymbol namedTypeSymbol ) 
+        {
+            var possibleReturnType = namedTypeSymbol.TypeArguments.FirstOrDefault();
+            if( possibleReturnType != null ) 
+            {
+                var possibleReturnTypeName = possibleReturnType.ToDisplayString();
+                if( possibleReturnTypeName.StartsWith( $"{Type.TypeAssemblyName}" ) )
+                {
+                    returnTypeName = possibleReturnTypeName;
+                }
+            }
+        }                
+
+        if (returnTypeName.StartsWith($"{Type.TypeAssemblyName}"))
+        {
+            if (!returnTypeName.StartsWith($"{Type.TypeAssemblyName}.Web.Model.") || !returnTypeName.EndsWith($"ResponseDto"))
+            {
+                Type.ReportWarning
+                (
+                    msgSeverity: DiagnosticSeverity.Error,
+                    msgId: "LUC0016",
+                    msgFormat: $"""
+                        LWX: The return value type must be in the namespace {Type.TypeAssemblyName}.Web.Model and ends with Dto
+                        """,
+                    srcLocation: Method.GetLocation()
+                );
+                return;
+            }
+            else
+            {
+                if (!Type.TheAssembly.AllowedWebClasses.Contains(returnTypeName))
+                {
+                    Type.TheAssembly.AllowedWebClasses.Add(returnTypeName);
+                }
+            }
+        }           
 
         // get attribute params
         var attrMethodAndPath = Attr.LucGetAttributeValueAsString( "Path" );
@@ -287,7 +356,7 @@ internal partial class LwxGenerator_Method_Endpoint(
             return;
         }
 
-        var expectedTypeNameBase = $"{Type.TypeAssemblyName}.LwxEndpoints";      
+        var expectedTypeNameBase = $"{Type.TypeAssemblyName}.Web.Endpoints";      
         var expectedTypeNameReference = attrPath.Substring( apiManagerPath.Length ).Trim('/');        
         expectedTypeNameReference = expectedTypeNameReference.Replace( "{", "param-" );
         expectedTypeNameReference = expectedTypeNameReference.Replace( "}", "" );

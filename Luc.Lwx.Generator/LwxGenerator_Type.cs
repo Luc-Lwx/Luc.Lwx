@@ -41,6 +41,8 @@ internal partial class LwxGenerator_Type
         TypeAssemblyName = TypeContext.SemanticModel.Compilation.AssemblyName ?? throw new InvalidOperationException("Assembly name not found");                        
     }
 
+    
+
 
     public void DoProccess() 
     {        
@@ -49,6 +51,73 @@ internal partial class LwxGenerator_Type
         DoProccessMethods();
     }
   
+    public void DoProcessPassTwo()
+    {
+        DoValidateReservedNamespace();
+    }
+
+    private void DoValidateReservedNamespace() 
+    {
+        if (!TypeSymbol.DeclaredAccessibility.HasFlag(Accessibility.Public))
+        {
+            // ignore if not public
+            return;
+        }
+        if( !TypeNameFull.StartsWith( $"{TypeAssemblyName}.Web." ) )
+        {
+            // ignore if not in the reserved namespace
+            return;
+        }
+        if( TypeSymbol.ContainingType != null) 
+        {
+            // ignore inner types
+            return;
+        }
+        if( TypeNameFull.StartsWith($"{TypeAssemblyName}.Web.Model.") && TypeNameFull.EndsWith("Dto") )
+        {
+            if( !TheAssembly.AllowedWebClasses.Contains( TypeNameFull ) )
+            {
+                ReportWarning
+                ( 
+                    msgSeverity: DiagnosticSeverity.Warning, 
+                    msgId: "LUC007", 
+                    msgFormat: $$"""
+                        The type {{TypeNameFull}} is unused by any endpoint.
+                        """, 
+                    srcLocation: Type.GetLocation() 
+                );
+                return;
+            }
+            else
+            {
+                return;   
+            }
+        }
+        if( !TheAssembly.AllowedWebClasses.Contains( TypeNameFull ) )
+        {
+            ReportWarning
+            ( 
+                msgSeverity: DiagnosticSeverity.Error, 
+                msgId: "LUC006", 
+                msgFormat: $$"""
+                    LWX: The type {{TypeNameFull}} is not allowed in the '{{TypeNamespaceName}}.Web.' namespace.
+                    
+                    The namespace {{TypeNamespaceName}}.Web. is reserved for the Lwx Web
+
+                    Classes with attributes such as:
+                    * [LwxEndpoint]
+                    * [LwxAuthPolicy]
+                    * [LwxAuthScheme]
+
+                    {{TheAssembly.AllowedWebClasses}}
+                    """, 
+                srcLocation: Type.GetLocation() 
+            );
+            return;
+        }
+    }
+
+
     private void DoProccessMethods() 
     {
         foreach (var member in Type.Members)

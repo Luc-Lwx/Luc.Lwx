@@ -22,6 +22,8 @@ internal class LwxGenerator_Method_AuthPolicy
 
     internal void Execute()
     {
+        Type.TheAssembly.AllowedWebClasses.Add( Type.TypeNameFull );
+        
         if( !Type.TypeSymbol.LucIsPartialType() )
         {
             Type.ReportWarning
@@ -71,14 +73,14 @@ internal class LwxGenerator_Method_AuthPolicy
         }
 
         // the type must be in the correct namespace
-        if( !Type.TypeNameFull.StartsWith( $"{Type.TypeAssemblyName}.LwxAuthPolicies." ) )
+        if( !Type.TypeNameFull.StartsWith( $"{Type.TypeAssemblyName}.Web.AuthPolicies." ) )
         {
             Type.ReportWarning
             ( 
                 msgSeverity: DiagnosticSeverity.Error, 
                 msgId: "LUC006", 
                 msgFormat: $"""
-                    LWX: The authentication policies must be in the namespace {Type.TypeAssemblyName}.LwxAuthPolicies 
+                    LWX: The authentication policies must be in the namespace {Type.TypeAssemblyName}.Web.AuthPolicies 
 
                     Found: {Type.TypeNamespaceName}                    
                     Assembly Name: {Type.TypeAssemblyName}

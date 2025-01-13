@@ -20,6 +20,8 @@ internal partial class LwxGenerator_Assembly
     public Dictionary<string,List<LwxGenerator_Method_Endpoint>> EndpointMappingMethods { get; internal set; } = [];
     public Dictionary<string,List<LwxGenerator_Method_AuthPolicy>> PolicyTypes { get; internal set; } = [];
     public Dictionary<string,List<LwxGenerator_Method_AuthScheme>> SchemeTypes { get; internal set; } = [];
+
+    public List<string> AllowedWebClasses { get; internal set; } = [];
     
     public string? ApiManagerPath { get; set; } = null;
     public string? SwaggerTitle { get; set; } = null;
@@ -134,6 +136,8 @@ internal partial class LwxGenerator_Assembly
         }                   
     }    
 
+    [SuppressMessage("","S3267")]
+    [SuppressMessage("","S3776")]
     public void Execute() 
     {
         foreach ( var typeSymbol in TypeSymbols )
@@ -175,6 +179,27 @@ internal partial class LwxGenerator_Assembly
                     """, 
                 srcLocation: null 
             );
+        }
+
+        foreach ( var typeSymbol in TypeSymbols )
+        {            
+            try 
+            {
+                var processClass = new LwxGenerator_Type(this, typeSymbol);                
+                processClass.DoProcessPassTwo();                       
+            }
+            catch( Exception ex )
+            {
+                ReportWarning
+                ( 
+                    msgSeverity: DiagnosticSeverity.Error, 
+                    msgId: "LUC0912", 
+                    msgFormat: $"""
+                        LwxGenerator Exception: {ex.Message}, {ex.StackTrace?.Replace("\n", " ")?.Replace("\r", " ")}
+                        """, 
+                    srcLocation: typeSymbol.Node.GetLocation() 
+                );
+            }    
         }
     }
 
