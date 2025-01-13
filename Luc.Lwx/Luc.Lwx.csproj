@@ -45,7 +45,7 @@
     
     <IsPackable>true</IsPackable>
     <PackageId>Luc.Lwx</PackageId>
-    <Version>1.0.0-rc.1</Version>
+    <Version>1.0.0-rc.10</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>LGPL-2.1-only</PackageLicenseExpression>    
     <Authors>Lucas de Sousa-Brito</Authors>
