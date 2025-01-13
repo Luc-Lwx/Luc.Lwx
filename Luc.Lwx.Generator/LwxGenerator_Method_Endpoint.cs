@@ -101,6 +101,7 @@ internal partial class LwxGenerator_Method_Endpoint(
 
         foreach( var parameter in Method.ParameterList.Parameters )
         {
+            if( parameter.Type == null ) continue;            
             var parameterType = Type.TypeSemanticModel.GetTypeInfo(parameter.Type).Type;
             var parameterName = parameter.Identifier.Text;
             var parameterTypeName = parameterType?.ToDisplayString() ?? "";
