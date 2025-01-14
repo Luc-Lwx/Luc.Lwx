@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luc.Lwx.Generator", "Luc.Lw
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luc.Lwx.Tests", "Luc.Lwx.Tests\Luc.Lwx.Tests.csproj", "{AB18F1F5-5500-45F8-AFAE-9B85F4363CB8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luc.Lwx.Mon.AzureAppInsights", "Luc.Lwx.Mon.AzureAppInsights\Luc.Lwx.Mon.AzureAppInsights.csproj", "{C50CE4D0-4140-41EB-85CA-E953009D2E9C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luc.Lwx.Mon.Prometheus", "Luc.Lwx.Mon.Prometheus\Luc.Lwx.Mon.Prometheus.csproj", "{6B113B1D-3789-4A93-9F0B-4C54E9342581}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +35,14 @@ Global
 		{AB18F1F5-5500-45F8-AFAE-9B85F4363CB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB18F1F5-5500-45F8-AFAE-9B85F4363CB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB18F1F5-5500-45F8-AFAE-9B85F4363CB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C50CE4D0-4140-41EB-85CA-E953009D2E9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C50CE4D0-4140-41EB-85CA-E953009D2E9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C50CE4D0-4140-41EB-85CA-E953009D2E9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C50CE4D0-4140-41EB-85CA-E953009D2E9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B113B1D-3789-4A93-9F0B-4C54E9342581}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B113B1D-3789-4A93-9F0B-4C54E9342581}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B113B1D-3789-4A93-9F0B-4C54E9342581}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B113B1D-3789-4A93-9F0B-4C54E9342581}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
