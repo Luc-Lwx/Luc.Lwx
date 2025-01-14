@@ -21,7 +21,6 @@
     <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
     
     <!-- Plataform and optimizations -->
-    <!--<RuntimeIdentifier>linux-x64</RuntimeIdentifier> -->
     <OptimizationPreference>Speed</OptimizationPreference>
     
     <!--
