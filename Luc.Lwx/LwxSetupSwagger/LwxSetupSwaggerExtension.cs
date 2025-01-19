@@ -23,40 +23,61 @@ public static partial class LwxSetupSwaggerExtension
         string[]? additionalUrls = null
     )
     {
-        if (title != null) builder.Configuration["Lwx:SwaggerTitle"] = title;
-        if (description != null) builder.Configuration["Lwx:SwaggerDescription"] = description;
-        if (contactEmail != null) builder.Configuration["Lwx:SwaggerContactEmail"] = contactEmail;
-        if (author != null) builder.Configuration["Lwx:SwaggerAuthor"] = author;
-        if (version != null) builder.Configuration["Lwx:SwaggerVersion"] = version;
-        if (additionalUrls != null) builder.Configuration["Lwx:SwaggerAdditionalUrls"] = string.Join(";", additionalUrls);
+        if (title != null) 
+            builder.Configuration["Lwx:SwaggerTitle"] = title;
 
-        var swaggerDescription = builder.Configuration.LwxGetConfig(
-            "Lwx:SwaggerDescription",            
-            defaultValue: ""
+        if (description != null) 
+            builder.Configuration["Lwx:SwaggerDescription"] = description;
+
+        if (contactEmail != null) 
+            builder.Configuration["Lwx:SwaggerContactEmail"] = contactEmail;
+
+        if (author != null) 
+            builder.Configuration["Lwx:SwaggerAuthor"] = author;
+
+        if (version != null) 
+            builder.Configuration["Lwx:SwaggerVersion"] = version;
+
+        if (additionalUrls != null) 
+            builder.Configuration["Lwx:SwaggerAdditionalUrls"] = string.Join(";", additionalUrls);
+
+        var swaggerDescription = builder.Configuration.LwxGet(
+            "Lwx:SwaggerDescription", 
+            converter: (section) => section.Get<string>() ?? ""            
         );
-        var swaggerTitle = builder.Configuration.LwxGetConfig(
+        var swaggerTitle = builder.Configuration.LwxGet(
             "Lwx:SwaggerTitle",
-            defaultValue: ""
+            converter: (section) => section.Get<string>() ?? ""
         );
-        var swaggerContactEmail = builder.Configuration.LwxGetConfig(
+        var swaggerContactEmail = builder.Configuration.LwxGet(
             "Lwx:SwaggerContactEmail",
-            defaultValue: ""
+            converter: (section) => section.Get<string>() ?? ""
         );
-        var swaggerAuthor = builder.Configuration.LwxGetConfig(
+        var swaggerAuthor = builder.Configuration.LwxGet(
             "Lwx:SwaggerAuthor",
-            defaultValue: ""
+            converter: (section) => section.Get<string>() ?? ""
         );
-        var swaggerVersion = builder.Configuration.LwxGetConfig(
+        var swaggerVersion = builder.Configuration.LwxGet(
             "Lwx:SwaggerVersion",
-            defaultValue: "v1"
+            converter: (section) => section.Get<string>() ?? "v1"
         );
-        var additionalUrlsConfig = builder.Configuration.LwxGetConfig(
+        var additionalUrlsConfig = builder.Configuration.LwxGet(
             "Lwx:SwaggerAdditionalUrls",
-            defaultValue: null
+            converter: (section) => section.Get<string>()
         );
 
-        builder.Configuration.LwxValidateKeys("AppSettings:Lwx", new[] { 
-            "SwaggerDescription", "SwaggerTitle", "SwaggerContactEmail", "SwaggerAuthor", "SwaggerVersion", "SwaggerAdditionalUrls" });
+        builder.Configuration.LwxValidKeys
+        (
+            "Lwx", 
+            [ 
+                "SwaggerDescription", 
+                "SwaggerTitle", 
+                "SwaggerContactEmail", 
+                "SwaggerAuthor", 
+                "SwaggerVersion", 
+                "SwaggerAdditionalUrls" 
+            ]
+        );
 
         var urls = builder.Configuration["urls"]?.Split(";") ?? [];
         string[] serverUrls = [

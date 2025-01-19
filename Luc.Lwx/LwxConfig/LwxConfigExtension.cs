@@ -150,7 +150,7 @@ public static class LwxConfigExtension
 
 
 
-
+/*
     /// <summary>
     /// Get a required string configuration with an additional explanation in the error message
     /// </summary>    
@@ -192,22 +192,39 @@ public static class LwxConfigExtension
         }
         return value;
     }
+    */
+
+
 
 
     /// <summary>
     /// Get a required configuration value and bind it to an object of type T with an additional explanation in the error message
     /// </summary>
-    public static T LwxGetConfig<T>(this IConfiguration configuration, string keyName, string? isRequired = null)
+    /// abc
+    [SuppressMessage("Sonar","S2955")]
+    [SuppressMessage("Sonar","S1192")]
+    public static T LwxGet<T>(
+        this IConfiguration configuration, 
+        string keyName, 
+        bool isRequired = true,
+        string additionalErrorInfo = "",
+        Func<IConfigurationSection, T>? converter = null
+    )
     {
         var section = configuration.GetSection(keyName);
-        if (!string.IsNullOrEmpty(isRequired) && !section.Exists())
-        {
-            throw new LwxConfigException($$"""
-            
-                
-                Configuration section for key '{{keyName}}' is missing or empty.
+        
+        string? errorMsg = null;
 
-                {{isRequired}}
+        T? obj = GetConfigValue(section, converter, out errorMsg);
+
+        if ((obj == null || (obj is string str && string.IsNullOrEmpty(str))) && isRequired)
+        {
+            errorMsg ??= "";
+            throw new LwxConfigException($$"""
+                            
+                Configuration section for key '{{keyName}}' {{errorMsg}}
+
+                {{additionalErrorInfo}}
 
                 The configuration should be set in:
 
@@ -234,14 +251,62 @@ public static class LwxConfigExtension
                 """
             );
         }
-        var obj = section.Get<T>();
-        if (!string.IsNullOrEmpty(isRequired) && EqualityComparer<T>.Default.Equals(obj, default(T)))
+
+        if (!string.IsNullOrEmpty(additionalErrorInfo) && EqualityComparer<T>.Default.Equals(obj, default(T)))
         {
-            throw new LwxConfigException($"Failed to bind configuration section for key '{keyName}' to type '{typeof(T)}'. {isRequired}");
+            throw new LwxConfigException($"Failed to bind configuration section for key '{keyName}' to type '{typeof(T)}'. {additionalErrorInfo}");
         }
         return obj!;
     }
 
+    [SuppressMessage("Sonar","S2955",Justification="Sonar is complaining about null handling, but the code is correct")]
+    private static T? GetConfigValue<T>(IConfigurationSection section, Func<IConfigurationSection, T>? converter, out string? errorMsg)
+    {
+        errorMsg = null;
+        T? obj;
+
+        if (section == null)
+        {
+            obj = default(T);
+            errorMsg = "is missing or empty";
+        }
+        else if (converter == null)
+        {
+            try
+            {
+                obj = section.Get<T>();
+                if (obj == null)
+                {
+                    errorMsg = "is missing or empty";
+                }
+            }
+            catch (Exception ex)
+            {
+                obj = default(T);
+                errorMsg = $"is not in the appropriated format (msg: {ex.Message})";
+            }
+        }
+        else
+        {
+            try
+            {
+                obj = converter(section);
+                if (obj == null)
+                {
+                    errorMsg = "is missing or empty";
+                }
+            }
+            catch (Exception ex)
+            {
+                obj = default(T);
+                errorMsg = $"is not in the appropriated format (msg: {ex.Message})";
+            }
+        }
+
+        return obj;
+    }
+
+/*
     /// <summary>
     /// Get a required configuration value and deserialize it into an object of type T
     /// </summary>
@@ -341,13 +406,14 @@ public static class LwxConfigExtension
     {
         return builder.Configuration.LwxGetConfig<T>(keyName, isRequired);
     }
+    */
 
     public static bool IsTestEnvironment(this IHostEnvironment environment)
     {
         return environment.EnvironmentName == "Test";
     }
 
-    public static void LwxValidateKeys(this IConfiguration configuration, string sectionPath, string[] validKeys)
+    public static void LwxValidKeys(this IConfiguration configuration, string sectionPath, string[] validKeys)
     {
         var keys = configuration.GetSection(sectionPath).GetChildren().Select(c => c.Key).ToList();
 
