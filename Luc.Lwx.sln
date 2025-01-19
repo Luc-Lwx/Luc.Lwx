@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luc.Lwx.Generator", "Luc.Lw
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luc.Lwx.Tests", "Luc.Lwx.Tests\Luc.Lwx.Tests.csproj", "{AB18F1F5-5500-45F8-AFAE-9B85F4363CB8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luc.Lwx.Azure", "Luc.Lwx.Azure\Luc.Lwx.Azure.csproj", "{AFC08657-679C-4FC6-9CB0-1C0B53C4F1FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{AB18F1F5-5500-45F8-AFAE-9B85F4363CB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB18F1F5-5500-45F8-AFAE-9B85F4363CB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB18F1F5-5500-45F8-AFAE-9B85F4363CB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFC08657-679C-4FC6-9CB0-1C0B53C4F1FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFC08657-679C-4FC6-9CB0-1C0B53C4F1FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFC08657-679C-4FC6-9CB0-1C0B53C4F1FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFC08657-679C-4FC6-9CB0-1C0B53C4F1FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

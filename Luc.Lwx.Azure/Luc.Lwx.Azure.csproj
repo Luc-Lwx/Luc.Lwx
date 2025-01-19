@@ -1,0 +1,67 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>        
+    <OutputType>Library</OutputType>
+    
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <StripSymbols>false</StripSymbols>
+    <StackTraceSupport>true</StackTraceSupport>
+    <DebuggerSupport>true</DebuggerSupport>
+    
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishReadyToRunEmitSymbols>true</PublishReadyToRunEmitSymbols>
+    <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
+    
+    <OptimizationPreference>Speed</OptimizationPreference>
+    <!--
+    AOT is not ready for production. 
+    Among other things:
+    * Stack trace doesn't show the class, method, source file and line number or any other form to track the error location.
+    * Reflection doesn't work well and it is necessary to find lots of workarrounds for simple things.
+    * The size gains are good, but in micro services the size is already small <300mb per container.  
+
+    <PublishAot>false</PublishAot> 
+    <PublishTrimmed>false</PublishTrimmed> 
+    <TrimMode>partial</TrimMode>
+    <TrimmerRemoveSymbols>false</TrimmerRemoveSymbols>
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+    -->
+    <ThreadPoolMinThreads>8</ThreadPoolMinThreads>
+    <ThreadPoolMaxThreads>64</ThreadPoolMaxThreads>
+
+    <IsPackable>true</IsPackable>
+    <PackageId>Luc.Lwx.Azure</PackageId>
+    <Version>1.0.0-rc.10</Version>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>LGPL-2.1-only</PackageLicenseExpression>
+    <Authors>Lucas de Sousa-Brito</Authors>
+    <Company>None</Company>
+    <RepositoryUrl>https://github.com/lucas75/Luc.Lwx.Azure</RepositoryUrl>
+    <PackageTags>library</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <Description>Luc.Lwx.Azure is a library that provides a set of tools to help you build your web api with Azure integration.</Description>
+    <PackageOutputPath>$(SolutionDir)/../nuget-local</PackageOutputPath>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="README.md"/>
+  </ItemGroup>
+
+  <!--<ItemGroup>
+    <ProjectReference Include="..\Luc.Lwx.Generator\Luc.Lwx.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>-->
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Luc.Lwx\Luc.Lwx.csproj"/>
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="[2.22.0,3.0.0]" />
+    <!--<PackageReference Include="Prometheus.AspNetCore" Version="4.2.0" />
+    <PackageReference Include="Prometheus.AspNetCore.HealthChecks" Version="4.2.0" />    -->
+  </ItemGroup>
+
+</Project>
