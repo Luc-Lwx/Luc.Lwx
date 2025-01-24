@@ -12,11 +12,19 @@ public static class LwxAzureExtensions
     (
         this IHostApplicationBuilder builder, 
         bool useAppInsightsOnProd, 
-        bool usePrometheusOnProd,
-        bool useAppInsightsOnDev = false,
-        bool usePrometheusOnDev = false
+        bool useAppInsightsOnDev = false        
     ) 
     {        
+        useAppInsightsOnDev = builder.Configuration.LwxGet<bool>(
+            "ApplicationInsights:UseOnDev", 
+            defaultValue: useAppInsightsOnDev
+        );
+
+        useAppInsightsOnProd = builder.Configuration.LwxGet<bool>(
+            "ApplicationInsights:UseOnPrd", 
+            defaultValue: useAppInsightsOnProd
+        );
+
         if ((builder.Environment.IsProduction() && useAppInsightsOnProd) || (builder.Environment.IsDevelopment() && useAppInsightsOnDev))
         {
             var connectionString = builder.Configuration.LwxGet<string>(
@@ -49,11 +57,16 @@ public static class LwxAzureExtensions
                 "ApplicationInsights:MaxSamplingPercentage", 
                 isRequired: true
             );
+            builder.Configuration.LwxGet<string>(
+                "ApplicationInsights:RoleName", 
+                isRequired: true
+            );
 
             builder.Configuration.LwxValidKeys
             (
                 "ApplicationInsights", 
                 [            
+                    "RoleName",
                     "ConnectionString",
                     "EnableAdaptiveSampling",
                     "MaxTelemetryItemsPerSecond",
@@ -81,6 +94,8 @@ public static class LwxAzureExtensions
                     adaptiveSamplingTelemetryProcessor.MinSamplingPercentage = minSamplingPercentage;
                 }
             });
+
+            builder.Services.AddSingleton<ITelemetryInitializer, LwxTelemetryInitializer>();
         }
     }
 }
