@@ -1,0 +1,132 @@
+name: Classify Issues
+
+on:
+  issues:
+    types: [labeled, unlabeled]
+  workflow_dispatch:
+
+jobs:
+  classify-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine event type
+        id: determine-event
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "::set-output name=event_type::manual"
+          else
+            echo "::set-output name=event_type::label_event"
+          fi
+
+      - name: List all issues (only for manual run)
+        id: list-issues
+        if: ${{ steps.determine-event.outputs.event_type == 'manual' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issues = await github.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+            return issues.data.map(issue => issue.number);
+
+      - name: Classify issues (manual run)
+        if: ${{ steps.determine-event.outputs.event_type == 'manual' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issueNumbers = ${{ steps.list-issues.outputs.result }};
+            for (const issueNumber of issueNumbers) {
+              const issue = await github.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber
+              });
+              const labels = issue.data.labels.map(label => label.name);
+              const team1 = labels.includes('Team1');
+              const team2 = labels.includes('Team2');
+              const team3 = labels.includes('Team3');
+              
+              if (team1) {
+                await github.projects.createCard({
+                  column_id: process.env.TEAM1_COLUMN_ID,
+                  content_id: issue.data.id,
+                  content_type: 'Issue'
+                });
+              }
+              if (team2) {
+                await github.projects.createCard({
+                  column_id: process.env.TEAM2_COLUMN_ID,
+                  content_id: issue.data.id,
+                  content_type: 'Issue'
+                });
+              }
+              if (team3) {
+                await github.projects.createCard({
+                  column_id: process.env.TEAM3_COLUMN_ID,
+                  content_id: issue.data.id,
+                  content_type: 'Issue'
+                });
+              }
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if label is a team label (label event)
+        id: check-label
+        if: ${{ steps.determine-event.outputs.event_type == 'label_event' }}
+        run: |
+          echo "::set-output name=team1::false"
+          echo "::set-output name=team2::false"
+          echo "::set-output name=team3::false"
+          if [[ "${{ github.event.label.name }}" == "Team1" ]]; then
+            echo "::set-output name=team1::true"
+          elif [[ "${{ github.event.label.name }}" == "Team2" ]]; then
+            echo "::set-output name=team2::true"
+          elif [[ "${{ github.event.label.name }}" == "Team3" ]]; then
+            echo "::set-output name=team3::true"
+          fi
+
+      - name: Add issue to Team1 project (label event)
+        if: ${{ steps.determine-event.outputs.event_type == 'label_event' && steps.check-label.outputs.team1 == 'true' && github.event.action == 'labeled' }}
+        uses: actions/add-to-project@v1
+        with:
+          project-url: "https://github.com/orgs/your-org/projects/1"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Remove issue from Team1 project (label event)
+        if: ${{ steps.determine-event.outputs.event_type == 'label_event' && steps.check-label.outputs.team1 == 'true' && github.event.action == 'unlabeled' }}
+        uses: actions/remove-from-project@v1
+        with:
+          project-url: "https://github.com/orgs/your-org/projects/1"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add issue to Team2 project (label event)
+        if: ${{ steps.determine-event.outputs.event_type == 'label_event' && steps.check-label.outputs.team2 == 'true' && github.event.action == 'labeled' }}
+        uses: actions/add-to-project@v1
+        with:
+          project-url: "https://github.com/orgs/your-org/projects/2"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Remove issue from Team2 project (label event)
+        if: ${{ steps.determine-event.outputs.event_type == 'label_event' && steps.check-label.outputs.team2 == 'true' && github.event.action == 'unlabeled' }}
+        uses: actions/remove-from-project@v1
+        with:
+          project-url: "https://github.com/orgs/your-org/projects/2"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add issue to Team3 project (label event)
+        if: ${{ steps.determine-event.outputs.event_type == 'label_event' && steps.check-label.outputs.team3 == 'true' && github.event.action == 'labeled' }}
+        uses: actions/add-to-project@v1
+        with:
+          project-url: "https://github.com/orgs/your-org/projects/3"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Remove issue from Team3 project (label event)
+        if: ${{ steps.determine-event.outputs.event_type == 'label_event' && steps.check-label.outputs.team3 == 'true' && github.event.action == 'unlabeled' }}
+        uses: actions/remove-from-project@v1
+        with:
+          project-url: "https://github.com/orgs/your-org/projects/3"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
